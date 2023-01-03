@@ -1,0 +1,3 @@
+C:/Users/arnel/source/repos/shift/build/CMakeFiles/shift.dir
+C:/Users/arnel/source/repos/shift/build/CMakeFiles/edit_cache.dir
+C:/Users/arnel/source/repos/shift/build/CMakeFiles/rebuild_cache.dir

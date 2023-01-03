@@ -1,0 +1,17 @@
+cmake_minimum_required(VERSION 2.25)
+
+cmake_policy(SET CMP0048 NEW)
+
+project(shift VERSION 0.1.128)
+
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+set(CMAKE_CXX_FLAGS "-std=c++17 -Wall")
+set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
+set(CMAKE_CXX_FLAGS_RELEASE "-O2")
+set(CMAKE_CXX_FLAGS_DEBUG  "-O0 -g")
+
+set(SOURCES src/main.cpp)
+
+add_executable(shift ${SOURCES})

@@ -1,0 +1,7 @@
+[
+{
+  "directory": "C:/Users/arnel/source/repos/shift/build",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe   -std=c++17 -Wall -O0 -g -o CMakeFiles\\shift.dir\\src\\main.cpp.obj -c C:\\Users\\arnel\\source\\repos\\shift\\src\\main.cpp",
+  "file": "C:/Users/arnel/source/repos/shift/src/main.cpp"
+}
+]

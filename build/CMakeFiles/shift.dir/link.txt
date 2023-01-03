@@ -1,0 +1,3 @@
+C:\msys64\mingw64\bin\cmake.exe -E rm -f CMakeFiles\shift.dir/objects.a
+C:\msys64\mingw64\bin\ar.exe qc CMakeFiles\shift.dir/objects.a @CMakeFiles\shift.dir\objects1
+C:\msys64\mingw64\bin\g++.exe -std=c++17 -Wall -O0 -g -Wl,--whole-archive CMakeFiles\shift.dir/objects.a -Wl,--no-whole-archive -o bin\shift.exe -Wl,--out-implib,lib\libshift.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\shift.dir\linkLibs.rsp
