@@ -6,7 +6,7 @@ This is the official repository for the 'shift' programming language.
 Welcome to the documentation for our custom programming language! In this document, you will find information on how to get started with the language, as well as an overview of its features and syntax.
 
 # Building
-This section will give directions on how to build the program language and numerous platforms.
+This section will give further directions on how to build the programming language on numerous platforms.
 
 # Getting Started
 
