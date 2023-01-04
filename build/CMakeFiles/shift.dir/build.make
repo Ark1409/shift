@@ -72,15 +72,15 @@ CMakeFiles/shift.dir/src/main.cpp.obj: CMakeFiles/shift.dir/flags.make
 CMakeFiles/shift.dir/src/main.cpp.obj: C:/Users/arnel/source/repos/shift/src/main.cpp
 CMakeFiles/shift.dir/src/main.cpp.obj: CMakeFiles/shift.dir/compiler_depend.ts
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=C:\Users\arnel\source\repos\shift\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/shift.dir/src/main.cpp.obj"
-	C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/shift.dir/src/main.cpp.obj -MF CMakeFiles\shift.dir\src\main.cpp.obj.d -o CMakeFiles\shift.dir\src\main.cpp.obj -c C:\Users\arnel\source\repos\shift\src\main.cpp
+	C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/shift.dir/src/main.cpp.obj -MF CMakeFiles\shift.dir\src\main.cpp.obj.d -o CMakeFiles\shift.dir\src\main.cpp.obj -c C:\Users\arnel\source\repos\shift\src\main.cpp
 
 CMakeFiles/shift.dir/src/main.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/shift.dir/src/main.cpp.i"
-	C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E C:\Users\arnel\source\repos\shift\src\main.cpp > CMakeFiles\shift.dir\src\main.cpp.i
+	C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E C:\Users\arnel\source\repos\shift\src\main.cpp > CMakeFiles\shift.dir\src\main.cpp.i
 
 CMakeFiles/shift.dir/src/main.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/shift.dir/src/main.cpp.s"
-	C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S C:\Users\arnel\source\repos\shift\src\main.cpp -o CMakeFiles\shift.dir\src\main.cpp.s
+	C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S C:\Users\arnel\source\repos\shift\src\main.cpp -o CMakeFiles\shift.dir\src\main.cpp.s
 
 # Object files for target shift
 shift_OBJECTS = \
