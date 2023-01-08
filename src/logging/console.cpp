@@ -2,14 +2,13 @@
  * @file console.cpp
  */
 
-#include "console.h"
+#include "shift_config.h"
 
 #ifdef SHIFT_SUBSYSTEM_WINDOWS
 #include <windows.h>
 #include <optional>
 
-static HANDLE const hStdOut = GetStdHandle(STD_OUTPUT_HANDLE);
-static HANDLE const hStdErr = GetStdHandle(STD_ERROR_HANDLE);
+static HANDLE hStdOut, hStdErr;
 static std::optional<DWORD> stdOutOldConsoleMode, stdErrOldConsoleMode;
 
 namespace shift {
@@ -18,25 +17,41 @@ namespace shift {
 			stdOutOldConsoleMode.reset();
 			stdErrOldConsoleMode.reset();
 
-			stdOutOldConsoleMode.emplace(0x0);
-			if (!GetConsoleMode(hStdOut, &stdOutOldConsoleMode.value()))
-				return false;
+			hStdOut = GetStdHandle(STD_OUTPUT_HANDLE);
+			{
+				DWORD temp;
 
-			if (!SetConsoleMode(hStdOut, stdOutOldConsoleMode.value() | ENABLE_VIRTUAL_TERMINAL_PROCESSING))
-				return false;
+				if (!GetConsoleMode(hStdOut, &temp))
+					return false;
 
-			stdErrOldConsoleMode.emplace(0x0);
-			if (!GetConsoleMode(hStdErr, &stdErrOldConsoleMode.value()))
-				return false;
+				if (!SetConsoleMode(hStdOut, temp | ENABLE_VIRTUAL_TERMINAL_PROCESSING))
+					return false;
 
-			if (!SetConsoleMode(hStdErr, stdErrOldConsoleMode.value() | ENABLE_VIRTUAL_TERMINAL_PROCESSING))
-				return false;
+				stdOutOldConsoleMode.emplace(temp);
+			}
 
+			hStdErr = GetStdHandle(STD_ERROR_HANDLE);
+			{
+				DWORD temp;
+
+				if (!GetConsoleMode(hStdErr, &temp))
+					return false;
+
+				if (!SetConsoleMode(hStdErr, temp | ENABLE_VIRTUAL_TERMINAL_PROCESSING))
+					return false;
+
+				stdErrOldConsoleMode.emplace(temp);
+			}
 			return true;
 		}
 
 		void disable_colored_console(void) noexcept {
+			if (stdOutOldConsoleMode)
+				SetConsoleMode(hStdOut, stdOutOldConsoleMode.value());
 			stdOutOldConsoleMode.reset();
+
+			if (stdErrOldConsoleMode)
+				SetConsoleMode(hStdErr, stdErrOldConsoleMode.value());
 			stdErrOldConsoleMode.reset();
 		}
 

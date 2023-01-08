@@ -59,7 +59,7 @@ target_link_libraries(shift ${LIBRARIES})
 # Most of the shift compiler code will be implemented inside DLL files, while the executable compiler itself will simply link and call to those DLLs
 # Planning for this functionality, it is required to specify a build type for shift (static or dynamic (dll))
 # For now, this affects nothing since shift is being entirely built into the executable.
-target_compile_definitions(shift PRIVATE SHIFT_BUILD_STATIC=1)
+target_compile_definitions(shift PRIVATE "SHIFT_BUILD_STATIC=1")
 
 # Enable lto on project if supported
 set_property(TARGET shift PROPERTY INTERPROCEDURAL_OPTIMIZATION True)

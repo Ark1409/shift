@@ -42,7 +42,7 @@
 #define SHIFT_TOKENIZER_ERROR_PREFIX(_line_, _col_) 				"error: " << std::filesystem::relative(this->m_file.raw_path()).string() << ":" << line << ":" << col << ": "
 
 #define SHIFT_TOKENIZER_ERROR_LOG(__ERR__) 		this->m_error_handler->stream() << __ERR__ << '\n'; this->m_error_handler->flush_stream(error_handler::message_type::error)
-#define SHIFT_TOKENIZER_FATAL_ERROR_LOG(__ERR__)  SHIFT_TOKENIZER_ERROR_LOG(__ERR__); this->m_error_handler->print_exit()
+#define SHIFT_TOKENIZER_FATAL_ERROR_LOG(__ERR__)  SHIFT_TOKENIZER_ERROR_LOG(__ERR__); this->m_error_handler->print_exit_clear()
 
 #define SHIFT_TOKENIZER_ERROR(_line_, _col_, _len_, __ERR__) \
 {\
@@ -54,7 +54,7 @@
 	this->m_error_handler->flush_stream(error_handler::message_type::error);\
 }
 
-#define SHIFT_TOKENIZER_FATAL_ERROR(_line_, _col_, _len_, __ERR__) 		SHIFT_TOKENIZER_ERROR(_line_, _col_, _len_, __ERR__); this->m_error_handler->print_exit()
+#define SHIFT_TOKENIZER_FATAL_ERROR(_line_, _col_, _len_, __ERR__) 		SHIFT_TOKENIZER_ERROR(_line_, _col_, _len_, __ERR__); this->m_error_handler->print_exit_clear()
 
 /** Namespace shift */
 namespace shift {

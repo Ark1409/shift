@@ -11,8 +11,8 @@
 #define SHIFT_WARNING_PREFIX 			"warning: "
 #define SHIFT_ERROR_PREFIX 				"error: "	
 
-#define SHIFT_PRINT() this->m_error_handler->print()
-#define SHIFT_FATAL() this->m_error_handler->print_exit()
+#define SHIFT_PRINT() this->m_error_handler->print_clear()
+#define SHIFT_FATAL() this->m_error_handler->print_exit_clear()
 
 #define SHIFT_WARNING(__WARN__) 		this->m_error_handler->stream() << SHIFT_WARNING_PREFIX << __WARN__ << std::endl; this->m_error_handler->flush_stream(error_handler::message_type::warning)
 #define SHIFT_WARNING_LOG(__WARN__) 	this->m_error_handler->stream() << __WARN__ << std::endl; this->m_error_handler->flush_stream(error_handler::message_type::warning)

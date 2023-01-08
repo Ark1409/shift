@@ -3,7 +3,6 @@
  */
 #include "shift_error_handler.h"
 
-#include "utils/utils.h"
 #include "logging/console.h"
 
 #include <iostream>
@@ -59,86 +58,84 @@ namespace shift {
 		}
 
 		void error_handler::flush_stream(message_type type) noexcept {
-			if ((type & message_type::warning) && !this->m_warnings) {
+			if (type == message_type::warning && !this->m_warnings) {
 				m_message_stream.str("");
 				return;
 			}
 
-			type = (type & message_type::warning) && this->m_werror ? ((type & ~message_type::warning) | message_type::error) : type;
+			type = type == message_type::warning && this->m_werror ? message_type::error : type;
 
 			this->m_messages.push_back(_message_pair_type(m_message_stream.str(), type));
 			m_message_stream.str("");
 		}
 
-		void error_handler::print(const bool color) noexcept {
+		void error_handler::print(const bool color, std::ostream& out_stream, std::ostream& err_stream) const {
 			for (const auto& [message, type] : this->m_messages) {
-				if (type & message_type::error) {
+				if (type == message_type::error) {
 					if (color && logging::has_colored_console()) {
-						std::cerr << logging::lred << message << logging::creset;
+						err_stream << logging::lred << message << logging::creset;
 					} else {
-						std::cerr << message;
+						err_stream << message;
 					}
-				} else if (type & message_type::warning) {
+				} else if (type == message_type::warning) {
 					if (color && logging::has_colored_console()) {
-						std::cout << logging::lyellow << message << logging::creset;
+						out_stream << logging::lyellow << message << logging::creset;
 					} else {
-						std::cout << message;
+						out_stream << message;
 					}
-				} else if (type & message_type::info) {
+				} else if (type == message_type::info) {
 					if (color && logging::has_colored_console()) {
-						std::cout << logging::lblue << message << logging::creset;
+						out_stream << logging::lblue << message << logging::creset;
 					} else {
-						std::cout << message;
+						out_stream << message;
 					}
 				} else {
-					std::cout << message;
+					out_stream << message;
 				}
 			}
 
-			this->m_messages.clear();
-			std::cerr.flush();
-			std::cout.flush();
+			err_stream.flush();
+			out_stream.flush();
 		}
 
-		void error_handler::print_exit(const bool color) noexcept {
+		void error_handler::print_exit(const bool color, std::ostream& out_stream, std::ostream& err_stream) const {
 			bool __exit = false;
 
 			for (const auto& [message, type] : this->m_messages) {
-				if (type & message_type::error) {
+				if (type == message_type::error) {
 					__exit = true;
 					if (color && logging::has_colored_console()) {
-						std::cerr << logging::lred << message << logging::creset;
+						err_stream << logging::lred << message << logging::creset;
 					} else {
-						std::cerr << message;
+						err_stream << message;
 					}
-				} else if (type & message_type::warning) {
+				} else if (type == message_type::warning) {
 					if (color && logging::has_colored_console()) {
-						std::cout << logging::lyellow << message << logging::creset;
+						out_stream << logging::lyellow << message << logging::creset;
 					} else {
-						std::cout << message;
+						out_stream << message;
 					}
-				} else if (type & message_type::info) {
+				} else if (type == message_type::info) {
 					if (color && logging::has_colored_console()) {
-						std::cout << logging::lblue << message << logging::creset;
+						out_stream << logging::lblue << message << logging::creset;
 					} else {
-						std::cout << message;
+						out_stream << message;
 					}
 				} else {
-					std::cout << message;
+					out_stream << message;
 				}
 			}
 
-			this->m_messages.clear();
-			std::cerr.flush();
-			std::cout.flush();
+			err_stream.flush();
+			out_stream.flush();
 
-			if (__exit) shift::utils::exit(1);
+			if (__exit) shift::utils::exit(EXIT_FAILURE);
 		}
 
 		size_t error_handler::get_error_count(void) const {
 			size_t ret = 0;
 			for (const auto& [m, type] : this->m_messages) {
-				if (type & message_type::error) ret++;
+				if (type == message_type::error) ret++;
 			}
 			return ret;
 		}
@@ -146,7 +143,7 @@ namespace shift {
 		size_t error_handler::get_warning_count(void) const {
 			size_t ret = 0;
 			for (const auto& [m, type] : this->m_messages) {
-				if (type & message_type::warning) ret++;
+				if (type == message_type::warning) ret++;
 			}
 			return ret;
 		}
@@ -160,13 +157,6 @@ namespace shift {
 				this->m_messages.resize(mark);
 
 			this->m_marks.pop();
-		}
-
-		void error_handler::clear_marks(typename std::stack<typename std::list<_message_pair_type>::size_type>::size_type count) noexcept {
-			count = std::min(count, this->m_marks.size());
-
-			// Remove only *count* items
-			for (; count; count--) this->m_marks.pop();
 		}
 	}
 }

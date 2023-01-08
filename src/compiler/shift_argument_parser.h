@@ -176,8 +176,4 @@ constexpr inline shift::compiler::argument_parser::flags operator&(const shift::
 constexpr inline shift::compiler::argument_parser::flags& operator&=(shift::compiler::argument_parser::flags& f, const shift::compiler::argument_parser::flags other) noexcept { return f = operator&(f, other); }
 constexpr inline shift::compiler::argument_parser::flags operator~(const shift::compiler::argument_parser::flags f) noexcept { return shift::compiler::argument_parser::flags(~uint32_t(f)); }
 
-
-
-
-
 #endif /* SHIFT_ARGUMENT_PARSER_H_ */

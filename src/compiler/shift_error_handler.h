@@ -2,10 +2,11 @@
  * @file compiler/error_handler.h
  */
 
-#ifndef error_handler_H_
-#define error_handler_H_ 1
+#ifndef SHIFT_ERROR_HANDLER_H_
+#define SHIFT_ERROR_HANDLER_H_ 1
 
 #include "shift_config.h"
+#include "utils/utils.h"
 
 #include <list>
 #include <stack>
@@ -19,9 +20,9 @@ namespace shift {
 		class error_handler {
 		public:
 			enum message_type {
-				error = 0x1, // Represents an error message from the compiler
-				warning = 0x2, // Represents a warning message from the compiler
-				info = 0x3 // Represents an information message from the compiler
+				error = 0x1, // Represents an error message from the compiler.
+				warning, // Represents a warning message from the compiler.
+				info
 			};
 		private:
 			typedef std::pair<std::string, message_type> _message_pair_type;
@@ -49,9 +50,23 @@ namespace shift {
 			// Flushes the std::ostringstream from stream(), considering all the text currently held within it to be a message of this type
 			void flush_stream(message_type type) noexcept;
 
-			// Uses color if it has been enabled
-			void print(const bool color = true) noexcept; // Print messages
-			void print_exit(const bool color = true) noexcept; // Print messages and exits the program iff errors were found
+			// Prints without clearing the internal message list
+			// Print messages
+			void print(const bool color = true, std::ostream& out_stream = std::cout, std::ostream& err_stream = std::cerr) const; // Print messages
+
+			// Print messages and exits the program iff errors were found
+			void print_exit(const bool color = true, std::ostream& out_stream = std::cout, std::ostream& err_stream = std::cerr) const; // Print messages and exits the program iff errors were found
+
+			// Prints and clears the internal message list
+			inline void print_clear(const bool color = true, std::ostream& out_stream = std::cout, std::ostream& err_stream = std::cerr) {
+				print(color, out_stream, err_stream);
+				this->m_messages.clear();
+			}
+
+			inline void print_exit_clear(const bool color = true, std::ostream& out_stream = std::cout, std::ostream& err_stream = std::cerr) {
+				print_exit(color, out_stream, err_stream);
+				this->m_messages.clear();
+			}
 
 			size_t get_error_count(void) const;
 			size_t get_warning_count(void) const;
@@ -77,7 +92,7 @@ namespace shift {
 			 */
 			void rollback(void) noexcept; // Rollback to last mark and pop mark off stack
 
-			void clear_marks(typename std::stack<typename std::list<_message_pair_type>::size_type>::size_type count = -1) noexcept;
+			inline void clear_marks(typename std::stack<typename std::list<_message_pair_type>::size_type>::size_type count = -1) noexcept { utils::clear_stack(this->m_marks, std::min(count, this->m_marks.size())); }
 
 			inline const std::stack<typename std::list<_message_pair_type>::size_type>& get_marks(void) const noexcept { return this->m_marks; }
 			inline std::list<_message_pair_type>& get_messages(void) noexcept { return this->m_messages; }
@@ -94,6 +109,11 @@ namespace shift {
 	}
 }
 
+inline std::ostream& operator<<(std::ostream& out, const shift::compiler::error_handler& handler) {
+	handler.print(false, out, out);
+	return out;
+}
+
 constexpr inline shift::compiler::error_handler::message_type operator^(const shift::compiler::error_handler::message_type f, const shift::compiler::error_handler::message_type other) noexcept { return shift::compiler::error_handler::message_type(uint32_t(f) ^ uint32_t(other)); }
 constexpr inline shift::compiler::error_handler::message_type& operator^=(shift::compiler::error_handler::message_type& f, const shift::compiler::error_handler::message_type other) noexcept { return f = operator^(f, other); }
 constexpr inline shift::compiler::error_handler::message_type operator|(const shift::compiler::error_handler::message_type f, const shift::compiler::error_handler::message_type other) noexcept { return shift::compiler::error_handler::message_type(uint32_t(f) | uint32_t(other)); }
@@ -102,4 +122,4 @@ constexpr inline shift::compiler::error_handler::message_type operator&(const sh
 constexpr inline shift::compiler::error_handler::message_type& operator&=(shift::compiler::error_handler::message_type& f, const shift::compiler::error_handler::message_type other) noexcept { return f = operator&(f, other); }
 constexpr inline shift::compiler::error_handler::message_type operator~(const shift::compiler::error_handler::message_type f) noexcept { return shift::compiler::error_handler::message_type(~uint32_t(f)); }
 
-#endif /* error_handler_H_ */
+#endif /* SHIFT_ERROR_HANDLER_H_ */

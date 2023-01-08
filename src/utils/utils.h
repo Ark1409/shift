@@ -114,8 +114,7 @@ namespace shift {
         }
 
         template<typename T>
-        inline std::stack<T>& clear_stack(std::stack<T>& stack, typename std::stack<T>::size_type count = -1) {
-            count = std::min(count, stack.size());
+        inline std::stack<T>& clear_stack(std::stack<T>& stack, typename std::stack<T>::size_type count = typename std::stack<T>::size_type(-1)) {
             for (;count > 0 && !stack.empty();count--)
                 stack.pop();
             return stack;
