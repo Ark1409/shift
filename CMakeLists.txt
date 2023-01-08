@@ -1,3 +1,4 @@
+# CMake 3.23 required to build
 cmake_minimum_required(VERSION 3.23.0)
 
 # Needed for project VERSION
