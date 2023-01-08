@@ -1,5 +1,10 @@
 {
-    "version": 2,
+    "version": 4,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 23,
+        "patch": 0
+    },
     "configurePresets": [{
             "name": "mingw-x64-debug",
             "displayName": "MinGW Debug x64",
@@ -8,17 +13,17 @@
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Debug",
                 "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
-                "CMAKE_CXX_FLAGS_INIT": "-Wall -Wextra -Wpedantic"
+                "CMAKE_CXX_FLAGS_INIT": "-Wall -Wextra -Wpedantic -fmessage-length=0 -g3 -O0 -m64"
             }
         },
         {
             "name": "mingw-x64-release",
             "displayName": "MinGW Release x64",
             "binaryDir": "${sourceDir}/build",
-            "generator": "Unix Makefiles",
+            "generator": "MinGW Makefiles",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release",
-                "CMAKE_CXX_FLAGS_INIT": "-Wall -Wextra -Wpedantic -flto"
+                "CMAKE_CXX_FLAGS_INIT": "-Wall -Wextra -Wpedantic -fmessage-length=0 -O2 -m64"
             }
         }
     ]
