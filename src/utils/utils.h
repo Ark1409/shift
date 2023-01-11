@@ -408,7 +408,6 @@ namespace shift {
             return ends_with(std::basic_string_view<CharT, Traits>(str.data(), str.length()), std::basic_string_view<CharT, Traits>(end.data(), end.length()));
         }
 
-
         [[noreturn]] void exit(int status = EXIT_FAILURE) noexcept;
     }
 }
@@ -470,6 +469,5 @@ inline typename std::list<T>::const_iterator operator-(typename std::list<T>::co
     for (; count > 0; --count, --it);
     return it;
 }
-
 
 #endif /* SHIFT_UTILS_H_ */

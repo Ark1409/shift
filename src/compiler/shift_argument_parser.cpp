@@ -24,7 +24,7 @@
 
 namespace shift {
 	namespace compiler {
-		argument_parser::argument_parser(shift::compiler::error_handler* const error_handler, const size_t argc, const char* const* const argv)
+		argument_parser::argument_parser(error_handler* const error_handler, const size_t argc, const char* const* const argv)
 			noexcept: m_error_handler(error_handler) {
 			if (!argv) return;
 			m_args.reserve(argc);
@@ -32,12 +32,6 @@ namespace shift {
 				m_args.push_back(argv[i]);
 			}
 		}
-
-		argument_parser::argument_parser(shift::compiler::error_handler* const error_handler, const std::vector<std::string_view>& args) noexcept
-			: m_error_handler(error_handler), m_args(args) {}
-
-		argument_parser::argument_parser(shift::compiler::error_handler* const error_handler, std::vector<std::string_view>&& args) noexcept
-			: m_error_handler(error_handler), m_args(std::move(args)) {}
 
 		bool argument_parser::contains_argument(const std::string_view other) const noexcept {
 			for (typename std::vector<std::string_view>::size_type i = 0; i < m_args.size(); i++)

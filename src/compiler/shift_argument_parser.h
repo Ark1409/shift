@@ -75,13 +75,13 @@ namespace shift {
 			};
 		public:
 			/// Constructs argument parser from command-line argc and argv
-			argument_parser(shift::compiler::error_handler* const, const size_t argc = 0, const char* const* const argv = nullptr) noexcept;
+			argument_parser(error_handler* const, const size_t argc = 0, const char* const* const argv = nullptr) noexcept;
 
 			/// Constructs argument parser from array of arguments
-			argument_parser(shift::compiler::error_handler* const, const std::vector<std::string_view>& args) noexcept;
+			inline argument_parser(error_handler* const, const std::vector<std::string_view>& args) noexcept;
 
 			/// Constructs argument parser from array of arguments
-			argument_parser(shift::compiler::error_handler* const, std::vector<std::string_view>&& args) noexcept;
+			inline argument_parser(error_handler* const, std::vector<std::string_view>&& args) noexcept;
 
 			/// Copy constructor
 			argument_parser(const argument_parser&) noexcept = default;
@@ -149,9 +149,13 @@ namespace shift {
 			inline bool is_help(void) const noexcept { return this->has_flag(FLAG_HELP); }
 			inline bool is_no_std(void) const noexcept { return this->has_flag(FLAG_NO_STD); }
 			inline bool has_flag(flags const flag) const noexcept { return this->m_flags & flag; }
+
+			inline error_handler* get_error_handler() noexcept { return m_error_handler; }
+			inline const error_handler* get_error_handler() const noexcept { return m_error_handler; }
+			inline void set_error_handler(error_handler* const error_handler) noexcept { m_error_handler = error_handler; }
 		protected:
 			/// Used by the argument parser for error handling
-			shift::compiler::error_handler* const m_error_handler = nullptr;
+			error_handler* m_error_handler = nullptr;
 			/// The array of command-line arguments
 			std::vector<std::string_view> m_args;
 
@@ -164,16 +168,22 @@ namespace shift {
 		private:
 			void resolve_libraries_and_sources(void);
 		};
+
+		inline argument_parser::argument_parser(error_handler* const error_handler, const std::vector<std::string_view>& args) noexcept
+			: m_error_handler(error_handler), m_args(args) {}
+
+		inline argument_parser::argument_parser(error_handler* const error_handler, std::vector<std::string_view>&& args) noexcept
+			: m_error_handler(error_handler), m_args(std::move(args)) {}
 	}
 }
 
 inline std::ostream& operator<<(std::ostream& os, const shift::compiler::argument_parser& parser) { return os << parser.to_string(); }
-constexpr inline shift::compiler::argument_parser::flags operator^(const shift::compiler::argument_parser::flags f, const shift::compiler::argument_parser::flags other) noexcept { return shift::compiler::argument_parser::flags(uint32_t(f) ^ uint32_t(other)); }
+constexpr inline shift::compiler::argument_parser::flags operator^(const shift::compiler::argument_parser::flags f, const shift::compiler::argument_parser::flags other) noexcept { return shift::compiler::argument_parser::flags(std::underlying_type_t<shift::compiler::argument_parser::flags>(f) ^ std::underlying_type_t<shift::compiler::argument_parser::flags>(other)); }
 constexpr inline shift::compiler::argument_parser::flags& operator^=(shift::compiler::argument_parser::flags& f, const shift::compiler::argument_parser::flags other) noexcept { return f = operator^(f, other); }
-constexpr inline shift::compiler::argument_parser::flags operator|(const shift::compiler::argument_parser::flags f, const shift::compiler::argument_parser::flags other) noexcept { return shift::compiler::argument_parser::flags(uint32_t(f) | uint32_t(other)); }
+constexpr inline shift::compiler::argument_parser::flags operator|(const shift::compiler::argument_parser::flags f, const shift::compiler::argument_parser::flags other) noexcept { return shift::compiler::argument_parser::flags(std::underlying_type_t<shift::compiler::argument_parser::flags>(f) | std::underlying_type_t<shift::compiler::argument_parser::flags>(other)); }
 constexpr inline shift::compiler::argument_parser::flags& operator|=(shift::compiler::argument_parser::flags& f, const shift::compiler::argument_parser::flags other) noexcept { return f = operator|(f, other); }
-constexpr inline shift::compiler::argument_parser::flags operator&(const shift::compiler::argument_parser::flags f, const shift::compiler::argument_parser::flags other) noexcept { return shift::compiler::argument_parser::flags(uint32_t(f) & uint32_t(other)); }
+constexpr inline shift::compiler::argument_parser::flags operator&(const shift::compiler::argument_parser::flags f, const shift::compiler::argument_parser::flags other) noexcept { return shift::compiler::argument_parser::flags(std::underlying_type_t<shift::compiler::argument_parser::flags>(f) & std::underlying_type_t<shift::compiler::argument_parser::flags>(other)); }
 constexpr inline shift::compiler::argument_parser::flags& operator&=(shift::compiler::argument_parser::flags& f, const shift::compiler::argument_parser::flags other) noexcept { return f = operator&(f, other); }
-constexpr inline shift::compiler::argument_parser::flags operator~(const shift::compiler::argument_parser::flags f) noexcept { return shift::compiler::argument_parser::flags(~uint32_t(f)); }
+constexpr inline shift::compiler::argument_parser::flags operator~(const shift::compiler::argument_parser::flags f) noexcept { return shift::compiler::argument_parser::flags(~std::underlying_type_t<shift::compiler::argument_parser::flags>(f)); }
 
 #endif /* SHIFT_ARGUMENT_PARSER_H_ */

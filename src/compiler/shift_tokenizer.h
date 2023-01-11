@@ -11,6 +11,8 @@
 
 #include "compiler/shift_error_handler.h"
 
+#include <type_traits>
+
  /** Namespace shift */
 namespace shift {
 	/** Namespace compiler */
@@ -23,9 +25,9 @@ namespace shift {
 
 			constexpr inline bool operator!=(const file_indexer& other) const noexcept { return !this->operator==(other); }
 
-			constexpr inline bool operator>(const file_indexer& other) const noexcept { return this->line == other.line ? this->col > other.col : this->line > other.line; }
+			constexpr inline bool operator>(const file_indexer other) const noexcept { return this->line == other.line ? this->col > other.col : this->line > other.line; }
 
-			constexpr inline bool operator<(const file_indexer& other) const noexcept { return this->line == other.line ? this->col < other.col : this->line < other.line; }
+			constexpr inline bool operator<(const file_indexer other) const noexcept { return this->line == other.line ? this->col < other.col : this->line < other.line; }
 
 			constexpr inline bool operator>=(const file_indexer& other) const noexcept { return !this->operator<(other); }
 
@@ -37,7 +39,7 @@ namespace shift {
 		public:
 			/**
 			 * Structure of token types:
-			 *			      (16 bits)
+			 *                (16 bits)
 			 *       00000000           00000000
 			 *      for equals       for normal token
 			 *     combinations        types, e.g
@@ -50,7 +52,7 @@ namespace shift {
 			 *   act as bit-fields
 			 *
 			 */
-			enum token_type: uint16_t {
+			enum token_type: uint_fast16_t {
 				IDENTIFIER = 1, // [a-zA-Z_][a-zA-Z0-9_]*
 				INTEGER_LITERAL, // [-]?[0-9]+
 				NUMBER_LITERAL = INTEGER_LITERAL,
@@ -93,7 +95,7 @@ namespace shift {
 				SHIFT_RIGHT, // >>
 				BACKSLASH, // \ <--
 
-				EQUALS = static_cast<uint16_t>(1 << 15), // =
+				EQUALS = static_cast<uint_fast16_t>(1 << 15), // =
 				EQUALS_EQUALS = (1 << 14) | EQUALS, // ==
 				GREATER_THAN_OR_EQUAL = GREATER_THAN | EQUALS, // [>=|=>]
 				LESS_THAN_OR_EQUAL = LESS_THAN | EQUALS, // [<=|=<]
@@ -156,97 +158,97 @@ namespace shift {
 
 			constexpr inline operator file_indexer(void) const noexcept { return this->m_index; }
 
-			inline bool is_null(void) const noexcept { return ((this->is_identifier()) && (this->m_data == "null")); }
+			constexpr inline bool is_null(void) const noexcept { return ((this->is_identifier()) && (this->m_data == "null")); }
 
-			inline bool is_module(void) const noexcept { return ((this->is_identifier()) && (this->m_data == "module")); }
-
-			// unsused
-			inline bool is_namespace(void) const noexcept { return ((this->is_identifier()) && (this->m_data == "namespace")); }
-
-			inline bool is_const(void) const noexcept { return ((this->is_identifier()) && (this->m_data == "const")); }
-
-			inline bool is_public(void) const noexcept { return ((this->is_identifier()) && (this->m_data == "public")); }
-
-			inline bool is_protected(void) const noexcept { return ((this->is_identifier()) && (this->m_data == "protected")); }
-
-			inline bool is_private(void) const noexcept { return ((this->is_identifier()) && (this->m_data == "private")); }
-
-			inline bool is_static(void) const noexcept { return ((this->is_identifier()) && (this->m_data == "static")); }
-
-			// currently unused
-			inline bool is_binary(void) const noexcept { return ((this->is_identifier()) && (this->m_data == "binary")); }
-
-			// inline bool is_floating_point_literal(void) const noexcept {	return (this->m_type == FLOATING_POINT_LITERAL);}
-
-			inline bool is_void(void) const noexcept { return ((this->is_identifier()) && (this->m_data == "void")); }
+			constexpr inline bool is_module(void) const noexcept { return ((this->is_identifier()) && (this->m_data == "module")); }
 
 			// unsused
-			inline bool is_req(void) const noexcept { return ((this->is_identifier()) && (this->m_data == "req")); }
+			constexpr inline bool is_namespace(void) const noexcept { return ((this->is_identifier()) && (this->m_data == "namespace")); }
 
-			inline bool is_use(void) const noexcept { return ((this->is_identifier()) && (this->m_data == "use")); }
+			constexpr inline bool is_const(void) const noexcept { return ((this->is_identifier()) && (this->m_data == "const")); }
+
+			constexpr inline bool is_public(void) const noexcept { return ((this->is_identifier()) && (this->m_data == "public")); }
+
+			constexpr inline bool is_protected(void) const noexcept { return ((this->is_identifier()) && (this->m_data == "protected")); }
+
+			constexpr inline bool is_private(void) const noexcept { return ((this->is_identifier()) && (this->m_data == "private")); }
+
+			constexpr inline bool is_static(void) const noexcept { return ((this->is_identifier()) && (this->m_data == "static")); }
 
 			// currently unused
-			inline bool is_unsafe(void) const noexcept { return ((this->is_identifier()) && (this->m_data == "unsafe")); }
+			constexpr inline bool is_binary(void) const noexcept { return ((this->is_identifier()) && (this->m_data == "binary")); }
 
-			inline bool is_extern(void) const noexcept { return ((this->is_identifier()) && (this->m_data == "extern" || this->m_data == "ext")); }
+			// constexpr inline bool is_floating_point_literal(void) const noexcept {	return (this->m_type == FLOATING_POINT_LITERAL);}
 
-			inline bool is_class(void) const noexcept { return (this->is_identifier()) && (this->m_data == "class"); }
+			constexpr inline bool is_void(void) const noexcept { return ((this->is_identifier()) && (this->m_data == "void")); }
 
-			inline bool is_init(void) const noexcept { return (this->is_identifier()) && (this->m_data == "init"); }
+			// unsused
+			constexpr inline bool is_req(void) const noexcept { return ((this->is_identifier()) && (this->m_data == "req")); }
 
-			inline bool is_operator(void) const noexcept { return (this->is_identifier()) && (this->m_data == "operator"); }
+			constexpr inline bool is_use(void) const noexcept { return ((this->is_identifier()) && (this->m_data == "use")); }
 
-			inline bool is_constructor(void) const noexcept { return (this->is_identifier()) && (this->m_data == "constructor"); }
+			// currently unused
+			constexpr inline bool is_unsafe(void) const noexcept { return ((this->is_identifier()) && (this->m_data == "unsafe")); }
 
-			inline bool is_destructor(void) const noexcept { return (this->is_identifier()) && (this->m_data == "destructor"); }
+			constexpr inline bool is_extern(void) const noexcept { return ((this->is_identifier()) && (this->m_data == "extern" || this->m_data == "ext")); }
 
-			inline bool is_if(void) const noexcept { return (this->is_identifier()) && (this->m_data == "if"); }
+			constexpr inline bool is_class(void) const noexcept { return (this->is_identifier()) && (this->m_data == "class"); }
 
-			inline bool is_else(void) const noexcept { return (this->is_identifier()) && (this->m_data == "else"); }
+			constexpr inline bool is_init(void) const noexcept { return (this->is_identifier()) && (this->m_data == "init"); }
 
-			inline bool is_while(void) const noexcept { return (this->is_identifier()) && (this->m_data == "while"); }
+			constexpr inline bool is_operator(void) const noexcept { return (this->is_identifier()) && (this->m_data == "operator"); }
 
-			inline bool is_do(void) const noexcept { return (this->is_identifier()) && (this->m_data == "do"); }
+			constexpr inline bool is_constructor(void) const noexcept { return (this->is_identifier()) && (this->m_data == "constructor"); }
 
-			inline bool is_return(void) const noexcept { return (this->is_identifier()) && (this->m_data == "return"); }
+			constexpr inline bool is_destructor(void) const noexcept { return (this->is_identifier()) && (this->m_data == "destructor"); }
 
-			inline bool is_continue(void) const noexcept { return (this->is_identifier()) && (this->m_data == "continue"); }
+			constexpr inline bool is_if(void) const noexcept { return (this->is_identifier()) && (this->m_data == "if"); }
 
-			inline bool is_break(void) const noexcept { return (this->is_identifier()) && (this->m_data == "break"); }
+			constexpr inline bool is_else(void) const noexcept { return (this->is_identifier()) && (this->m_data == "else"); }
 
-			inline bool is_for(void) const noexcept { return (this->is_identifier()) && (this->m_data == "for"); }
+			constexpr inline bool is_while(void) const noexcept { return (this->is_identifier()) && (this->m_data == "while"); }
 
-			inline bool is_valid_class_name(void) const noexcept { return (this->is_identifier()) && (!this->is_keyword()); }
+			constexpr inline bool is_do(void) const noexcept { return (this->is_identifier()) && (this->m_data == "do"); }
 
-			inline bool is_this(void) const noexcept { return (this->is_identifier()) && (this->m_data == "this"); }
+			constexpr inline bool is_return(void) const noexcept { return (this->is_identifier()) && (this->m_data == "return"); }
 
-			inline bool is_base(void) const noexcept { return (this->is_identifier()) && (this->m_data == "base"); }
+			constexpr inline bool is_continue(void) const noexcept { return (this->is_identifier()) && (this->m_data == "continue"); }
 
-			inline bool is_access_specifier(void) const noexcept {
+			constexpr inline bool is_break(void) const noexcept { return (this->is_identifier()) && (this->m_data == "break"); }
+
+			constexpr inline bool is_for(void) const noexcept { return (this->is_identifier()) && (this->m_data == "for"); }
+
+			constexpr inline bool is_valid_class_name(void) const noexcept { return (this->is_identifier()) && (!this->is_keyword()); }
+
+			constexpr inline bool is_this(void) const noexcept { return (this->is_identifier()) && (this->m_data == "this"); }
+
+			constexpr inline bool is_base(void) const noexcept { return (this->is_identifier()) && (this->m_data == "base"); }
+
+			constexpr inline bool is_access_specifier(void) const noexcept {
 				return (this->is_identifier())
 					&& (this->is_public() || this->is_protected() || this->is_private() || this->is_static() || this->is_extern() || this->is_binary()
 						|| this->is_const() || this->is_unsafe());
 			}
 
-			inline bool is_overload_operator(void) const noexcept { return this->is_prefix_overload_operator() || this->is_suffix_overload_operator(); }
+			constexpr inline bool is_overload_operator(void) const noexcept { return this->is_prefix_overload_operator() || this->is_suffix_overload_operator(); }
 
-			inline bool is_prefix_overload_operator(void) const noexcept { return this->is_unary_operator(); }
+			constexpr inline bool is_prefix_overload_operator(void) const noexcept { return this->is_unary_operator(); }
 
-			inline bool is_suffix_overload_operator(void) const noexcept {
+			constexpr inline bool is_suffix_overload_operator(void) const noexcept {
 				return (!this->is_identifier())
 					&& ((this->is_binary_operator()) || this->m_type == token_type::MINUS_MINUS
 						|| this->m_type == token_type::PLUS_PLUS || this->m_type == token_type::LEFT_SQUARE_BRACKET
 						|| this->m_type == token_type::RIGHT_SQUARE_BRACKET);
 			}
 
-			inline bool is_unary_operator(void) const noexcept {
+			constexpr inline bool is_unary_operator(void) const noexcept {
 				return (!this->is_identifier())
 					&& ((this->m_type == token_type::LEFT_BRACKET) // cast
 						|| (this->m_type == token_type::BIT_FLIP) || (this->m_type == token_type::PLUS_PLUS)
 						|| (this->m_type == token_type::MINUS_MINUS) || (this->m_type == token_type::NOT));
 			}
 
-			inline bool is_binary_operator(void) const noexcept {
+			constexpr inline bool is_binary_operator(void) const noexcept {
 				// Old version, manually checking token type of each binary operator
 				return (!this->is_identifier())
 					&& (((this->m_type & token_type::EQUALS) == token_type::EQUALS)
@@ -263,17 +265,17 @@ namespace shift {
 				//return !this->is_unary_operator(); // does not work 100%, cuz of things like CHAR_LITERAL; revert back to old method
 			}
 
-			inline bool is_number(void) const noexcept {
+			constexpr inline bool is_number(void) const noexcept {
 				return this->m_type == token_type::NUMBER_LITERAL || this->m_type == token_type::FLOAT
 					|| this->m_type == token_type::DOUBLE || this->m_type == token_type::BINARY_NUMBER
 					|| this->m_type == token_type::HEX_NUMBER;
 			}
 
-			inline bool is_negative_number(void) const noexcept { return this->is_number() && this->get_data().at(0) == char('-'); }
+			constexpr inline bool is_negative_number(void) const noexcept { return this->is_number() && this->get_data().at(0) == char('-'); }
 
-			inline bool is_literal(void) const noexcept { return this->is_string_literal() || this->is_number_literal() || this->is_char_literal(); }
+			constexpr inline bool is_literal(void) const noexcept { return this->is_string_literal() || this->is_number_literal() || this->is_char_literal(); }
 
-			inline bool is_keyword(void) const noexcept {
+			constexpr inline bool is_keyword(void) const noexcept {
 				return (this->is_identifier())
 					&& (this->is_binary() || this->is_const() || this->is_extern() || this->is_module() || this->is_namespace() || this->is_private()
 						|| this->is_protected() || this->is_public() || this->is_req() || this->is_unsafe() || this->is_use() || this->is_void()
@@ -282,16 +284,16 @@ namespace shift {
 						|| this->is_break() || this->is_for() || this->is_true() || this->is_false() || this->is_access_specifier());
 			}
 
-			inline bool is_alias(void) const noexcept { return (this->is_identifier()) && (this->m_data == "alias"); }
+			constexpr inline bool is_alias(void) const noexcept { return (this->is_identifier()) && (this->m_data == "alias"); }
 
-			inline bool is_true(void) const noexcept { return (this->is_identifier()) && (this->m_data == "true"); }
+			constexpr inline bool is_true(void) const noexcept { return (this->is_identifier()) && (this->m_data == "true"); }
 
-			inline bool is_false(void) const noexcept { return (this->is_identifier()) && (this->m_data == "false"); }
+			constexpr inline bool is_false(void) const noexcept { return (this->is_identifier()) && (this->m_data == "false"); }
 
-			inline bool is_asm(void) const noexcept { return (this->is_identifier()) && (this->m_data == "asm" || this->m_data == "_asm_" || this->m_data == "__asm__"); }
+			constexpr inline bool is_asm(void) const noexcept { return (this->is_identifier()) && (this->m_data == "asm" || this->m_data == "_asm_" || this->m_data == "__asm__"); }
 
 			// whether this token can be found in assembly (i.e. compatible with asm blocks)
-			inline bool is_asm_compatible(void) const noexcept {
+			constexpr inline bool is_asm_compatible(void) const noexcept {
 				return (this->is_identifier()) || (this->m_type == token_type::LEFT_SQUARE_BRACKET)
 					|| (this->m_type == token_type::RIGHT_SQUARE_BRACKET) || (this->m_type == token_type::LEFT_BRACKET)
 					|| (this->m_type == token_type::RIGHT_BRACKET) || (this->is_number()) || (this->m_type == token_type::DOT)
@@ -299,57 +301,57 @@ namespace shift {
 					|| (this->m_type == token_type::MULTIPLY) || (this->m_type == token_type::COMMA);
 			}
 
-			inline bool is_identifier(void) const noexcept { return (this->m_type == IDENTIFIER); }
+			constexpr inline bool is_identifier(void) const noexcept { return (this->m_type == IDENTIFIER); }
 
-			inline bool is_number_literal(void) const noexcept { return (this->m_type == INTEGER_LITERAL); }
+			constexpr inline bool is_number_literal(void) const noexcept { return (this->m_type == INTEGER_LITERAL); }
 
-			inline bool is_integer_literal(void) const noexcept { return is_number_literal(); }
+			constexpr inline bool is_integer_literal(void) const noexcept { return is_number_literal(); }
 
-			inline bool is_string_literal(void) const noexcept { return (this->m_type == STRING_LITERAL); }
+			constexpr inline bool is_string_literal(void) const noexcept { return (this->m_type == STRING_LITERAL); }
 
-			inline bool is_char_literal(void) const noexcept { return (this->m_type == CHAR_LITERAL); }
+			constexpr inline bool is_char_literal(void) const noexcept { return (this->m_type == CHAR_LITERAL); }
 
-			inline bool is_character_literal(void) const noexcept { return is_char_literal(); }
+			constexpr inline bool is_character_literal(void) const noexcept { return is_char_literal(); }
 
-			inline bool is_semicolon(void) const noexcept { return (this->m_type == token_type::SEMICOLON); }
+			constexpr inline bool is_semicolon(void) const noexcept { return (this->m_type == token_type::SEMICOLON); }
 
-			inline bool is_left_scope(void) const noexcept { return (this->m_type == token_type::LEFT_SCOPE_BRACKET); }
+			constexpr inline bool is_left_scope(void) const noexcept { return (this->m_type == token_type::LEFT_SCOPE_BRACKET); }
 
-			inline bool is_left_scope_bracket(void) const noexcept { return is_left_scope(); }
+			constexpr inline bool is_left_scope_bracket(void) const noexcept { return is_left_scope(); }
 
-			inline bool is_right_scope(void) const noexcept { return (this->m_type == token_type::RIGHT_SCOPE_BRACKET); }
+			constexpr inline bool is_right_scope(void) const noexcept { return (this->m_type == token_type::RIGHT_SCOPE_BRACKET); }
 
-			inline bool is_right_scope_bracket(void) const noexcept { return is_right_scope(); }
+			constexpr inline bool is_right_scope_bracket(void) const noexcept { return is_right_scope(); }
 
-			inline bool is_left_bracket(void) const noexcept { return (this->m_type == token_type::LEFT_BRACKET); }
+			constexpr inline bool is_left_bracket(void) const noexcept { return (this->m_type == token_type::LEFT_BRACKET); }
 
-			inline bool is_right_bracket(void) const noexcept { return (this->m_type == token_type::RIGHT_BRACKET); }
+			constexpr inline bool is_right_bracket(void) const noexcept { return (this->m_type == token_type::RIGHT_BRACKET); }
 
-			inline bool is_left_square(void) const noexcept { return (this->m_type == token_type::LEFT_SQUARE_BRACKET); }
+			constexpr inline bool is_left_square(void) const noexcept { return (this->m_type == token_type::LEFT_SQUARE_BRACKET); }
 
-			inline bool is_left_square_bracket(void) const noexcept { return is_left_square(); }
+			constexpr inline bool is_left_square_bracket(void) const noexcept { return is_left_square(); }
 
-			inline bool is_right_square(void) const noexcept { return (this->m_type == token_type::RIGHT_SQUARE_BRACKET); }
+			constexpr inline bool is_right_square(void) const noexcept { return (this->m_type == token_type::RIGHT_SQUARE_BRACKET); }
 
-			inline bool is_right_square_bracket(void) const noexcept { return is_right_square(); }
+			constexpr inline bool is_right_square_bracket(void) const noexcept { return is_right_square(); }
 
-			inline bool is_left_bracket_type(void) const noexcept { return is_left_bracket() || is_left_scope_bracket() || is_left_square_bracket(); }
+			constexpr inline bool is_left_bracket_type(void) const noexcept { return is_left_bracket() || is_left_scope_bracket() || is_left_square_bracket(); }
 
-			inline bool is_right_bracket_type(void) const noexcept { return is_right_bracket() || is_right_scope_bracket() || is_right_square_bracket(); }
+			constexpr inline bool is_right_bracket_type(void) const noexcept { return is_right_bracket() || is_right_scope_bracket() || is_right_square_bracket(); }
 
-			inline bool is_dot(void) const noexcept { return (this->m_type == token_type::DOT); }
+			constexpr inline bool is_dot(void) const noexcept { return (this->m_type == token_type::DOT); }
 
-			inline bool is_period(void) const noexcept { return is_dot(); }
+			constexpr inline bool is_period(void) const noexcept { return is_dot(); }
 
-			inline bool is_comma(void) const noexcept { return (this->m_type == token_type::COMMA); }
+			constexpr inline bool is_comma(void) const noexcept { return (this->m_type == token_type::COMMA); }
 
-			inline bool is_question_mark(void) const noexcept { return (this->m_type == token_type::QUESTION_MARK); }
+			constexpr inline bool is_question_mark(void) const noexcept { return (this->m_type == token_type::QUESTION_MARK); }
 
-			inline bool is_equals(void) const noexcept { return (this->m_type == token_type::EQUALS); }
+			constexpr inline bool is_equals(void) const noexcept { return (this->m_type == token_type::EQUALS); }
 
-			inline bool has_equals(void) const noexcept { return (this->m_type & token_type::EQUALS) == token_type::EQUALS; }
+			constexpr inline bool has_equals(void) const noexcept { return (this->m_type & token_type::EQUALS) == token_type::EQUALS; }
 
-			inline bool is_null_token(void) const noexcept { return (this->m_type == NULL_TOKEN); }
+			constexpr inline bool is_null_token(void) const noexcept { return (this->m_type == NULL_TOKEN); }
 
 		private:
 			std::string_view m_data;
@@ -359,13 +361,6 @@ namespace shift {
 
 		inline constexpr token token::null = token();
 
-		constexpr inline token::token_type operator^(const token::token_type f, const token::token_type other) noexcept { return token::token_type(uint32_t(f) ^ uint32_t(other)); }
-		constexpr inline token::token_type& operator^=(token::token_type& f, const token::token_type other) noexcept { return f = operator^(f, other); }
-		constexpr inline token::token_type operator|(const token::token_type f, const token::token_type other) noexcept { return token::token_type(uint32_t(f) | uint32_t(other)); }
-		constexpr inline token::token_type& operator|=(token::token_type& f, const token::token_type other) noexcept { return f = operator|(f, other); }
-		constexpr inline token::token_type operator&(const token::token_type f, const token::token_type other) noexcept { return token::token_type(uint32_t(f) & uint32_t(other)); }
-		constexpr inline token::token_type& operator&=(token::token_type& f, const token::token_type other) noexcept { return f = operator&(f, other); }
-		constexpr inline token::token_type operator~(const token::token_type f) noexcept { return token::token_type(~uint32_t(f)); }
 
 		inline token::token(const std::string& str, const token_type type, const file_indexer index) noexcept: m_data(str.c_str(),
 			str.length()), m_type(type), m_index(index) {}
@@ -375,8 +370,8 @@ namespace shift {
 
 		class tokenizer {
 		public:
-			inline tokenizer(shift::compiler::error_handler* const, const filesystem::file&);
-			inline tokenizer(shift::compiler::error_handler* const, filesystem::file&&);
+			inline tokenizer(error_handler* const, const filesystem::file&);
+			inline tokenizer(error_handler* const, filesystem::file&&);
 			~tokenizer() noexcept = default;
 			tokenizer(const tokenizer&) = default;
 			tokenizer(tokenizer&&) noexcept = default;
@@ -394,30 +389,30 @@ namespace shift {
 			inline typename std::vector<token>::const_iterator cbegin() const noexcept { return this->m_tokens.cbegin(); }
 			inline typename std::vector<token>::const_iterator cend() const noexcept { return this->m_tokens.cend(); }
 
-			inline const token* operator[](const typename std::vector<token>::size_type index) const { return &this->m_tokens[index]; }
-			inline const token* current_token(void) const noexcept { return this->token_at(this->m_token_index); }
-			const token* next_token(typename std::vector<token>::size_type advance_count = 1) noexcept;
-			const token* reverse_token(typename std::vector<token>::size_type count = 1) noexcept;
-			const token* peek_token(typename std::vector<token>::size_type count = 1) const noexcept;
-			const token* reverse_peek_token(typename std::vector<token>::size_type count = 1) const noexcept;
-			const token* token_at(const file_indexer index) const noexcept;
-			const token* token_before(const file_indexer index) const noexcept;
-			const token* token_after(const file_indexer index) const noexcept;
+			inline const token& operator[](const typename std::vector<token>::size_type index) const { return this->m_tokens[index]; }
+			inline const token& current_token(void) const noexcept { return this->token_at(this->m_token_index); }
+			const token& next_token(typename std::vector<token>::size_type advance_count = 1) noexcept;
+			const token& reverse_token(typename std::vector<token>::size_type count = 1) noexcept;
+			const token& peek_token(typename std::vector<token>::size_type count = 1) const noexcept;
+			const token& reverse_peek_token(typename std::vector<token>::size_type count = 1) const noexcept;
+			const token& token_at(const file_indexer index) const noexcept;
+			const token& token_before(const file_indexer index) const noexcept;
+			const token& token_after(const file_indexer index) const noexcept;
 			typename std::vector<token>::const_iterator set_index(const typename std::vector<token>::const_iterator index) noexcept;
 			inline typename std::vector<token>::const_iterator set_index(const typename std::vector<token>::size_type index) noexcept { return set_index(cbegin() + index); }
 
 			inline typename std::vector<token>::const_iterator get_index(void) const noexcept { return this->m_token_index; }
 			inline typename std::vector<token>::const_iterator& get_index(void) noexcept { return this->m_token_index; }
 
-			inline const token* token_at(const typename std::vector<token>::const_iterator it) const noexcept { return it == this->m_tokens.cend() ? &token::null : it.operator ->(); }
+			inline const token& token_at(const typename std::vector<token>::const_iterator it) const noexcept { return it == this->m_tokens.cend() ? token::null : *it; }
 
-			inline const token* token_before(typename std::vector<token>::const_iterator it) const noexcept { return token_at(--it); }
+			inline const token& token_before(typename std::vector<token>::const_iterator it) const noexcept { return it == this->m_tokens.cbegin() ? token::null : token_at(--it); }
 
-			inline const token* token_after(typename std::vector<token>::const_iterator it) const noexcept { return token_at(++it); }
+			inline const token& token_after(typename std::vector<token>::const_iterator it) const noexcept { return it == this->m_tokens.cend() ? token::null : token_at(++it); }
 
-			inline const token* token_before(const token& token) const noexcept { return this->token_before(token.get_file_index()); }
+			inline const token& token_before(const token& token) const noexcept { return this->token_before(token.get_file_index()); }
 
-			inline const token* token_before(const token* const token) const noexcept { return this->token_before(token->get_file_index()); }
+			inline const token& token_before(const token* const token) const noexcept { return this->token_before(token->get_file_index()); }
 
 			inline const filesystem::file& get_file(void) const noexcept { return m_file; }
 
@@ -425,11 +420,13 @@ namespace shift {
 
 			inline const std::vector<token>& get_tokens(void) const noexcept { return this->m_tokens; }
 
-			inline const shift::compiler::error_handler* get_error_handler(void) const noexcept { return this->m_error_handler; }
+			inline error_handler* get_error_handler() noexcept { return m_error_handler; }
 
-			inline shift::compiler::error_handler* get_error_handler(void) noexcept { return this->m_error_handler; }
+			inline const error_handler* get_error_handler() const noexcept { return m_error_handler; }
+
+			inline void set_error_handler(error_handler* const error_handler) noexcept { m_error_handler = error_handler; }
 		protected:
-			shift::compiler::error_handler* const m_error_handler;
+			error_handler* m_error_handler;
 			filesystem::file m_file;
 			std::string m_filedata;
 			std::vector<std::string_view> m_lines;
@@ -438,12 +435,20 @@ namespace shift {
 			typename std::vector<token>::const_iterator m_token_index;
 		};
 
-		inline tokenizer::tokenizer(shift::compiler::error_handler* const handler, const filesystem::file& file): m_error_handler(handler),
+		inline tokenizer::tokenizer(error_handler* const handler, const filesystem::file& file): m_error_handler(handler),
 			m_file(file) {}
 
-		inline tokenizer::tokenizer(shift::compiler::error_handler* const handler, filesystem::file&& file) : m_error_handler(handler),
+			inline tokenizer::tokenizer(error_handler* const handler, filesystem::file&& file): m_error_handler(handler),
 			m_file(std::move(file)) {}
 	}
 }
+
+constexpr inline shift::compiler::token::token_type operator^(const shift::compiler::token::token_type f, const shift::compiler::token::token_type other) noexcept { return shift::compiler::token::token_type(std::underlying_type_t<shift::compiler::token::token_type>(f) ^ std::underlying_type_t<shift::compiler::token::token_type>(other)); }
+constexpr inline shift::compiler::token::token_type& operator^=(shift::compiler::token::token_type& f, const shift::compiler::token::token_type other) noexcept { return f = operator^(f, other); }
+constexpr inline shift::compiler::token::token_type operator|(const shift::compiler::token::token_type f, const shift::compiler::token::token_type other) noexcept { return shift::compiler::token::token_type(std::underlying_type_t<shift::compiler::token::token_type>(f) | std::underlying_type_t<shift::compiler::token::token_type>(other)); }
+constexpr inline shift::compiler::token::token_type& operator|=(shift::compiler::token::token_type& f, const shift::compiler::token::token_type other) noexcept { return f = operator|(f, other); }
+constexpr inline shift::compiler::token::token_type operator&(const shift::compiler::token::token_type f, const shift::compiler::token::token_type other) noexcept { return shift::compiler::token::token_type(std::underlying_type_t<shift::compiler::token::token_type>(f) & std::underlying_type_t<shift::compiler::token::token_type>(other)); }
+constexpr inline shift::compiler::token::token_type& operator&=(shift::compiler::token::token_type& f, const shift::compiler::token::token_type other) noexcept { return f = operator&(f, other); }
+constexpr inline shift::compiler::token::token_type operator~(const shift::compiler::token::token_type f) noexcept { return shift::compiler::token::token_type(~std::underlying_type_t<shift::compiler::token::token_type>(f)); }
 
 #endif /* SHIFT_TOKENIZER_H_ */

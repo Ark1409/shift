@@ -23,7 +23,8 @@ set(
     SOURCES 
     src/main.cpp 
     src/compiler/shift_argument_parser.cpp 
-    src/compiler/shift_error_handler.cpp 
+    src/compiler/shift_error_handler.cpp
+    src/compiler/shift_parser.cpp 
     src/compiler/shift_tokenizer.cpp 
     src/filesystem/directory.cpp 
     src/filesystem/drive.cpp 

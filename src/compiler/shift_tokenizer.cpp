@@ -48,8 +48,8 @@
 {\
 	this->m_error_handler->stream() << SHIFT_TOKENIZER_ERROR_PREFIX(_line_, _col_) << __ERR__ << '\n'; this->m_error_handler->flush_stream(error_handler::message_type::error);\
 	std::string_view __temp_line; shift_tokenizer_get_full_line(__temp_line); SHIFT_TOKENIZER_ERROR_LOG(__temp_line);\
-	for(size_t loop_col = 0; loop_col < (_col_-1); loop_col++) this->m_error_handler->stream() << ' ';\
-	for(size_t loop_item = 0; loop_item < (_len_); loop_item++) this->m_error_handler->stream() << '^';\
+	this->m_error_handler->stream() << std::string((_col_)-1, ' ');\
+	this->m_error_handler->stream() << std::string(_len_, '^');\
 	this->m_error_handler->stream() << '\n';\
 	this->m_error_handler->flush_stream(error_handler::message_type::error);\
 }
@@ -73,55 +73,55 @@ namespace shift {
 			return ret;
 		}
 
-		const token* tokenizer::token_at(const file_indexer index) const noexcept {
+		const token& tokenizer::token_at(const file_indexer index) const noexcept {
 			for (const token& token_ : this->m_tokens) {
 				if (token_.get_file_index() == index)
-					return &token_;
+					return token_;
 			}
-			return &token::null;
+			return token::null;
 		}
 
-		const token* tokenizer::token_before(const file_indexer index) const noexcept {
+		const token& tokenizer::token_before(const file_indexer index) const noexcept {
 			const token* last_token = &token::null;
 
 			for (const token& token : this->m_tokens) {
 				if (token.get_file_index() == index)
-					return last_token;
+					return *last_token;
 				last_token = &token;
 			}
 
-			return &token::null;
+			return token::null;
 		}
 
-		const token* tokenizer::token_after(const file_indexer index) const noexcept {
+		const token& tokenizer::token_after(const file_indexer index) const noexcept {
 			bool next = false;
 
 			for (const token& token : this->m_tokens) {
 				if (next)
-					return &token;
+					return token;
 				if (token.get_file_index() == index)
 					next = true;
 			}
 
-			return &token::null;
+			return token::null;
 		}
 
-		const token* tokenizer::peek_token(typename std::vector<token>::size_type count) const noexcept {
+		const token& tokenizer::peek_token(typename std::vector<token>::size_type count) const noexcept {
 			count = std::min<typename std::vector<token>::size_type>(count, this->cend() - this->m_token_index);
 			return this->token_at(this->m_token_index + count);
 		}
 
-		const token* tokenizer::reverse_token(typename std::vector<token>::size_type count) noexcept {
+		const token& tokenizer::reverse_token(typename std::vector<token>::size_type count) noexcept {
 			count = std::min<typename std::vector<token>::size_type>(count, this->m_token_index - this->cbegin());
 			return this->token_at(this->m_token_index -= count);
 		}
 
-		const token* tokenizer::reverse_peek_token(typename std::vector<token>::size_type count) const noexcept {
-			if (count > typename std::vector<token>::size_type(this->m_token_index - this->cbegin())) return &token::null;
+		const token& tokenizer::reverse_peek_token(typename std::vector<token>::size_type count) const noexcept {
+			if (count > typename std::vector<token>::size_type(this->m_token_index - this->cbegin())) return token::null;
 			return this->token_at(this->m_token_index - count);
 		}
 
-		const token* tokenizer::next_token(typename std::vector<token>::size_type count) noexcept {
+		const token& tokenizer::next_token(typename std::vector<token>::size_type count) noexcept {
 			count = std::min<typename std::vector<token>::size_type>(count, this->cend() - this->m_token_index);
 			return this->token_at(this->m_token_index += count);
 		}
@@ -132,7 +132,7 @@ namespace shift {
 
 			// Clear all class data in case this function has been called more than once
 			this->m_tokens.clear();
-			this->m_filedata.clear();
+			this->m_filedata = std::string();
 			this->m_lines.clear();
 			this->m_error_handler->get_messages().clear();
 			this->m_filedata.clear();
@@ -178,8 +178,8 @@ namespace shift {
 
 						for (shift_tokenizer_pre_advance_(); (i < filesize) && (isalnum(current) || shift_tokenizer_current_equal('_'));
 							shift_tokenizer_advance_());
-						if (i < filesize)
-							shift_tokenizer_reverse_();
+
+						shift_tokenizer_reverse_();
 						m_tokens.push_back(token(std::string_view(&this->m_filedata[old_i], i - old_i + 1), token::token_type::IDENTIFIER, { line,
 								old_col }));
 						continue;
@@ -727,7 +727,10 @@ namespace shift {
 						SHIFT_TOKENIZER_FATAL_ERROR(line, col, 1, "Unexpected symbol: '" << current << "'");
 					}
 				}
+				shift_tokenizer_next_line();
+
 			}
+			this->m_token_index = this->m_tokens.cbegin();
 		}
 
 	}

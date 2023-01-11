@@ -1,7 +1,6 @@
 /**
  * @file compiler/error_handler.h
  */
-
 #ifndef SHIFT_ERROR_HANDLER_H_
 #define SHIFT_ERROR_HANDLER_H_ 1
 
@@ -34,7 +33,6 @@ namespace shift {
 
 			error_handler& operator=(const error_handler&) noexcept;
 			error_handler& operator=(error_handler&&) noexcept = default;
-
 
 			error_handler& add_info(const std::string& msg) noexcept;
 			error_handler& add_warning(const std::string& msg) noexcept;
@@ -77,6 +75,7 @@ namespace shift {
 			inline void set_print_warnings(const bool warnings = true) { this->m_warnings = warnings; }
 			inline void set_warnings(const bool warnings = true) { return set_print_warnings(warnings); }
 			inline bool is_print_warnings(void) const noexcept { return this->m_warnings; }
+			inline bool is_warning(void) const noexcept { return is_print_warnings(); }
 
 			/**
 			 * Adds a mark to the current list of warnings and errors. Calling this method multiple times
@@ -114,12 +113,12 @@ inline std::ostream& operator<<(std::ostream& out, const shift::compiler::error_
 	return out;
 }
 
-constexpr inline shift::compiler::error_handler::message_type operator^(const shift::compiler::error_handler::message_type f, const shift::compiler::error_handler::message_type other) noexcept { return shift::compiler::error_handler::message_type(uint32_t(f) ^ uint32_t(other)); }
+constexpr inline shift::compiler::error_handler::message_type operator^(const shift::compiler::error_handler::message_type f, const shift::compiler::error_handler::message_type other) noexcept { return shift::compiler::error_handler::message_type(std::underlying_type_t<shift::compiler::error_handler::message_type>(f) ^ std::underlying_type_t<shift::compiler::error_handler::message_type>(other)); }
 constexpr inline shift::compiler::error_handler::message_type& operator^=(shift::compiler::error_handler::message_type& f, const shift::compiler::error_handler::message_type other) noexcept { return f = operator^(f, other); }
-constexpr inline shift::compiler::error_handler::message_type operator|(const shift::compiler::error_handler::message_type f, const shift::compiler::error_handler::message_type other) noexcept { return shift::compiler::error_handler::message_type(uint32_t(f) | uint32_t(other)); }
+constexpr inline shift::compiler::error_handler::message_type operator|(const shift::compiler::error_handler::message_type f, const shift::compiler::error_handler::message_type other) noexcept { return shift::compiler::error_handler::message_type(std::underlying_type_t<shift::compiler::error_handler::message_type>(f) | std::underlying_type_t<shift::compiler::error_handler::message_type>(other)); }
 constexpr inline shift::compiler::error_handler::message_type& operator|=(shift::compiler::error_handler::message_type& f, const shift::compiler::error_handler::message_type other) noexcept { return f = operator|(f, other); }
-constexpr inline shift::compiler::error_handler::message_type operator&(const shift::compiler::error_handler::message_type f, const shift::compiler::error_handler::message_type other) noexcept { return shift::compiler::error_handler::message_type(uint32_t(f) & uint32_t(other)); }
+constexpr inline shift::compiler::error_handler::message_type operator&(const shift::compiler::error_handler::message_type f, const shift::compiler::error_handler::message_type other) noexcept { return shift::compiler::error_handler::message_type(std::underlying_type_t<shift::compiler::error_handler::message_type>(f) & std::underlying_type_t<shift::compiler::error_handler::message_type>(other)); }
 constexpr inline shift::compiler::error_handler::message_type& operator&=(shift::compiler::error_handler::message_type& f, const shift::compiler::error_handler::message_type other) noexcept { return f = operator&(f, other); }
-constexpr inline shift::compiler::error_handler::message_type operator~(const shift::compiler::error_handler::message_type f) noexcept { return shift::compiler::error_handler::message_type(~uint32_t(f)); }
+constexpr inline shift::compiler::error_handler::message_type operator~(const shift::compiler::error_handler::message_type f) noexcept { return shift::compiler::error_handler::message_type(~std::underlying_type_t<shift::compiler::error_handler::message_type>(f)); }
 
 #endif /* SHIFT_ERROR_HANDLER_H_ */
