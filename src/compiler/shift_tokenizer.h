@@ -40,7 +40,7 @@ namespace shift {
 			/**
 			 * Structure of token types:
 			 *                (16 bits)
-			 *       00000000           00000000
+			 *   [    00000000           00000000    ]
 			 *      for equals       for normal token
 			 *     combinations        types, e.g
 			 *     e.g. +=, &=,      +, ., [, <<, etc
@@ -97,8 +97,8 @@ namespace shift {
 
 				EQUALS = static_cast<uint_fast16_t>(1 << 15), // =
 				EQUALS_EQUALS = (1 << 14) | EQUALS, // ==
-				GREATER_THAN_OR_EQUAL = GREATER_THAN | EQUALS, // [>=|=>]
-				LESS_THAN_OR_EQUAL = LESS_THAN | EQUALS, // [<=|=<]
+				GREATER_THAN_OR_EQUAL = GREATER_THAN | EQUALS, // [>=| =>]
+				LESS_THAN_OR_EQUAL = LESS_THAN | EQUALS, // [<= | =<]
 				MODULO_EQUALS = MODULO | EQUALS, // %=
 				OR_EQUALS = OR | EQUALS, // |=
 				OR_OR = (1 << 13) | OR, // ||
@@ -130,15 +130,15 @@ namespace shift {
 
 			~token() noexcept = default;
 
-			token& operator=(const token&) = default;
-			token& operator=(token&&) = default;
+			constexpr token& operator=(const token&) noexcept = default;
+			constexpr token& operator=(token&&) noexcept = default;
 
 			constexpr inline bool operator==(const token& other) const noexcept { return this->m_type == other.m_type && this->m_index == other.m_index && this->m_data == other.m_data; }
 			constexpr inline bool operator==(const std::string_view other) const noexcept { return this->m_data == other; }
 			inline bool operator==(const std::string& other) const noexcept { return this->m_data == other; }
 
 			constexpr inline bool operator!=(const token& other) const noexcept { return !this->operator ==(other); }
-			constexpr inline bool operator!=(const std::string_view other) const noexcept { return !this->operator ==(other); }
+			constexpr inline bool operator!=(const std::string_view& other) const noexcept { return !this->operator ==(other); }
 			inline bool operator!=(const std::string& other) const noexcept { return !this->operator ==(std::string_view(other.c_str(), other.length())); }
 
 			constexpr inline bool operator>(const token& other) const noexcept { return this->m_index > other.m_index; }
@@ -149,8 +149,6 @@ namespace shift {
 			constexpr inline file_indexer get_file_index(void) const noexcept { return this->m_index; }
 
 			constexpr inline token_type get_token_type(void) const noexcept { return this->m_type; }
-
-			constexpr inline operator const char* (void) const noexcept { return this->m_data.data(); }
 
 			constexpr inline operator std::string_view(void) const noexcept { return this->m_data; }
 
@@ -224,6 +222,8 @@ namespace shift {
 
 			constexpr inline bool is_base(void) const noexcept { return (this->is_identifier()) && (this->m_data == "base"); }
 
+			constexpr inline bool is_new(void) const noexcept { return (this->is_identifier()) && (this->m_data == "new"); }
+
 			constexpr inline bool is_access_specifier(void) const noexcept {
 				return (this->is_identifier())
 					&& (this->is_public() || this->is_protected() || this->is_private() || this->is_static() || this->is_extern() || this->is_binary()
@@ -234,39 +234,40 @@ namespace shift {
 
 			constexpr inline bool is_prefix_overload_operator(void) const noexcept { return this->is_unary_operator(); }
 
+			constexpr inline bool is_strictly_prefix_overload_operator(void) const noexcept { return this->is_prefix_overload_operator() && !this->is_suffix_overload_operator() && !this->is_binary_operator(); }
+
 			constexpr inline bool is_suffix_overload_operator(void) const noexcept {
-				return (!this->is_identifier())
-					&& ((this->is_binary_operator()) || this->m_type == token_type::MINUS_MINUS
-						|| this->m_type == token_type::PLUS_PLUS || this->m_type == token_type::LEFT_SQUARE_BRACKET
-						|| this->m_type == token_type::RIGHT_SQUARE_BRACKET);
+				return this->m_type == token_type::MINUS_MINUS || this->m_type == token_type::PLUS_PLUS;
 			}
+
+			constexpr inline bool is_strictly_suffix_overload_operator(void) const noexcept { return !this->is_prefix_overload_operator() && this->is_suffix_overload_operator(); }
 
 			constexpr inline bool is_unary_operator(void) const noexcept {
 				return (!this->is_identifier())
-					&& ((this->m_type == token_type::LEFT_BRACKET) // cast
-						|| (this->m_type == token_type::BIT_FLIP) || (this->m_type == token_type::PLUS_PLUS)
-						|| (this->m_type == token_type::MINUS_MINUS) || (this->m_type == token_type::NOT));
+					&& ((this->m_type == token_type::BIT_FLIP) || (this->m_type == token_type::PLUS_PLUS)
+						|| (this->m_type == token_type::MINUS_MINUS) || (this->m_type == token_type::MINUS)
+						|| (this->m_type == token_type::NOT));
 			}
 
 			constexpr inline bool is_binary_operator(void) const noexcept {
 				// Old version, manually checking token type of each binary operator
 				return (!this->is_identifier())
 					&& (((this->m_type & token_type::EQUALS) == token_type::EQUALS)
-						|| ((this->m_type & token_type::AND) == token_type::AND) || (this->m_type == token_type::DIVIDE)
-						|| (this->m_type == token_type::GREATER_THAN)
+						|| (this->m_type == token_type::AND) || (this->m_type == token_type::AND_AND)
+						|| (this->m_type == token_type::DIVIDE) || (this->m_type == token_type::GREATER_THAN)
 						|| (this->m_type == token_type::LESS_THAN) || (this->m_type == token_type::MINUS)
 						|| (this->m_type == token_type::MODULO) || (this->m_type == token_type::MULTIPLY)
-						|| (this->m_type == token_type::NOT_EQUAL) || ((this->m_type & token_type::OR) == token_type::OR)
-						|| (this->m_type == token_type::OR_EQUALS) || (this->m_type == token_type::PLUS)
-						|| (this->m_type == token_type::XOR) || (this->m_type == token_type::SHIFT_LEFT)
-						|| (this->m_type == token_type::SHIFT_RIGHT));
+						|| (this->m_type == token_type::NOT_EQUAL) || (this->m_type == token_type::OR)
+						|| (this->m_type == token_type::OR_OR) || (this->m_type == token_type::OR_EQUALS)
+						|| (this->m_type == token_type::PLUS) || (this->m_type == token_type::XOR)
+						|| (this->m_type == token_type::SHIFT_LEFT) || (this->m_type == token_type::SHIFT_RIGHT));
 
 				// This way is more efficient, but should be removed if some how tertiary operators are introduced
 				//return !this->is_unary_operator(); // does not work 100%, cuz of things like CHAR_LITERAL; revert back to old method
 			}
 
 			constexpr inline bool is_number(void) const noexcept {
-				return this->m_type == token_type::NUMBER_LITERAL || this->m_type == token_type::FLOAT
+				return this->m_type == token_type::INTEGER_LITERAL || this->m_type == token_type::FLOAT
 					|| this->m_type == token_type::DOUBLE || this->m_type == token_type::BINARY_NUMBER
 					|| this->m_type == token_type::HEX_NUMBER;
 			}
@@ -361,7 +362,6 @@ namespace shift {
 
 		inline constexpr token token::null = token();
 
-
 		inline token::token(const std::string& str, const token_type type, const file_indexer index) noexcept: m_data(str.c_str(),
 			str.length()), m_type(type), m_index(index) {}
 
@@ -381,7 +381,8 @@ namespace shift {
 			void tokenize(void);
 			inline void mark(void) noexcept { return this->m_token_marks.push(this->m_token_index); }
 			void rollback(void) noexcept;
-			inline void clear_marks(typename std::stack<typename std::vector<token>::const_iterator>::size_type count = -1) noexcept { utils::clear_stack(this->m_token_marks, count); }
+			inline void pop_mark() noexcept { return pop_marks(1); }
+			inline void pop_marks(typename std::stack<typename std::vector<token>::const_iterator>::size_type count = -1) noexcept { utils::pop_stack(this->m_token_marks, count); }
 
 			inline typename std::vector<token>::iterator begin() noexcept { return this->m_tokens.begin(); }
 			inline typename std::vector<token>::iterator end() noexcept { return this->m_tokens.end(); }
@@ -394,7 +395,7 @@ namespace shift {
 			const token& next_token(typename std::vector<token>::size_type advance_count = 1) noexcept;
 			const token& reverse_token(typename std::vector<token>::size_type count = 1) noexcept;
 			const token& peek_token(typename std::vector<token>::size_type count = 1) const noexcept;
-			const token& reverse_peek_token(typename std::vector<token>::size_type count = 1) const noexcept;
+			const token& reverse_peek_token(typename std::vector<token>::size_type const count = 1) const noexcept;
 			const token& token_at(const file_indexer index) const noexcept;
 			const token& token_before(const file_indexer index) const noexcept;
 			const token& token_after(const file_indexer index) const noexcept;
@@ -438,7 +439,7 @@ namespace shift {
 		inline tokenizer::tokenizer(error_handler* const handler, const filesystem::file& file): m_error_handler(handler),
 			m_file(file) {}
 
-			inline tokenizer::tokenizer(error_handler* const handler, filesystem::file&& file): m_error_handler(handler),
+		inline tokenizer::tokenizer(error_handler* const handler, filesystem::file&& file) : m_error_handler(handler),
 			m_file(std::move(file)) {}
 	}
 }

@@ -4,6 +4,7 @@
  * Main file
  */
 #include "logging/console.h"
+#include "compiler/shift_parser.h"
 
 int main() {
     shift::logging::enable_colored_console();

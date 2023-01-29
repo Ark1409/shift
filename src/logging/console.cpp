@@ -46,13 +46,15 @@ namespace shift {
 		}
 
 		void disable_colored_console(void) noexcept {
-			if (stdOutOldConsoleMode)
+			if (stdOutOldConsoleMode) {
 				SetConsoleMode(hStdOut, stdOutOldConsoleMode.value());
-			stdOutOldConsoleMode.reset();
+				stdOutOldConsoleMode.reset();
+			}
 
-			if (stdErrOldConsoleMode)
+			if (stdErrOldConsoleMode) {
 				SetConsoleMode(hStdErr, stdErrOldConsoleMode.value());
-			stdErrOldConsoleMode.reset();
+				stdErrOldConsoleMode.reset();
+			}
 		}
 
 		bool has_colored_console(void) noexcept {
@@ -71,8 +73,6 @@ namespace shift {
 		bool has_colored_console(void) noexcept {
 			return true; // function to determine whether we are writing to console or file? ; better to set to false
 		}
-
-		bool is_colored_console(void) noexcept { return has_colored_console(); }
 	}
 }
 #endif

@@ -26,7 +26,7 @@ namespace shift {
 		private:
 			typedef std::pair<std::string, message_type> _message_pair_type;
 		public:
-			error_handler(void) noexcept = default;
+			error_handler() noexcept = default;
 			inline error_handler(const error_handler&) noexcept;
 			error_handler(error_handler&&) noexcept = default;
 			~error_handler() noexcept = default;
@@ -91,7 +91,9 @@ namespace shift {
 			 */
 			void rollback(void) noexcept; // Rollback to last mark and pop mark off stack
 
-			inline void clear_marks(typename std::stack<typename std::list<_message_pair_type>::size_type>::size_type count = -1) noexcept { utils::clear_stack(this->m_marks, std::min(count, this->m_marks.size())); }
+			inline void pop_mark() { return pop_marks(1); }
+
+			inline void pop_marks(typename std::stack<typename std::list<_message_pair_type>::size_type>::size_type count = -1) noexcept { utils::pop_stack(this->m_marks, count); }
 
 			inline const std::stack<typename std::list<_message_pair_type>::size_type>& get_marks(void) const noexcept { return this->m_marks; }
 			inline std::list<_message_pair_type>& get_messages(void) noexcept { return this->m_messages; }

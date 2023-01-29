@@ -12,7 +12,7 @@
 #define SHIFT_CONSOLE_BEGIN_FOREGROUND_RED					"\x1B[31m"
 #define SHIFT_CONSOLE_BEGIN_FOREGROUND_GREEN				"\x1B[32m"
 #define SHIFT_CONSOLE_BEGIN_FOREGROUND_YELLOW				"\x1B[33m"
-#define SHIFT_CONSOLE_BEGIN_FOREGROUND_BLUE 				"\x1B[34m"
+#define SHIFT_CONSOLE_BEGIN_FOREGROUND_BLUE					"\x1B[34m"
 #define SHIFT_CONSOLE_BEGIN_FOREGROUND_MAGENTA				"\x1B[35m"
 #define SHIFT_CONSOLE_BEGIN_FOREGROUND_CYAN					"\x1B[36m"
 #define SHIFT_CONSOLE_BEGIN_FOREGROUND_WHITE				"\x1B[37m"
@@ -38,15 +38,15 @@
 
 #define SHIFT_CONSOLE_BEGIN_BACKGROUND_BRIGHT_BLACK			"\033[3;100;30m"
 #define SHIFT_CONSOLE_BEGIN_BACKGROUND_BRIGHT_RED			"\033[3;101;30m"
-#define SHIFT_CONSOLE_BEGIN_BACKGROUND_BRIGHT_GREEN 		"\033[3;102;30m"
+#define SHIFT_CONSOLE_BEGIN_BACKGROUND_BRIGHT_GREEN			"\033[3;102;30m"
 #define SHIFT_CONSOLE_BEGIN_BACKGROUND_BRIGHT_YELLOW		"\033[3;103;30m"
 #define SHIFT_CONSOLE_BEGIN_BACKGROUND_BRIGHT_BLUE			"\033[3;104;30m"
 #define SHIFT_CONSOLE_BEGIN_BACKGROUND_BRIGHT_MAGENTA		"\033[3;105;30m"
 #define SHIFT_CONSOLE_BEGIN_BACKGROUND_BRIGHT_CYAN			"\033[3;106;30m"
 #define SHIFT_CONSOLE_BEGIN_BACKGROUND_BRIGHT_WHITE			"\033[3;107;30m"
 
-#define SHIFT_CONSOLE_RESET 								"\033[0m"
-/** namespace shift*/
+#define SHIFT_CONSOLE_RESET									"\033[0m"
+/** namespace shift */
 namespace shift {
 	/** namspace logging */
 	namespace logging {
@@ -63,7 +63,7 @@ namespace shift {
 
 		/**
 		 * Checks whether colored console has been enabled (by enable_colored_console)
-		 * @return True if colored console would be functional if enabled, false otherwise.
+		 * @return True if colored console has been enabled, false otherwise.
 		 */
 		bool has_colored_console(void) noexcept;
 

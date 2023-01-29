@@ -23,7 +23,7 @@
             "generator": "MinGW Makefiles",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release",
-                "CMAKE_CXX_FLAGS_INIT": "-Wall -Wextra -Wpedantic -fmessage-length=0 -O2 -m64"
+                "CMAKE_CXX_FLAGS_INIT": "-Wall -Wextra -Wpedantic -fmessage-length=0 -O3 -m64"
             }
         }
     ]

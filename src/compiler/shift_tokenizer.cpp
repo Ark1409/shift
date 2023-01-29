@@ -61,10 +61,10 @@ namespace shift {
 	/** Namespace compiler */
 	namespace compiler {
 		void tokenizer::rollback(void) noexcept {
-			if (!this->m_token_marks.empty()) {
-				this->m_token_index = this->m_token_marks.top();
-				this->m_token_marks.pop();
-			}
+			if (this->m_token_marks.empty()) return;
+			
+			this->m_token_index = this->m_token_marks.top();
+			this->m_token_marks.pop();
 		}
 
 		typename std::vector<token>::const_iterator tokenizer::set_index(const typename std::vector<token>::const_iterator index) noexcept {
@@ -116,7 +116,7 @@ namespace shift {
 			return this->token_at(this->m_token_index -= count);
 		}
 
-		const token& tokenizer::reverse_peek_token(typename std::vector<token>::size_type count) const noexcept {
+		const token& tokenizer::reverse_peek_token(typename std::vector<token>::size_type const count) const noexcept {
 			if (count > typename std::vector<token>::size_type(this->m_token_index - this->cbegin())) return token::null;
 			return this->token_at(this->m_token_index - count);
 		}

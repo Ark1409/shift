@@ -32,8 +32,6 @@ bld/
 
 # Visual Studio 2015/2017 cache/options directory
 .vs/
-# Uncomment if you have tasks that create the project's static files in wwwroot
-#wwwroot/
 
 # Visual Studio 2017 auto generated files
 Generated\ Files/
@@ -180,14 +178,10 @@ publish/
 # Publish Web Output
 *.[Pp]ublish.xml
 *.azurePubxml
-# Note: Comment the next line if you want to checkin your web deploy settings,
-# but database connection strings (with potential passwords) will be unencrypted
 *.pubxml
 *.publishproj
 
-# Microsoft Azure Web App publish settings. Comment the next line if you want to
-# checkin your Azure Web App publish settings, but sensitive information contained
-# in these scripts will be unencrypted
+# Microsoft Azure Web App publish settings.
 PublishScripts/
 
 # NuGet Packages
@@ -198,8 +192,6 @@ PublishScripts/
 **/[Pp]ackages/*
 # except build/, which is used as an MSBuild target.
 !**/[Pp]ackages/build/
-# Uncomment if necessary however generally it will be regenerated when needed
-#!**/[Pp]ackages/repositories.config
 # NuGet v3's project.json files produces more ignorable files
 *.nuget.props
 *.nuget.targets
@@ -237,14 +229,6 @@ ClientBin/
 *.pfx
 *.publishsettings
 orleans.codegen.cs
-
-# Including strong name files can present a security risk
-# (https://github.com/github/gitignore/pull/2483#issue-259490424)
-#*.snk
-
-# Since there are multiple workflows, uncomment next line to ignore bower_components
-# (https://github.com/github/gitignore/pull/1529#issuecomment-104372622)
-#bower_components/
 
 # RIA/Silverlight projects
 Generated_Code/
@@ -375,15 +359,20 @@ MigrationBackup/
 FodyWeavers.xsd
 
 # VS Code files for those working on multiple tools
+.vscode/
 .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
 *.code-workspace
+.editorconfig
 
 # Local History for Visual Studio Code
 .history/
+
+# Built Visual Studio Code Extensions
+*.vsix
 
 # Windows Installer files from build outputs
 *.cab
@@ -396,9 +385,28 @@ FodyWeavers.xsd
 *.sln.iml
 
 # CMake
+build/
+build/*
+build/bin/
+build/lib/
+build/.cmake/
+build/CMakeLists.txt.user
+build/CMakeCache.txt
+build/CMakeFiles/
+build/CMakeScripts
+build/Testing
+build/Makefile
+build/cmake_install.cmake
+build/install_manifest.txt
+build/compile_commands.json
+build/CTestTestfile.cmake
+build/_deps
+bin
+lib
+.cmake/
 CMakeLists.txt.user
 CMakeCache.txt
-CMakeFiles
+CMakeFiles/
 CMakeScripts
 Testing
 Makefile
@@ -407,7 +415,7 @@ install_manifest.txt
 compile_commands.json
 CTestTestfile.cmake
 _deps
-build/
+
 
 # Prerequisites
 *.d
@@ -441,19 +449,3 @@ build/
 *.exe
 *.out
 *.app
-
-# Visual Studio Code
-.vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
-!.vscode/*.code-snippets
-
-# Local History for Visual Studio Code
-.history/
-
-# Built Visual Studio Code Extensions
-*.vsix
-
-.editorconfig

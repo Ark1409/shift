@@ -99,53 +99,25 @@ namespace shift {
 		}
 
 		void error_handler::print_exit(const bool color, std::ostream& out_stream, std::ostream& err_stream) const {
-			bool __exit = false;
+			const bool __exit = std::find_if(this->m_messages.cbegin(), this->m_messages.cend(), [](const _message_pair_type& p) {
+				return p.second == message_type::error;
+				}) != this->m_messages.cend();
 
-			for (const auto& [message, type] : this->m_messages) {
-				if (type == message_type::error) {
-					__exit = true;
-					if (color && logging::has_colored_console()) {
-						err_stream << logging::lred << message << logging::creset;
-					} else {
-						err_stream << message;
-					}
-				} else if (type == message_type::warning) {
-					if (color && logging::has_colored_console()) {
-						out_stream << logging::lyellow << message << logging::creset;
-					} else {
-						out_stream << message;
-					}
-				} else if (type == message_type::info) {
-					if (color && logging::has_colored_console()) {
-						out_stream << logging::lblue << message << logging::creset;
-					} else {
-						out_stream << message;
-					}
-				} else {
-					out_stream << message;
-				}
-			}
+				print(color, out_stream, err_stream);
 
-			err_stream.flush();
-			out_stream.flush();
-
-			if (__exit) shift::utils::exit(EXIT_FAILURE);
+				if (__exit) shift::utils::exit(EXIT_FAILURE);
 		}
 
 		size_t error_handler::get_error_count(void) const {
-			size_t ret = 0;
-			for (const auto& [m, type] : this->m_messages) {
-				if (type == message_type::error) ret++;
-			}
-			return ret;
+			return std::count_if(this->m_messages.cbegin(), this->m_messages.cend(), [](const _message_pair_type& p) {
+				return p.second == message_type::error;
+				});
 		}
 
 		size_t error_handler::get_warning_count(void) const {
-			size_t ret = 0;
-			for (const auto& [m, type] : this->m_messages) {
-				if (type == message_type::warning) ret++;
-			}
-			return ret;
+			return std::count_if(this->m_messages.cbegin(), this->m_messages.cend(), [](const _message_pair_type& p) {
+				return p.second == message_type::warning;
+				});
 		}
 
 		void error_handler::rollback(void) noexcept {
@@ -153,8 +125,7 @@ namespace shift {
 
 			const auto mark = this->m_marks.top();
 
-			if (mark < this->m_messages.size())
-				this->m_messages.resize(mark);
+			this->m_messages.resize(std::min(mark, this->m_messages.size()));
 
 			this->m_marks.pop();
 		}
