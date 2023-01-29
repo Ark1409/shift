@@ -8,7 +8,7 @@ namespace shift {
             std::cout.flush();
             std::cerr.flush();
             shift::logging::disable_colored_console();
-            return std::exit(status);
+            std::exit(status);
         }
     }
 }
