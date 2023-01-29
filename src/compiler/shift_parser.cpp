@@ -713,7 +713,6 @@ namespace shift {
                         this->m_token_error(*token_, "unexpected specifier '" + std::string(token_->get_data()) + "' in function body");
                         this->m_clear_mods();
                     }
-                    debug_log("Found block at (" << _token->get_file_index().line << ", " << _token->get_file_index().col << ")");
                     statement.set_block(_token);
                     std::list<shift_statement> _statements;
                     this->m_tokenizer->next_token();
@@ -1152,8 +1151,6 @@ namespace shift {
 
                     const uint_fast8_t priority = operator_priority(new_expr.type, (_token->is_strictly_prefix_overload_operator() && !_token->is_binary_operator()) || (_token->is_prefix_overload_operator() && expr->type == token::token_type::NULL_TOKEN));
 
-                    debug_log("Parsing operator " << new_expr.begin->get_data());
-
                     shift_expression* const new_ret_expr = ret_expr.type == token_type::COMMA ? &ret_expr.sub.back() : &ret_expr;
 
                     shift_expression* current_parent = expr->parent;
@@ -1243,7 +1240,6 @@ namespace shift {
                         const token& after_name = this->m_tokenizer->current_token();
 
                         if (after_name.is_left_bracket()) {
-                            debug_log("Found function call on line (" << after_name.get_file_index().line << ", " << after_name.get_file_index().col << ")");
                             expr->set_function_call();
                             this->m_tokenizer->next_token();
                             expr->sub.push_back(m_parse_expression(token_type::RIGHT_BRACKET));
