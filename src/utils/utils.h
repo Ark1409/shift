@@ -115,13 +115,12 @@ namespace shift {
 
         template<typename T>
         inline std::stack<T>& clear_stack(std::stack<T>& stack) {
-            std::stack<T> temp = std::stack<T>();
-            stack.swap(temp);
+            std::stack<T>().swap(stack);
             return stack;
         }
 
         template<typename T>
-        inline std::stack<T>& pop_stack(std::stack<T>& stack, typename std::stack<T>::size_type count = typename std::stack<T>::size_type(-1)) {
+        inline std::stack<T>& pop_stack(std::stack<T>& stack, typename std::stack<T>::size_type count = typename std::stack<T>::size_type(1)) {
             if (std::min(count, stack.size()) == stack.size()) return clear_stack(stack);
 
             for (; count > 0 && !stack.empty(); count--)

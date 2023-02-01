@@ -41,11 +41,11 @@
 
 #define SHIFT_TOKENIZER_ERROR_PREFIX(_line_, _col_) 				"error: " << std::filesystem::relative(this->m_file.raw_path()).string() << ":" << line << ":" << col << ": "
 
-#define SHIFT_TOKENIZER_ERROR_LOG(__ERR__) 		this->m_error_handler->stream() << __ERR__ << '\n'; this->m_error_handler->flush_stream(error_handler::message_type::error)
-#define SHIFT_TOKENIZER_FATAL_ERROR_LOG(__ERR__)  SHIFT_TOKENIZER_ERROR_LOG(__ERR__); this->m_error_handler->print_exit_clear()
+#define SHIFT_TOKENIZER_ERROR_LOG(__ERR__) 		if(m_error_handler) this->m_error_handler->stream() << __ERR__ << '\n', this->m_error_handler->flush_stream(error_handler::message_type::error)
+#define SHIFT_TOKENIZER_FATAL_ERROR_LOG(__ERR__)  SHIFT_TOKENIZER_ERROR_LOG(__ERR__); if(m_error_handler) this->m_error_handler->print_exit_clear()
 
 #define SHIFT_TOKENIZER_ERROR(_line_, _col_, _len_, __ERR__) \
-{\
+if(this->m_error_handler) {\
 	this->m_error_handler->stream() << SHIFT_TOKENIZER_ERROR_PREFIX(_line_, _col_) << __ERR__ << '\n'; this->m_error_handler->flush_stream(error_handler::message_type::error);\
 	std::string_view __temp_line; shift_tokenizer_get_full_line(__temp_line); SHIFT_TOKENIZER_ERROR_LOG(__temp_line);\
 	this->m_error_handler->stream() << std::string((_col_)-1, ' ');\
@@ -54,7 +54,7 @@
 	this->m_error_handler->flush_stream(error_handler::message_type::error);\
 }
 
-#define SHIFT_TOKENIZER_FATAL_ERROR(_line_, _col_, _len_, __ERR__) 		SHIFT_TOKENIZER_ERROR(_line_, _col_, _len_, __ERR__); this->m_error_handler->print_exit_clear()
+#define SHIFT_TOKENIZER_FATAL_ERROR(_line_, _col_, _len_, __ERR__) 		SHIFT_TOKENIZER_ERROR(_line_, _col_, _len_, __ERR__); if(m_error_handler) this->m_error_handler->print_exit_clear()
 
 /** Namespace shift */
 namespace shift {
@@ -62,7 +62,7 @@ namespace shift {
 	namespace compiler {
 		void tokenizer::rollback(void) noexcept {
 			if (this->m_token_marks.empty()) return;
-			
+
 			this->m_token_index = this->m_token_marks.top();
 			this->m_token_marks.pop();
 		}
@@ -132,10 +132,8 @@ namespace shift {
 
 			// Clear all class data in case this function has been called more than once
 			this->m_tokens.clear();
-			this->m_filedata = std::string();
+			std::string().swap(this->m_filedata);
 			this->m_lines.clear();
-			this->m_error_handler->get_messages().clear();
-			this->m_filedata.clear();
 			utils::clear_stack(this->m_token_marks);
 
 			this->m_token_index = this->m_tokens.cbegin();
@@ -198,7 +196,7 @@ namespace shift {
 
 							if ((i - old_i) == 2) {
 								if (this->m_error_handler) {
-									SHIFT_TOKENIZER_FATAL_ERROR(line, col, 1, "Expected binary digit (bit), got '" << current << "'");
+									SHIFT_TOKENIZER_ERROR(line, col, 1, "Expected binary digit (bit), got '" << current << "'");
 								}
 							}
 
@@ -212,7 +210,7 @@ namespace shift {
 
 							if ((i - old_i) == 2) {
 								if (this->m_error_handler) {
-									SHIFT_TOKENIZER_FATAL_ERROR(line, col, 1, "Expected hexadecimal digit, got '" << current << "'");
+									SHIFT_TOKENIZER_ERROR(line, col, 1, "Expected hexadecimal digit, got '" << current << "'");
 								}
 							}
 
@@ -460,64 +458,7 @@ namespace shift {
 					if (shift_tokenizer_current_equal('-')) {
 						const char next = shift_tokenizer_peek_();
 
-						// TODO do something about this copied portion
-						if (isdigit(next) || shift_tokenizer_char_equal(next, '.')) {
-							const size_t old_col = col;
-							const size_t old_i = i;
-							for (shift_tokenizer_pre_advance_(); i < filesize && isdigit(current); shift_tokenizer_advance_());
-
-							bool has_decimal = false;
-							if (shift_tokenizer_current_equal('.') && !shift_tokenizer_char_equal(next, '.')) {
-								has_decimal = true;
-								for (shift_tokenizer_pre_advance_(); i < filesize && isdigit(current); shift_tokenizer_advance_());
-							} else if ((shift_tokenizer_current_equal('b') || shift_tokenizer_current_equal('B'))
-								&& ((i - (old_i + 1)) == 1 && next == char('0'))) {
-								// binary number
-								for (shift_tokenizer_pre_advance_(); i < filesize && shift_tokenizer_is_binary(current); shift_tokenizer_advance_());
-
-								if ((i - (old_i + 1)) == 2) {
-									if (this->m_error_handler) {
-										SHIFT_TOKENIZER_FATAL_ERROR(line, col, 1, "Expected binary digit (bit), got '" << current << "'");
-									}
-								}
-								shift_tokenizer_reverse_();
-								m_tokens.push_back(
-									token(std::string_view(&this->m_filedata[old_i], i - old_i + 1), token::token_type::BINARY_NUMBER, { line,
-											old_col }));
-							} else if ((shift_tokenizer_current_equal('x') || shift_tokenizer_current_equal('X'))
-								&& ((i - (old_i + 1)) == 1 && next == char('0'))) {
-								// hex number
-								for (shift_tokenizer_pre_advance_(); i < filesize && shift_tokenizer_is_hex(current); shift_tokenizer_advance_());
-
-								if ((i - (old_i + 1)) == 2) {
-									if (this->m_error_handler) {
-										SHIFT_TOKENIZER_FATAL_ERROR(line, col, 1, "Expected hexadecimal digit, got '" << current << "'");
-									}
-								}
-
-								shift_tokenizer_reverse_();
-								m_tokens.push_back(token(std::string_view(&this->m_filedata[old_i], i - old_i + 1), token::token_type::HEX_NUMBER, {
-										line, old_col }));
-							}
-
-							if (shift_tokenizer_current_equal('f') || shift_tokenizer_current_equal('F')) {
-								m_tokens.push_back(token(std::string_view(&this->m_filedata[old_i], i - old_i + 1), token::token_type::FLOAT, { line,
-										old_col }));
-							} else if (shift_tokenizer_current_equal('d') || shift_tokenizer_current_equal('D')) {
-								m_tokens.push_back(token(std::string_view(&this->m_filedata[old_i], i - old_i + 1), token::token_type::DOUBLE, { line,
-										old_col }));
-							} else if (has_decimal) {
-								shift_tokenizer_reverse_();
-								m_tokens.push_back(token(std::string_view(&this->m_filedata[old_i], i - old_i + 1), token::token_type::FLOAT, { line,
-										old_col }));
-							} else {
-								shift_tokenizer_reverse_();
-								m_tokens.push_back(
-									token(std::string_view(&this->m_filedata[old_i], i - old_i + 1), token::token_type::NUMBER_LITERAL, { line,
-											old_col }));
-							}
-
-						} else if (shift_tokenizer_char_equal(next, '=')) {
+						if (shift_tokenizer_char_equal(next, '=')) {
 							m_tokens.push_back(token(std::string_view(&this->m_filedata[i], 2), token::token_type::MINUS_EQUALS, { line, col }));
 							shift_tokenizer_advance_();
 						} else if (shift_tokenizer_char_equal(next, '-')) {
@@ -679,7 +620,7 @@ namespace shift {
 						if (!string_end) {
 							// error, unfinished string
 							if (this->m_error_handler) {
-								SHIFT_TOKENIZER_FATAL_ERROR(line, old_col, i - old_i + 1, "String literal must be terminated");
+								SHIFT_TOKENIZER_ERROR(line, old_col, i - old_i + 1, "String literal must be terminated");
 							}
 						}
 
@@ -704,7 +645,7 @@ namespace shift {
 							}
 						} else if (shift_tokenizer_current_equal('\'')) {
 							if (this->m_error_handler) {
-								SHIFT_TOKENIZER_FATAL_ERROR(line, col, 1, "Character literal cannot be empty");
+								SHIFT_TOKENIZER_ERROR(line, col, 1, "Character literal cannot be empty");
 							}
 							continue;
 						}
@@ -713,7 +654,7 @@ namespace shift {
 
 						if (!shift_tokenizer_current_equal('\'')) {
 							if (this->m_error_handler) {
-								SHIFT_TOKENIZER_FATAL_ERROR(line, col, 1, "Expected ''', got '" << current << "'");
+								SHIFT_TOKENIZER_ERROR(line, col, 1, "Expected ''', got '" << current << "'");
 							}
 						}
 
@@ -724,11 +665,10 @@ namespace shift {
 
 					// ALL OTHER CHARACTERS
 					if (this->m_error_handler) {
-						SHIFT_TOKENIZER_FATAL_ERROR(line, col, 1, "Unexpected symbol: '" << current << "'");
+						SHIFT_TOKENIZER_ERROR(line, col, 1, "Unexpected symbol: '" << current << "'");
 					}
 				}
 				shift_tokenizer_next_line();
-
 			}
 			this->m_token_index = this->m_tokens.cbegin();
 		}
