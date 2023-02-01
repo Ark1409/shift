@@ -159,6 +159,23 @@ namespace shift {
 
                 inline const std::list<shift_statement>& get_if_statements() const noexcept { return sub; }
 
+                inline void set_else_condition(const shift_expression& expr) { data[0].expr = expr; }
+
+                inline void set_else_condition(shift_expression&& expr) noexcept { data[0].expr = std::move(expr); }
+
+                inline void set_else(const token* const token) noexcept {
+                    type = statement_type::else_;
+                    data[0].token = token;
+                }
+
+                inline const token* get_else() const noexcept { return data[0].token; }
+
+                inline const shift_expression& get_else_condition() const noexcept { return data[0].expr; }
+
+                inline std::list<shift_statement>& get_else_statements() noexcept { return sub; }
+
+                inline const std::list<shift_statement>& get_else_statements() const noexcept { return sub; }
+
                 inline void set_while(const token* const token) noexcept {
                     type = statement_type::while_;
                     data[0].token = token;

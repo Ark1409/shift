@@ -460,24 +460,52 @@ namespace shift {
                     }
 
                     const token& left_if_bracket = this->m_tokenizer->next_token();
-                    if (!left_if_bracket.is_left_scope_bracket()) {
-                        if (!left_if_bracket.is_null_token()) {
-                            this->m_token_error(left_if_bracket, "expected '{' after 'if' declaration inside function body");
-                        } else {
-                            this->m_token_error(this->m_tokenizer->reverse_peek_token(), "expected '{' after 'if' declaration inside function body before end of file");
+                    if (left_if_bracket.is_left_scope_bracket()) {
+                        this->m_tokenizer->next_token(); // Skip {
+                        m_parse_function_block(func, statement.get_if_statements());
+
+                        const token& right_if_bracket = this->m_tokenizer->current_token();
+                        if (!right_if_bracket.is_right_scope_bracket()) {
+                            if (!right_if_bracket.is_null_token()) {
+                                this->m_token_error(right_if_bracket, "expected '}' to close 'if' declaration inside function body");
+                            } else {
+                                this->m_token_error(this->m_tokenizer->reverse_peek_token(), "expected '}' to close 'if' declaration inside function body before end of file");
+                            }
                         }
+                    } else {
+                        m_parse_function_block(func, statement.get_if_statements(), 1);
+                        this->m_tokenizer->reverse_token(); // tokenizer will be on token after last statement token if count causes it to end
+                    }
+                }
+
+                else if (_token->is_else()) {
+                    if (this->m_mods.size() != 0) {
+                        const auto& [mod, token_] = this->m_mods.front();
+                        this->m_token_error(*token_, "unexpected specifier '" + std::string(token_->get_data()) + "' in function body");
+                        this->m_clear_mods();
+                    }
+                    if (statements.size() == 0 || statements.back().type != shift_statement::statement_type::if_) {
+                        this->m_token_error(*_token, "unexpected 'else' statement in function body");
                     }
 
-                    this->m_tokenizer->next_token(); // Skip {
-                    m_parse_function_block(func, statement.get_if_statements());
+                    statement.set_else(_token);
 
-                    const token& right_if_bracket = this->m_tokenizer->current_token();
-                    if (!right_if_bracket.is_right_scope_bracket()) {
-                        if (!right_if_bracket.is_null_token()) {
-                            this->m_token_error(right_if_bracket, "expected '}' to close 'if' declaration inside function body");
-                        } else {
-                            this->m_token_error(this->m_tokenizer->reverse_peek_token(), "expected '}' to close 'if' declaration inside function body before end of file");
+                    const token& left_else_bracket = this->m_tokenizer->next_token();
+                    if (left_else_bracket.is_left_scope_bracket()) {
+                        this->m_tokenizer->next_token(); // Skip {
+                        m_parse_function_block(func, statement.get_else_statements());
+
+                        const token& right_else_bracket = this->m_tokenizer->current_token();
+                        if (!right_else_bracket.is_right_scope_bracket()) {
+                            if (!right_else_bracket.is_null_token()) {
+                                this->m_token_error(right_else_bracket, "expected '}' to close 'else' declaration inside function body");
+                            } else {
+                                this->m_token_error(this->m_tokenizer->reverse_peek_token(), "expected '}' to close 'else' declaration inside function body before end of file");
+                            }
                         }
+                    } else {
+                        m_parse_function_block(func, statement.get_else_statements(), 1);
+                        this->m_tokenizer->reverse_token(); // tokenizer will be on token after last statement token if count causes it to end
                     }
                 }
 
@@ -508,24 +536,21 @@ namespace shift {
                     }
 
                     const token& left_while_bracket = this->m_tokenizer->next_token();
-                    if (!left_while_bracket.is_left_scope_bracket()) {
-                        if (!left_while_bracket.is_null_token()) {
-                            this->m_token_error(left_while_bracket, "expected '{' after 'while' declaration inside function body");
-                        } else {
-                            this->m_token_error(this->m_tokenizer->reverse_peek_token(), "expected '{' after 'while' declaration inside function body before end of file");
-                        }
-                    }
+                    if (left_while_bracket.is_left_scope_bracket()) {
+                        this->m_tokenizer->next_token(); // Skip {
+                        m_parse_function_block(func, statement.get_while_statements());
 
-                    this->m_tokenizer->next_token(); // Skip {
-                    m_parse_function_block(func, statement.get_while_statements());
-
-                    const token& right_while_bracket = this->m_tokenizer->current_token();
-                    if (!right_while_bracket.is_right_scope_bracket()) {
-                        if (!right_while_bracket.is_null_token()) {
-                            this->m_token_error(right_while_bracket, "expected '}' to close 'while' declaration inside function body");
-                        } else {
-                            this->m_token_error(this->m_tokenizer->reverse_peek_token(), "expected '}' to close 'while' declaration inside function body before end of file");
+                        const token& right_while_bracket = this->m_tokenizer->current_token();
+                        if (!right_while_bracket.is_right_scope_bracket()) {
+                            if (!right_while_bracket.is_null_token()) {
+                                this->m_token_error(right_while_bracket, "expected '}' to close 'while' declaration inside function body");
+                            } else {
+                                this->m_token_error(this->m_tokenizer->reverse_peek_token(), "expected '}' to close 'while' declaration inside function body before end of file");
+                            }
                         }
+                    } else {
+                        m_parse_function_block(func, statement.get_while_statements(), 1);
+                        this->m_tokenizer->reverse_token(); // tokenizer will be on token after last statement token if count causes it to end
                     }
                 }
 
@@ -551,12 +576,12 @@ namespace shift {
 
                         std::list<shift_statement> temp_statement;
                         m_parse_function_block(func, temp_statement, 1);
-
                         if (temp_statement.size() > 0)
                             statement.set_for_initializer(std::move(temp_statement.front()));
                     }
 
                     {
+                        // tokenizer will be on token after last statement token if count causes it to end; no need for next_token
                         statement.set_for_condition(m_parse_expression());
                     }
 
@@ -573,24 +598,21 @@ namespace shift {
                     }
 
                     const token& left_for_bracket = this->m_tokenizer->next_token();
-                    if (!left_for_bracket.is_left_scope_bracket()) {
-                        if (!left_for_bracket.is_null_token()) {
-                            this->m_token_error(left_for_bracket, "expected '{' after 'for' declaration inside function body");
-                        } else {
-                            this->m_token_error(this->m_tokenizer->reverse_peek_token(), "expected '{' after 'for' declaration inside function body before end of file");
-                        }
-                    }
+                    if (left_for_bracket.is_left_scope_bracket()) {
+                        this->m_tokenizer->next_token(); // Skip {
+                        m_parse_function_block(func, statement.get_for_statements());
 
-                    this->m_tokenizer->next_token(); // Skip {
-                    m_parse_function_block(func, statement.get_for_statements());
-
-                    const token& right_for_bracket = this->m_tokenizer->current_token();
-                    if (!right_for_bracket.is_right_scope_bracket()) {
-                        if (!right_for_bracket.is_null_token()) {
-                            this->m_token_error(right_for_bracket, "expected '}' to close 'for' declaration inside function body");
-                        } else {
-                            this->m_token_error(this->m_tokenizer->reverse_peek_token(), "expected '}' to close 'for' declaration inside function body before end of file");
+                        const token& right_for_bracket = this->m_tokenizer->current_token();
+                        if (!right_for_bracket.is_right_scope_bracket()) {
+                            if (!right_for_bracket.is_null_token()) {
+                                this->m_token_error(right_for_bracket, "expected '}' to close 'for' declaration inside function body");
+                            } else {
+                                this->m_token_error(this->m_tokenizer->reverse_peek_token(), "expected '}' to close 'for' declaration inside function body before end of file");
+                            }
                         }
+                    } else {
+                        m_parse_function_block(func, statement.get_for_statements(), 1);
+                        this->m_tokenizer->reverse_token(); // tokenizer will be on token after last statement token if count causes it to end
                     }
                 }
 
@@ -601,7 +623,7 @@ namespace shift {
                         this->m_clear_mods();
                     }
                     statement.set_return(_token);
-                    this->m_tokenizer->next_token(); // skip return
+                    this->m_tokenizer->next_token(); // skip 'return'
                     statement.set_return_statement(m_parse_expression());
                 }
 
@@ -621,6 +643,7 @@ namespace shift {
                     if (!semi_colon.is_semicolon()) {
                         if (!semi_colon.is_null_token()) {
                             this->m_token_error(semi_colon, "expected ';' after '" + std::string(_token->get_data()) + "' in function body");
+                            this->m_skip_until(token::token_type::SEMICOLON);
                         } else {
                             this->m_token_error(this->m_tokenizer->reverse_peek_token(), "expected ';' after '" + std::string(_token->get_data()) + "' in function body before end of file");
                         }
@@ -1276,15 +1299,20 @@ namespace shift {
                 this->m_token_error(*_token, "unexpected token '" + std::string(_token->get_data()) + "' in expression");
             }
 
-
-            if (expr->parent != nullptr && is_unary_operator(expr->parent->type)) {
-                if (expr->parent->get_left()->type != token_type::NULL_TOKEN && expr->parent->get_right()->type != token_type::NULL_TOKEN) {
-                    this->m_token_error(*expr->parent->begin, "unexpected operator '" + std::string(expr->parent->begin->get_data()) + "' inside expression");
-                } else if (expr->parent->get_left()->type == token_type::NULL_TOKEN && expr->parent->get_right()->type == token_type::NULL_TOKEN) {
-                    this->m_token_error(*expr->parent->begin, "unexpected operator '" + std::string(expr->parent->begin->get_data()) + "' inside expression");
+            if (expr->parent != nullptr) {
+                if (is_unary_operator(expr->parent->type)) {
+                    if (expr->parent->get_left()->type != token_type::NULL_TOKEN && expr->parent->get_right()->type != token_type::NULL_TOKEN && !is_binary_operator(expr->parent->type)) {
+                        this->m_token_error(*expr->parent->begin, "unexpected operator '" + std::string(expr->parent->begin->get_data()) + "' inside expression");
+                    } else if (expr->parent->get_left()->type == token_type::NULL_TOKEN && expr->parent->get_right()->type == token_type::NULL_TOKEN) {
+                        this->m_token_error(*expr->parent->begin, "unexpected operator '" + std::string(expr->parent->begin->get_data()) + "' inside expression");
+                    }
                 }
-            } else if (expr->parent != nullptr && is_binary_operator(expr->parent->type) && expr->parent->get_right()->size() == 0 && expr->parent->get_left()->size() != 0) {
-                this->m_token_error(*expr->parent->begin, "unexpected operator '" + std::string(expr->parent->begin->get_data()) + "' inside expression");
+
+                if (is_binary_operator(expr->parent->type)) {
+                    if (expr->parent->get_right()->size() == 0 && expr->parent->get_left()->size() != 0 && !is_suffix_operator(expr->parent->type)) {
+                        this->m_token_error(*expr->parent->begin, "unexpected operator '" + std::string(expr->parent->begin->get_data()) + "' inside expression");
+                    }
+                }
             } else if (this->m_tokenizer->reverse_peek_token().is_comma()) {
                 this->m_token_error(this->m_tokenizer->reverse_peek_token(), "misplaced ',' inside expression");
             }
