@@ -96,6 +96,13 @@ namespace shift {
         static constexpr inline bool is_strictly_suffix_operator(const token_type type) noexcept { return token(std::string_view(), type, file_indexer()).is_strictly_suffix_overload_operator(); }
         static constexpr parser::mods to_access_specifier(const token& token) noexcept;
 
+        static constexpr parser::mods visibility_modifiers = parser::mods::PUBLIC | parser::mods::PROTECTED | parser::mods::PRIVATE;
+        static constexpr parser::mods class_modifiers = visibility_modifiers | parser::mods::STATIC;
+        static constexpr parser::mods function_modifiers = visibility_modifiers | parser::mods::STATIC | parser::mods::EXTERN;
+        static constexpr parser::mods type_modifiers = parser::mods::CONST_;
+        static constexpr parser::mods constructor_modifiers = visibility_modifiers;
+        static constexpr parser::mods variable_modifiers = visibility_modifiers | parser::mods::STATIC | parser::mods::CONST_ | parser::mods::EXTERN;
+
         void parser::parse() {
             for (const token* current = &this->m_tokenizer->current_token(); !current->is_null_token(); current = &this->m_tokenizer->next_token()) {
                 if (current->is_use()) {
@@ -156,9 +163,6 @@ namespace shift {
                 this->m_parse_access_specifier();
             }
 
-            constexpr mods visiblity_specifiers = mods::PUBLIC | mods::PROTECTED | mods::PRIVATE;
-            constexpr mods class_modifiers = visiblity_specifiers | mods::STATIC;
-
             for (const auto& [mod, token_] : this->m_mods) {
                 if ((mod & class_modifiers) == 0) {
                     this->m_token_error(*token_, "unexpected '" + std::string(token_->get_data()) + "' specifier in class declaration");
@@ -182,7 +186,6 @@ namespace shift {
                 this->m_token_error(*clazz.name, "invalid class name '" + std::string(clazz.name->get_data()) + "'");
                 this->m_skip_before(token::token_type::LEFT_SCOPE_BRACKET);
             }
-
 
             const token& left_bracket = this->m_tokenizer->next_token();
 
@@ -231,6 +234,114 @@ namespace shift {
 
                 if (token_->is_constructor()) {
                     // parse constructor
+                    shift_function func;
+                    func.name = token_;
+                    func.clazz = &clazz;
+
+                    for (const auto& [mod, token_] : this->m_mods) {
+                        if ((mod & constructor_modifiers) == 0x0) {
+                            this->m_token_error(*token_, "unexpected '" + std::string(token_->get_data()) + "' specifier in constructor declaration");
+                        } else {
+                            func.mods |= mod;
+                        }
+                    }
+                    this->m_clear_mods();
+
+                    const token& next_token = this->m_tokenizer->next_token();
+
+                    if (!next_token.is_left_bracket()) {
+                        if (!next_token.is_null_token()) {
+                            this->m_token_error(next_token, "expected '(' after class constructor declaration");
+                            this->m_skip_until(token::token_type::LEFT_BRACKET);
+                        } else {
+                            this->m_token_error(this->m_tokenizer->reverse_peek_token(), "expected '(' after class constructor declaration before end of file");
+                        }
+                    }
+
+                    // parse constructor parameters
+                    for (this->m_tokenizer->next_token(); !this->m_tokenizer->current_token().is_null_token() && !this->m_tokenizer->current_token().is_right_bracket(); this->m_tokenizer->next_token()) {
+                        shift_type param_type = m_parse_type("constructor parameter");
+                        const token& param_name = this->m_tokenizer->current_token();
+
+                        if (param_type.name.size() == 0) {
+                            this->m_token_error(*param_type.name.begin, "expected parameter type in constructor parameter list, got '" + std::string(param_type.name.begin->get_data()) + "'");
+                        }
+
+                        if (param_name.is_comma() || param_name.is_right_bracket()) {
+                            // nameless parameters
+                            func.parameters.push_back({ std::move(param_type), &token::null });
+
+                            if (param_name.is_right_bracket())
+                                break;
+
+                            continue;
+                        }
+
+                        if (!param_name.is_identifier()) {
+                            if (!param_name.is_null_token()) {
+                                this->m_token_error(param_name, "expected identifier for constructor parameter name");
+                            } else {
+                                this->m_token_error(this->m_tokenizer->reverse_peek_token(), "expected identifier for constructor parameter name before end of file");
+                            }
+                        } else if (param_name.is_keyword()) {
+                            this->m_token_error(param_name, "'" + std::string(param_name.get_data()) + "' is not a valid constructor parameter name");
+                        }
+
+                        func.parameters.push_back({ std::move(param_type), &param_name });
+
+                        const token& after_param_name = this->m_tokenizer->next_token();
+                        if (!after_param_name.is_comma()) {
+                            if (!after_param_name.is_right_bracket()) {
+                                if (!after_param_name.is_null_token()) {
+                                    this->m_token_error(after_param_name, "expected ',' or ')' in constructor parameter list");
+                                } else {
+                                    this->m_token_error(this->m_tokenizer->reverse_peek_token(), "expected ',' or ')' in constructor parameter list before end of file");
+                                }
+                            } else break;
+                        }
+                    }
+
+                    const token& function_right_parameter_bracket = this->m_tokenizer->current_token();
+
+                    if (!function_right_parameter_bracket.is_right_bracket()) {
+                        if (!function_right_parameter_bracket.is_null_token()) {
+                            this->m_token_error(function_right_parameter_bracket, "expected ')' at end of constructor parameter list");
+                            this->m_skip_until(token::token_type::RIGHT_BRACKET);
+                        } else {
+                            this->m_token_error(this->m_tokenizer->reverse_peek_token(), "expected ')' at end of constructor parameter list before end of file");
+                        }
+                    } else if (this->m_tokenizer->reverse_peek_token().is_comma()) {
+                        this->m_token_error(this->m_tokenizer->reverse_peek_token(), "misplaced ',' in constructor parameter list");
+                    }
+
+                    const token& function_left_bracket = this->m_tokenizer->next_token();
+
+                    if (!function_left_bracket.is_left_scope_bracket()) {
+                        if (!function_left_bracket.is_null_token()) {
+                            this->m_token_error(function_left_bracket, "expected '{' after class constructor declaration");
+                            this->m_skip_until(token::token_type::LEFT_SCOPE_BRACKET);
+                        } else {
+                            this->m_token_error(this->m_tokenizer->reverse_peek_token(), "expected '{' after class constructor declaration before end of file");
+                        }
+                    }
+
+                    this->m_tokenizer->next_token(); // Move onto first token inside constructor body
+
+                    // Parse constructor body
+                    m_parse_function(func);
+
+                    const token& function_right_bracket = this->m_tokenizer->current_token();
+
+                    if (!function_right_bracket.is_right_scope_bracket()) {
+                        if (!function_right_bracket.is_null_token()) {
+                            this->m_token_error(function_right_bracket, "expected '}' after class constructor declaration");
+                            this->m_skip_until(token::token_type::RIGHT_SCOPE_BRACKET);
+                        } else {
+                            this->m_token_error(this->m_tokenizer->reverse_peek_token(), "expected '}' after class constructor declaration before end of file");
+                        }
+                    }
+
+                    clazz.functions.push_back(std::move(func));
                     continue;
                 }
 
@@ -247,39 +358,63 @@ namespace shift {
                 if (token_->is_identifier()) {
                     // it must be either a variable declaration or a function declaration
                     // TODO check if return type is void
-                    shift_type type = m_parse_type("variable or function type");
-                    constexpr mods visiblity_specifiers = mods::PUBLIC | mods::PROTECTED | mods::PRIVATE;
+                    shift_type type;
+
+                    if (token_->is_void()) {
+                        type.name.begin = this->m_tokenizer->get_index();
+                        type.name.end = type.name.begin + 1;
+                        this->m_tokenizer->next_token();
+                    } else {
+                        type = m_parse_type("variable or function type");
+                    }
 
                     if (type.name.size() == 0) {
                         this->m_token_error(*type.name.begin, "expected variable or function type");
                     }
 
-                    const token& name = this->m_tokenizer->current_token();
+                    const token* name = &this->m_tokenizer->current_token();
 
-                    if (!name.is_identifier()) {
-                        if (!name.is_null_token()) {
-                            this->m_token_error(name, "expected identifier for variable or function name");
+                    for (; name->is_access_specifier(); name = &this->m_tokenizer->next_token()) {
+                        this->m_parse_access_specifier();
+                    }
+
+                    if (!name->is_identifier()) {
+                        if (!name->is_null_token()) {
+                            this->m_token_error(*name, "expected identifier for variable or function name");
+                            name = &this->m_tokenizer->current_token();
                         } else {
                             this->m_token_error(this->m_tokenizer->reverse_peek_token(), "expected identifier for variable or function name before end of file");
                         }
-                    } else if (name.is_keyword()) {
-                        this->m_token_error(name, "'" + std::string(name.get_data()) + "' is not a valid variable or function name");
+                    } else if (name->is_keyword()) {
+                        if (name->is_constructor() && type.name.size() != 0) {
+                            this->m_token_error(*type.name.begin, "class constructor cannot have return type");
+                        } else {
+                            this->m_token_error(*name, "'" + std::string(name->get_data()) + "' is not a valid variable or function name");
+                        }
+                        name = &this->m_tokenizer->current_token();
                     }
 
                     const token& next_token = this->m_tokenizer->next_token();
-                    if (next_token.is_left_bracket()) {
+                    if (next_token.is_left_bracket() || token_->is_void()) {
                         // function definition
-
                         shift_function func;
-                        func.name = &name;
+                        func.name = name;
                         func.clazz = &clazz;
                         func.return_type = std::move(type);
 
-                        constexpr mods function_modifiers = visiblity_specifiers | mods::STATIC | mods::EXTERN;
-
                         for (const auto& [mod, token_] : this->m_mods) {
                             if ((mod & function_modifiers) == 0x0) {
-                                this->m_token_error(*token_, "unexpected '" + std::string(token_->get_data()) + "' specifier in function declaration");
+                                if ((mod & type_modifiers) != 0) {
+                                    if (func.return_type.name.size() != 0 && func.return_type.name.begin->is_void()) {
+                                        this->m_token_error(*token_, "void returning function cannot have '" + std::string(token_->get_data()) + "' specifier");
+                                    } else {
+                                        func.return_type.mods |= mod;
+                                    }
+
+                                } else {
+                                    this->m_token_error(*token_, "unexpected '" + std::string(token_->get_data()) + "' specifier in function declaration");
+                                }
+
                             } else {
                                 func.mods |= mod;
                             }
@@ -306,7 +441,7 @@ namespace shift {
                             }
 
                             if (!param_name.is_identifier()) {
-                                if (!name.is_null_token()) {
+                                if (!param_name.is_null_token()) {
                                     this->m_token_error(param_name, "expected identifier for function parameter name");
                                 } else {
                                     this->m_token_error(this->m_tokenizer->reverse_peek_token(), "expected identifier for function parameter name before end of file");
@@ -371,11 +506,9 @@ namespace shift {
                     } else if (next_token.is_semicolon() || next_token.is_binary_operator() || next_token.is_unary_operator()) {
                         // variable declaration
                         shift_variable variable;
-                        variable.name = &name;
+                        variable.name = name;
                         variable.type = std::move(type);
                         variable.clazz = &clazz;
-
-                        constexpr mods variable_modifiers = visiblity_specifiers | mods::STATIC | mods::CONST_ | mods::EXTERN;
 
                         for (const auto& [mod, token_] : this->m_mods) {
                             if ((mod & variable_modifiers) == 0x0) {
@@ -390,6 +523,7 @@ namespace shift {
                             if (!next_token.is_equals()) {
                                 this->m_token_error(next_token, "expected ';' or '=' for variable declaration, got '" + std::string(next_token.get_data()) + "'");
                             }
+
                             // variable definition
                             const token& first_expr_token = this->m_tokenizer->next_token(); // Move onto the expression
                             variable.value = m_parse_expression();
@@ -577,6 +711,7 @@ namespace shift {
                         std::list<shift_statement> temp_statement;
                         m_parse_function_block(func, temp_statement, 1);
                         if (temp_statement.size() > 0)
+                            // TODO add statement type checking
                             statement.set_for_initializer(std::move(temp_statement.front()));
                     }
 
@@ -675,8 +810,6 @@ namespace shift {
                         variable.name = &after_type;
                         variable.type = std::move(type);
                         variable.function = &func;
-
-                        constexpr mods variable_modifiers = mods::CONST_;
 
                         for (const auto& [mod, token_] : this->m_mods) {
                             if ((mod & variable_modifiers) == 0x0) {
@@ -883,21 +1016,83 @@ namespace shift {
         parser::shift_type parser::m_parse_type(const char* const name_type) {
             parser::shift_type type;
 
-
             for (const token* access_specifier_token = &this->m_tokenizer->current_token(); access_specifier_token->is_access_specifier(); access_specifier_token = &this->m_tokenizer->next_token()) {
                 this->m_parse_access_specifier();
             }
 
-            constexpr mods type_modifiers = mods::CONST_;
-            std::list<typename std::list<std::pair<mods, const token*>>::const_iterator> remove_mods;
-            for (const auto& [mod, token_] : this->m_mods) {
-                if ((mod & type_modifiers) != 0x0) {
-                    type.mods |= mod;
-                    remove_mods.push_back(--this->m_mods.cend());
-                }
-            }
+            {
+                parser::shift_name name;
+                name.begin = this->m_tokenizer->get_index();
 
-            type.name = m_parse_name(name_type);
+                token::token_type last_type = token::token_type(0x0);
+
+                for (const token* token = &this->m_tokenizer->current_token(); !token->is_null_token(); token = &this->m_tokenizer->next_token()) {
+                    if (token->is_access_specifier()) {
+                        if (name.end == std::vector<compiler::token>::const_iterator()) {
+                            name.end = this->m_tokenizer->get_index();
+                        }
+
+                        this->m_parse_access_specifier();
+                        auto const mod = this->m_mods.back().first;
+
+                        if ((mod & type_modifiers) == 0x0) {
+                            this->m_token_error(*token, "unexpected '" + std::string(token->get_data()) + "' specifier in " + std::string(name_type));
+                        }
+                        last_type = token::token_type::IDENTIFIER;
+                    }
+
+                    else if (name.end != std::vector<compiler::token>::const_iterator()) {
+                        break;
+                    }
+
+                    else if (token->is_keyword()) {
+                        // error, no keywords in (module) names
+                        this->m_token_error(*token, "invalid '" + std::string(token->get_data()) + "' inside " + std::string(name_type));
+                    }
+
+                    else if (token->is_identifier()) {
+                        if (last_type == token::token_type::IDENTIFIER) {
+                            // cannot have two identifiers in a row in a (module) name
+                            last_type = token::token_type::IDENTIFIER;
+                            break;
+                        }
+
+                        last_type = token::token_type::IDENTIFIER;
+                    }
+
+                    else if (token->get_token_type() == token::token_type::DOT) {
+                        if (last_type != token::token_type::IDENTIFIER) {
+                            // cannot have two dots in a row in a (module) name
+                            last_type = token::token_type::DOT;
+                            break;
+                        }
+
+                        last_type = token::token_type::DOT;
+                    } else break;
+                }
+                if (name.end == std::vector<compiler::token>::const_iterator())
+                    name.end = this->m_tokenizer->get_index();
+
+                std::list<typename std::list<std::pair<mods, const token*>>::const_iterator> remove_mods;
+
+                for (auto cur = this->m_mods.cbegin(); cur != this->m_mods.cend(); ++cur) {
+                    auto const mod = cur->first;
+                    if ((mod & type_modifiers) != 0x0) {
+                        type.mods |= mod;
+                        remove_mods.push_back(cur);
+                    }
+                }
+
+                for (auto const m : remove_mods) {
+                    this->m_mods.erase(m);
+                }
+
+                if (last_type == token::token_type::DOT) {
+                    this->m_token_error(this->m_tokenizer->reverse_peek_token(), "unexpected '.' inside " + std::string(name_type));
+                }
+
+                type.name = std::move(name);
+            }
 
             token::token_type last_type = this->m_tokenizer->reverse_peek_token().get_token_type();
 
@@ -933,9 +1128,7 @@ namespace shift {
                 this->m_token_error(last, "unexpected '[' inside " + std::string(name_type));
             }
 
-            for (auto const m : remove_mods) {
-                this->m_mods.erase(m);
-            }
+
 
             return type;
         }
@@ -945,9 +1138,7 @@ namespace shift {
             const mods mod = to_access_specifier(current_token);
             const mods current_mods = this->m_get_mods();
 
-            constexpr mods visibility_specifiers = (mods::PUBLIC | mods::PROTECTED | mods::PRIVATE);
-
-            if ((current_mods & visibility_specifiers) != 0x0 && ((current_mods | mod) & visibility_specifiers) != (current_mods & visibility_specifiers)) {
+            if ((current_mods & visibility_modifiers) != 0x0 && ((current_mods | mod) & visibility_modifiers) != (current_mods & visibility_modifiers)) {
                 // error if the one we have (i.e. the public, protected or private that is currently specified (the one being stored in current_mods)) is NOT the one now being parsed
                 this->m_token_error(current_token, "unexpected visibility specifier");
             } else if ((current_mods & mod) == mod) {
