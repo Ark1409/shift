@@ -6,7 +6,7 @@
 #ifndef SHIFT_CONFIG_H_
 #define SHIFT_CONFIG_H_ 1
 
-// Define shift debug if bulding in debug mode
+// Define shift debug if building in debug mode
 #ifndef NDEBUG
 #   define SHIFT_DEBUG 1
 #endif
