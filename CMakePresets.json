@@ -1,8 +1,8 @@
 {
-    "version": 4,
+    "version": 3,
     "cmakeMinimumRequired": {
         "major": 3,
-        "minor": 23,
+        "minor": 21,
         "patch": 0
     },
     "configurePresets": [{
@@ -12,8 +12,10 @@
             "generator": "MinGW Makefiles",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_INSTALL_PREFIX": "C:/Program Files/shift",
                 "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
-                "CMAKE_CXX_FLAGS_INIT": "-Wall -Wextra -Wpedantic -fmessage-length=0 -g3 -O0 -m64"
+                "CMAKE_CXX_FLAGS_INIT": "-Werror -Wall -Wextra -Wpedantic -Wwrite-strings -Wformat=2 -Wformat-security -Wformat-nonliteral -Wformat-y2k -Wcast-align -Wcast-qual -Walloca -Walloc-zero -Wstringop-overflow=4 -Wpacked -Wpadded -Wpointer-arith -Wredundant-decls -Wstack-protector -Wswitch-default -Wswitch -Wunreachable-code -Wunused -Wunused-parameter -Wmissing-format-attribute -Wmissing-noreturn -Wdisabled-optimization -fmessage-length=0 -m64",
+                "CMAKE_CXX_FLAGS_DEBUG": "-Og -g3"
             }
         },
         {
@@ -23,7 +25,9 @@
             "generator": "MinGW Makefiles",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release",
-                "CMAKE_CXX_FLAGS_INIT": "-Wall -Wextra -Wpedantic -fmessage-length=0 -O3 -m64"
+                "CMAKE_INSTALL_PREFIX": "C:/Program Files/shift",
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+                "CMAKE_CXX_FLAGS_INIT": "-Werror -Wall -Wextra -Wpedantic -Wwrite-strings -Wformat=2 -Wformat-security -Wformat-nonliteral -Wformat-y2k -Wcast-align -Wcast-qual -Walloca -Walloc-zero -Wstringop-overflow=4 -Wpacked -Wpadded -Wpointer-arith -Wredundant-decls -Wstack-protector -Wswitch-default -Wswitch -Wunreachable-code -Wunused -Wunused-parameter -Wmissing-format-attribute -Wmissing-noreturn -Wdisabled-optimization -fmessage-length=0 -m64"
             }
         }
     ]

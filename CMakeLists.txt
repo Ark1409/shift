@@ -1,5 +1,5 @@
-# CMake 3.23 required to build
-cmake_minimum_required(VERSION 3.23.0)
+# CMake 3.21 required to build
+cmake_minimum_required(VERSION 3.21)
 
 # Needed for project VERSION
 cmake_policy(SET CMP0048 NEW)
@@ -43,24 +43,32 @@ set(LIBRARY_DIRECTORIES lib)
 set(LIBRARIES "")
 
 # Set the executable file for the project
-add_executable(shift ${SOURCES})
+add_executable(${PROJECT_NAME} ${SOURCES})
 
 # shift can only compile with c++17 and later
-target_compile_features(shift PRIVATE cxx_std_17)
+target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
 
 # Add includes for the project
-target_include_directories(shift PRIVATE ${INCLUDES})
+target_include_directories(${PROJECT_NAME} PRIVATE ${INCLUDES})
 
 # Add library directories for the project
-target_link_directories(shift PRIVATE ${LIBRARY_DIRECTORIES})
+target_link_directories(${PROJECT_NAME} PRIVATE ${LIBRARY_DIRECTORIES})
 
 # Add and link libraries to project
-target_link_libraries(shift ${LIBRARIES})
+target_link_libraries(${PROJECT_NAME} ${LIBRARIES})
 
 # Most of the shift compiler code will be implemented inside DLL files, while the executable compiler itself will simply link and call to those DLLs
 # Planning for this functionality, it is required to specify a build type for shift (static or dynamic (dll))
 # For now, this affects nothing since shift is being entirely built into the executable.
 target_compile_definitions(shift PRIVATE "SHIFT_BUILD_STATIC=1")
 
-# Enable lto on project if supported
-set_property(TARGET shift PROPERTY INTERPROCEDURAL_OPTIMIZATION True)
+# Enable lto on the target if supported (in Release mode)
+if(CMAKE_BUILD_TYPE STREQUAL "Release")
+    set_property(TARGET ${PROJECT_NAME} PROPERTY INTERPROCEDURAL_OPTIMIZATION True)
+endif()
+
+# Enable PIE/PIC on the target if supported
+set_property(TARGET ${PROJECT_NAME} PROPERTY POSITION_INDEPENDENT_CODE True)
+
+# Allow installation of the target
+install(TARGETS ${PROJECT_NAME})
