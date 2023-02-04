@@ -99,14 +99,14 @@ namespace shift {
 			inline std::list<_message_pair_type>& get_messages(void) noexcept { return this->m_messages; }
 			inline const std::list<_message_pair_type>& get_messages(void) const noexcept { return this->m_messages; }
 		private:
+			bool m_warnings = false, m_werror = false;
 			std::list<_message_pair_type> m_messages;
 			std::stack<typename std::list<_message_pair_type>::size_type> m_marks;
 			std::ostringstream m_message_stream;
-			bool m_warnings = false, m_werror = false;
 		};
 
-		inline error_handler::error_handler(const error_handler& other) noexcept: m_messages(other.m_messages), m_marks(
-			other.m_marks), m_message_stream(other.m_message_stream.str()), m_warnings(other.m_warnings), m_werror(other.m_werror) {}
+		inline error_handler::error_handler(const error_handler& other) noexcept: m_warnings(other.m_warnings), m_werror(other.m_werror), 
+		m_messages(other.m_messages), m_marks(other.m_marks), m_message_stream(other.m_message_stream.str()) {}
 	}
 }
 
