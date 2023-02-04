@@ -578,6 +578,7 @@ namespace shift {
                     if (!left_condition_bracket.is_left_bracket()) {
                         if (!left_condition_bracket.is_null_token()) {
                             this->m_token_error(left_condition_bracket, "expected '(' after 'if' inside function body");
+                            this->m_skip_until(token::token_type::LEFT_BRACKET);
                         } else {
                             this->m_token_error(this->m_tokenizer->reverse_peek_token(), "expected '(' after 'if' inside function body before end of file");
                         }
@@ -602,12 +603,16 @@ namespace shift {
                         if (!right_if_bracket.is_right_scope_bracket()) {
                             if (!right_if_bracket.is_null_token()) {
                                 this->m_token_error(right_if_bracket, "expected '}' to close 'if' declaration inside function body");
+                                this->m_skip_until(token::token_type::RIGHT_SCOPE_BRACKET);
                             } else {
                                 this->m_token_error(this->m_tokenizer->reverse_peek_token(), "expected '}' to close 'if' declaration inside function body before end of file");
                             }
                         }
                     } else {
                         m_parse_function_block(func, statement.get_if_statements(), 1);
+                        if (statement.get_if_statements().size() == 0) {
+                            this->m_token_error(this->m_tokenizer->current_token(), "expected valid statement after 'if' declaration");
+                        }
                         this->m_tokenizer->reverse_token(); // tokenizer will be on token after last statement token if count causes it to end
                     }
                 }
@@ -633,12 +638,16 @@ namespace shift {
                         if (!right_else_bracket.is_right_scope_bracket()) {
                             if (!right_else_bracket.is_null_token()) {
                                 this->m_token_error(right_else_bracket, "expected '}' to close 'else' declaration inside function body");
+                                this->m_skip_until(token::token_type::RIGHT_SCOPE_BRACKET);
                             } else {
                                 this->m_token_error(this->m_tokenizer->reverse_peek_token(), "expected '}' to close 'else' declaration inside function body before end of file");
                             }
                         }
                     } else {
                         m_parse_function_block(func, statement.get_else_statements(), 1);
+                        if (statement.get_else_statements().size() == 0) {
+                            this->m_token_error(this->m_tokenizer->current_token(), "expected valid statement after 'else' declaration");
+                        }
                         this->m_tokenizer->reverse_token(); // tokenizer will be on token after last statement token if count causes it to end
                     }
                 }
@@ -655,6 +664,7 @@ namespace shift {
                     if (!left_condition_bracket.is_left_bracket()) {
                         if (!left_condition_bracket.is_null_token()) {
                             this->m_token_error(left_condition_bracket, "expected '(' after 'while' inside function body");
+                            this->m_skip_until(token::token_type::LEFT_BRACKET);
                         } else {
                             this->m_token_error(this->m_tokenizer->reverse_peek_token(), "expected '(' after 'while' inside function body before end of file");
                         }
@@ -667,6 +677,7 @@ namespace shift {
 
                     if (!right_condition_bracket.is_right_bracket()) {
                         this->m_token_error(this->m_tokenizer->reverse_peek_token(), "expected ')' after 'while' condition inside function body before end of file");
+                        break;
                     }
 
                     const token& left_while_bracket = this->m_tokenizer->next_token();
@@ -678,12 +689,16 @@ namespace shift {
                         if (!right_while_bracket.is_right_scope_bracket()) {
                             if (!right_while_bracket.is_null_token()) {
                                 this->m_token_error(right_while_bracket, "expected '}' to close 'while' declaration inside function body");
+                                this->m_skip_until(token::token_type::RIGHT_SCOPE_BRACKET);
                             } else {
                                 this->m_token_error(this->m_tokenizer->reverse_peek_token(), "expected '}' to close 'while' declaration inside function body before end of file");
                             }
                         }
                     } else {
                         m_parse_function_block(func, statement.get_while_statements(), 1);
+                        if (statement.get_while_statements().size() == 0) {
+                            this->m_token_error(this->m_tokenizer->current_token(), "expected valid statement after 'while' declaration");
+                        }
                         this->m_tokenizer->reverse_token(); // tokenizer will be on token after last statement token if count causes it to end
                     }
                 }
@@ -700,6 +715,7 @@ namespace shift {
                     if (!left_conditions_bracket.is_left_bracket()) {
                         if (!left_conditions_bracket.is_null_token()) {
                             this->m_token_error(left_conditions_bracket, "expected '(' after 'for' inside function body");
+                            this->m_skip_until(token::token_type::LEFT_BRACKET);
                         } else {
                             this->m_token_error(this->m_tokenizer->reverse_peek_token(), "expected '(' after 'for' inside function body before end of file");
                         }
@@ -729,6 +745,7 @@ namespace shift {
 
                         if (!right_condition_bracket.is_right_bracket()) {
                             this->m_token_error(this->m_tokenizer->reverse_peek_token(), "expected ')' after 'for' increment inside function body before end of file");
+                            break;
                         }
                     }
 
@@ -741,12 +758,16 @@ namespace shift {
                         if (!right_for_bracket.is_right_scope_bracket()) {
                             if (!right_for_bracket.is_null_token()) {
                                 this->m_token_error(right_for_bracket, "expected '}' to close 'for' declaration inside function body");
+                                this->m_skip_until(token::token_type::RIGHT_SCOPE_BRACKET);
                             } else {
                                 this->m_token_error(this->m_tokenizer->reverse_peek_token(), "expected '}' to close 'for' declaration inside function body before end of file");
                             }
                         }
                     } else {
                         m_parse_function_block(func, statement.get_for_statements(), 1);
+                        if (statement.get_else_statements().size() == 0) {
+                            this->m_token_error(this->m_tokenizer->current_token(), "expected valid statement after 'for' declaration");
+                        }
                         this->m_tokenizer->reverse_token(); // tokenizer will be on token after last statement token if count causes it to end
                     }
                 }
@@ -982,6 +1003,7 @@ namespace shift {
                 else if (token->is_keyword()) {
                     // error, no keywords in (module) names
                     this->m_token_error(*token, "invalid '" + std::string(token->get_data()) + "' inside " + std::string(name_type));
+                    last_type = token::token_type::IDENTIFIER;
                 }
 
                 else if (token->is_identifier()) {
@@ -998,6 +1020,7 @@ namespace shift {
                     if (last_type != token::token_type::IDENTIFIER) {
                         // cannot have two dots in a row in a (module) name
                         last_type = token::token_type::DOT;
+                        this->m_tokenizer->next_token(); // This allows the error to be caught below
                         break;
                     }
 
@@ -1019,13 +1042,12 @@ namespace shift {
             for (const token* access_specifier_token = &this->m_tokenizer->current_token(); access_specifier_token->is_access_specifier(); access_specifier_token = &this->m_tokenizer->next_token()) {
                 this->m_parse_access_specifier();
             }
-
+            token::token_type last_type = token::token_type(0x0);
             {
                 parser::shift_name name;
                 name.begin = this->m_tokenizer->get_index();
 
-                token::token_type last_type = token::token_type(0x0);
-
+                // TODO type const[] will include the "const" inside the type name with this model
                 for (const token* token = &this->m_tokenizer->current_token(); !token->is_null_token(); token = &this->m_tokenizer->next_token()) {
                     if (token->is_access_specifier()) {
                         if (name.end == std::vector<compiler::token>::const_iterator()) {
@@ -1048,6 +1070,7 @@ namespace shift {
                     else if (token->is_keyword()) {
                         // error, no keywords in (module) names
                         this->m_token_error(*token, "invalid '" + std::string(token->get_data()) + "' inside " + std::string(name_type));
+                        last_type = token::token_type::IDENTIFIER;
                     }
 
                     else if (token->is_identifier()) {
@@ -1064,6 +1087,7 @@ namespace shift {
                         if (last_type != token::token_type::IDENTIFIER) {
                             // cannot have two dots in a row in a (module) name
                             last_type = token::token_type::DOT;
+                            this->m_tokenizer->next_token(); // This allows the error to be caught below
                             break;
                         }
 
@@ -1093,8 +1117,6 @@ namespace shift {
 
                 type.name = std::move(name);
             }
-
-            token::token_type last_type = this->m_tokenizer->reverse_peek_token().get_token_type();
 
             for (const token* token = &this->m_tokenizer->current_token(); !token->is_null_token(); token = &this->m_tokenizer->next_token()) {
                 if (token->is_access_specifier()) {
@@ -1127,8 +1149,6 @@ namespace shift {
                 const token& last = this->m_tokenizer->reverse_peek_token();
                 this->m_token_error(last, "unexpected '[' inside " + std::string(name_type));
             }
-
-
 
             return type;
         }
@@ -1447,7 +1467,16 @@ namespace shift {
                     } else {
                         expr->begin = this->m_tokenizer->get_index();
 
-                        this->m_parse_name("expression");
+                        if (this->m_tokenizer->current_token().is_this() || this->m_tokenizer->current_token().is_base()) {
+                            // Allow (this|base)[.]* at the beginning of the expression
+                            this->m_tokenizer->next_token();
+                            if (this->m_tokenizer->current_token().is_dot()) {
+                                this->m_tokenizer->next_token();
+                                this->m_parse_name("expression");
+                            }
+                        } else {
+                            this->m_parse_name("expression");
+                        }
 
                         expr->end = this->m_tokenizer->get_index();
 
