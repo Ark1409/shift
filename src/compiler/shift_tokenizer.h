@@ -283,8 +283,8 @@ namespace shift {
 					&& (this->is_binary() || this->is_const() || this->is_extern() || this->is_module() || this->is_namespace() || this->is_private()
 						|| this->is_protected() || this->is_public() || this->is_req() || this->is_unsafe() || this->is_use() || this->is_void()
 						|| this->is_class() || this->is_init() || this->is_operator() || this->is_constructor() || this->is_destructor()
-						|| this->is_this() || this->is_if() || this->is_else() || this->is_while() || this->is_return() || this->is_continue()
-						|| this->is_break() || this->is_for() || this->is_true() || this->is_false() || this->is_access_specifier());
+						|| this->is_this() || this->is_base() || this->is_if() || this->is_else() || this->is_while() || this->is_do() || this->is_return() 
+						|| this->is_continue() || this->is_break() || this->is_for() || this->is_true() || this->is_false() || this->is_access_specifier());
 			}
 
 			constexpr inline bool is_alias(void) const noexcept { return (this->is_identifier()) && (this->m_data == "alias"); }
