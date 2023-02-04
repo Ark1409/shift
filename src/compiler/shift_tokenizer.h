@@ -224,6 +224,8 @@ namespace shift {
 
 			constexpr inline bool is_new(void) const noexcept { return (this->is_identifier()) && (this->m_data == "new"); }
 
+			constexpr inline bool is_throw(void) const noexcept { return (this->is_identifier()) && (this->m_data == "throw"); }
+
 			constexpr inline bool is_access_specifier(void) const noexcept {
 				return (this->is_identifier())
 					&& (this->is_public() || this->is_protected() || this->is_private() || this->is_static() || this->is_extern() || this->is_binary()
