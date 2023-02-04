@@ -148,7 +148,7 @@ namespace shift {
 			inline bool is_cpp_out(void) const noexcept { return this->has_flag(FLAG_CPP_OUTPUT); }
 			inline bool is_help(void) const noexcept { return this->has_flag(FLAG_HELP); }
 			inline bool is_no_std(void) const noexcept { return this->has_flag(FLAG_NO_STD); }
-			inline bool has_flag(flags const flag) const noexcept { return this->m_flags & flag; }
+			inline bool has_flag(flags const flag) const noexcept { return (this->m_flags & flag) == flag; }
 
 			inline error_handler* get_error_handler() noexcept { return m_error_handler; }
 			inline const error_handler* get_error_handler() const noexcept { return m_error_handler; }
@@ -156,15 +156,16 @@ namespace shift {
 		protected:
 			/// Used by the argument parser for error handling
 			error_handler* m_error_handler = nullptr;
+
+			/// Compiler flags set by the user
+			flags m_flags = FLAG_NO_FLAGS;
+
 			/// The array of command-line arguments
 			std::vector<std::string_view> m_args;
 
 			/// Sources files, library paths, and library files
 			std::list<filesystem::file> m_compile_files, m_libraries;
 			std::list<filesystem::directory> m_library_paths;
-
-			/// Compiler flags set by the user
-			flags m_flags = FLAG_NO_FLAGS;
 		private:
 			void resolve_libraries_and_sources(void);
 		};

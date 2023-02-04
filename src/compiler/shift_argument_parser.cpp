@@ -154,94 +154,88 @@ namespace shift {
 				// If there are no source files to compile, help page will be displayed since there is no work to do.
 				this->m_flags = FLAG_HELP;
 			}
-			
+
 			// Ensures library and source files exist
 			return this->resolve_libraries_and_sources();
 		}
 
 		void argument_parser::resolve_libraries_and_sources(void) {
-			//			std::cout << "Libraries [Before]: " << this->get_libraries() << std::endl;
-			//			std::cout << "Library paths [Before]: " << this->get_library_paths() << std::endl;
-			//			std::cout << "Sources [Before]: " << this->get_source_files() << std::endl;
-
 			{ // Remove inexistent library paths
-				std::list<const filesystem::directory*> remove_lib_paths;
-				for (const filesystem::directory& lib_path : this->get_library_paths()) {
-					if (!lib_path) {
-						// warning: library file not found: "{lib}"
-						// Inform the user whenever a library path doesn't exist
+				std::list<std::list<filesystem::directory>::const_iterator> remove_lib_paths;
+				for (auto lib_path = this->get_library_paths().cbegin(); lib_path != this->get_library_paths().cend(); ++lib_path) {
+					if (!(*lib_path)) {
+						// If the library directory does not exist, issue a warning
 						if (this->m_error_handler) {
-							SHIFT_WARNING("Ignored inexistent library path: " << lib_path.raw_path());
+							SHIFT_WARNING("Ignored inexistent library path: " << lib_path->raw_path());
 						}
-						remove_lib_paths.push_back(&lib_path);
+
+						// Schedule the library directory for removal
+						remove_lib_paths.push_back(lib_path);
 					}
 				}
 
-				for (const filesystem::directory* const lib_path : remove_lib_paths) {
-					this->get_library_paths().remove(*lib_path);
+				for (const auto& lib_path : remove_lib_paths) {
+					this->get_library_paths().erase(lib_path);
 				}
 			}
 
 			{ // Remove inexistent libraries
-				std::list<filesystem::file*> remove_lib;
-				for (filesystem::file& lib_file : this->get_libraries()) {
-					if (!lib_file) {
+				std::list<std::list<filesystem::file>::iterator> remove_lib;
+				for (auto lib_file = this->get_libraries().begin(); lib_file != this->get_libraries().end(); ++lib_file) {
+					if (!(*lib_file)) {
 						// If it is not in current directory, checks directories from inputed library paths
 						for (const filesystem::directory& lib_path : this->get_library_paths()) {
-							filesystem::file new_file = lib_path / lib_file;
-
-							new_file.raw_path().make_preferred();
+							filesystem::file new_file = lib_path / *lib_file;
 
 							if (new_file) {
 								// If the file exists within this directory, use this one as the library file
-								lib_file = new_file; // you could also keep a list of library candidates, and then either error or warn the user which one you chose
+								// This only finds the first occurence. We may want to add a warning if more than one file with this name exists
+								// TODO Keep a list of library candidates, and then either error or warn the user which one you chose.
+								// or maybe compile both, and use functions specified from both as needed
+								*lib_file = std::move(new_file);
 								break;
 							}
 						}
 					}
 
-					if (!lib_file) {
-						// warning: library file not found: "{lib}"
-						// If the library was unable to be found, inform the user
+					if (!(*lib_file)) {
+						// If the file was still not founded after checking list of library directories, issue a warning
 						if (this->m_error_handler) {
-							SHIFT_WARNING("Ignored inexistent library: " << lib_file.get_path());
+							SHIFT_WARNING("Ignored inexistent library: " << lib_file->get_path());
 						}
-						remove_lib.push_back(&lib_file); // and schedule it for removal
+						// Schedule the library for removal
+						remove_lib.push_back(lib_file);
 					}
 				}
 
-				for (const filesystem::file* const lib : remove_lib) {
-					this->get_libraries().remove(*lib);
+				for (const auto& lib : remove_lib) {
+					this->get_libraries().erase(lib);
 				}
 			}
 
 			{ // Remove inexistent source files
-				std::list<const filesystem::file*> remove_source;
-				for (const filesystem::file& source_file : this->get_source_files()) {
+				std::list<std::list<filesystem::file>::const_iterator> remove_source;
+				for (auto source_file = this->get_source_files().cbegin(); source_file != this->get_source_files().cend(); ++source_file) {
 					std::string::size_type star_index;
-					const std::string str = source_file.get_path();
+					const std::string str = source_file->get_path();
 
 					if ((star_index = str.find('*')) != std::string::npos) {
 						// TODO allow user to enter "mycode/*.shift" to compile all files in a directory.
 					}
 
-					if (!source_file) {
+					if (!(*source_file)) {
 						if (this->m_error_handler) {
 							SHIFT_WARNING("Ignored inexistent source file: " << str);
 						}
 						//this->get_source_files().remove(str);
-						remove_source.push_back(&source_file);
+						remove_source.push_back(source_file);
 					}
 				}
 
-				for (const filesystem::file* file : remove_source) {
-					this->get_source_files().remove(*file);
+				for (const auto& file : remove_source) {
+					this->get_source_files().erase(file);
 				}
 			}
-
-			//			std::cout << "Libraries [After]: " << this->get_libraries() << std::endl;
-			//			std::cout << "Library paths [After]: " << this->get_library_paths() << std::endl;
-			//			std::cout << "Sources [After]: " << this->get_source_files() << std::endl;
 		}
 	}
 }
