@@ -74,6 +74,7 @@ namespace shift {
 
 			inline void set_print_warnings(const bool warnings = true) { this->m_warnings = warnings; }
 			inline void set_warnings(const bool warnings = true) { return set_print_warnings(warnings); }
+			inline void enable_warnings(void) { return set_warnings(true); }
 			inline bool is_print_warnings(void) const noexcept { return this->m_warnings; }
 			inline bool is_warning(void) const noexcept { return is_print_warnings(); }
 
@@ -105,8 +106,8 @@ namespace shift {
 			std::ostringstream m_message_stream;
 		};
 
-		inline error_handler::error_handler(const error_handler& other) noexcept: m_warnings(other.m_warnings), m_werror(other.m_werror), 
-		m_messages(other.m_messages), m_marks(other.m_marks), m_message_stream(other.m_message_stream.str()) {}
+		inline error_handler::error_handler(const error_handler& other) noexcept: m_warnings(other.m_warnings), m_werror(other.m_werror),
+			m_messages(other.m_messages), m_marks(other.m_marks), m_message_stream(other.m_message_stream.str()) {}
 	}
 }
 
