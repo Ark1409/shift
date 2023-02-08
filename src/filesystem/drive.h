@@ -79,7 +79,7 @@ namespace shift {
 }
 
 template<typename _CharT, typename _Traits>
-inline std::basic_ostream<_CharT, _Traits>& operator<<(std::basic_ostream<_CharT, _Traits>& __os, shift::filesystem::drive __drive) {
+inline std::basic_ostream<_CharT, _Traits>& operator<<(std::basic_ostream<_CharT, _Traits>& __os, const shift::filesystem::drive __drive) {
 	return __os << _CharT(__drive.get_letter()) << _CharT(':') << _CharT('\\');
 }
 

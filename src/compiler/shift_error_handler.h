@@ -4,7 +4,6 @@
 #ifndef SHIFT_ERROR_HANDLER_H_
 #define SHIFT_ERROR_HANDLER_H_ 1
 
-#include "shift_config.h"
 #include "utils/utils.h"
 
 #include <list>
@@ -26,7 +25,7 @@ namespace shift {
 		private:
 			typedef std::pair<std::string, message_type> _message_pair_type;
 		public:
-			error_handler() noexcept = default;
+			error_handler() = default;
 			inline error_handler(const error_handler&) noexcept;
 			error_handler(error_handler&&) noexcept = default;
 			~error_handler() noexcept = default;
