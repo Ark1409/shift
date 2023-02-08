@@ -1,0 +1,68 @@
+module shift.io;
+use shift;
+use shift.io;
+use shift.lang;
+
+public class file {
+    use static shift.io._internal;
+    public constructor() {}
+
+    public constructor(int) {}
+
+    public constructor(const string path) { this._path = path; }
+
+    public string get_path() { return this._path;}
+
+    private string _path;
+
+    public const intern.[] test (, int){ while const(true) this.base.run()_; }
+
+    private static void name = "Hello World inside\n\emy home";
+}
+
+private static class private extern namer {
+    // public const intern[ 1runner() {
+    //    public const intern.[] test (, int){}
+    //}
+    private const m_3 v = run(3,runner2.home("hello world")),print(),55+43,bool&true^my_own_var/divisor+2;
+
+    public static const static extern my.var.type test += (sint.int)5 + (((((int)((((_help))))))));
+    private const let m = 3; protected run a;
+    
+    private const quiz quizzer = runner.name(5,,43);
+
+    private voidr runner(int,,f) {
+        if(help.is_running && my_half_life > 3) {
+            const my.type.var run_me += 3;
+            hello my_var = new hello();
+            if(doing_well()) {
+                print("Hell world to the world!");
+                for(int i =0; i < 33+5; !53!hello[3]+ +5) {
+                    "nothing string";
+                    !5+3;
+                    5+~3,7~+2,7~,~7*4;
+                }
+            }
+        }
+        while(5) {
+            7+3;
+            7-3; // fix in tokenizer
+        }
+        {
+            bool my_bool = true + false;
+            if(my_bool) {
+                return ++;
+                use shift.io;
+            }  else  -(5+3)make;
+        }
+    }
+
+    const private void_ run(shift.int, var mine) {
+        exit(1);
+        private static extern const void = 3;
+    }
+
+    int const constructor() {
+        const int const m = 3;
+    }
+}
