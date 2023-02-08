@@ -20,16 +20,17 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
 # List of sources for the project
 set(
-    SOURCES 
-    src/main.cpp 
-    src/compiler/shift_argument_parser.cpp 
+    SOURCES
+    src/main.cpp
+    src/compiler/shift_argument_parser.cpp
+    src/compiler/shift_compiler.cpp
     src/compiler/shift_error_handler.cpp
-    src/compiler/shift_parser.cpp 
-    src/compiler/shift_tokenizer.cpp 
-    src/filesystem/directory.cpp 
-    src/filesystem/drive.cpp 
+    src/compiler/shift_parser.cpp
+    src/compiler/shift_tokenizer.cpp
+    src/filesystem/directory.cpp
+    src/filesystem/drive.cpp
     src/filesystem/file.cpp
-    src/logging/console.cpp 
+    src/logging/console.cpp
     src/utils/utils.cpp
     )
 
