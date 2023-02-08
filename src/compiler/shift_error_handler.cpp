@@ -1,5 +1,5 @@
 /**
- * @file compiler/error_handler.cpp
+ * @file compiler/shift_error_handler.cpp
  */
 #include "shift_error_handler.h"
 

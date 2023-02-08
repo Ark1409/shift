@@ -1,5 +1,5 @@
 /**
- * @file compiler/argument_parser.h
+ * @file compiler/shift_argument_parser.h
  */
 #ifndef SHIFT_ARGUMENT_PARSER_H_
 #define SHIFT_ARGUMENT_PARSER_H_ 1

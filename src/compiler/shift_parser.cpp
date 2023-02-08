@@ -1,3 +1,6 @@
+/**
+ * @file compiler/shift_parser.cpp
+ */
 #include "compiler/shift_parser.h"
 
 #include <cstring>

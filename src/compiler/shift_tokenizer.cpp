@@ -1,7 +1,6 @@
 /**
- * @file tokenizer.cpp
+ * @file compiler/shift_tokenizer.cpp
  */
-
 #include "compiler/shift_tokenizer.h"
 #include "utils/utils.h"
 #include <fstream>

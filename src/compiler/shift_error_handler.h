@@ -1,5 +1,5 @@
 /**
- * @file compiler/error_handler.h
+ * @file compiler/shift_error_handler.h
  */
 #ifndef SHIFT_ERROR_HANDLER_H_
 #define SHIFT_ERROR_HANDLER_H_ 1

@@ -1,3 +1,6 @@
+/**
+ * @file compiler/shift_compiler.cpp
+ */
 #include "compiler/shift_compiler.h"
 
 namespace shift {

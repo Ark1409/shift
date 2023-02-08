@@ -1,5 +1,5 @@
 /**
- * @file compiler/argument_parser.cpp
+ * @file compiler/shift_argument_parser.cpp
  */
 #include "shift_argument_parser.h"
 #include "utils/utils.h"

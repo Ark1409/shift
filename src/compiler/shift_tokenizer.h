@@ -1,5 +1,5 @@
 /**
- * @file compiler/tokenizer.h
+ * @file compiler/shift_tokenizer.h
  */
 #ifndef SHIFT_TOKENIZER_H_
 #define SHIFT_TOKENIZER_H_ 1
