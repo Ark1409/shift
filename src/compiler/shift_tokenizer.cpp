@@ -40,9 +40,12 @@
 #define shift_tokenizer_is_binary(__char) (((__char)==char('0')) || ((__char)==char('1')))
 
 #define SHIFT_TOKENIZER_ERROR_PREFIX(_line_, _col_) 				"error: " << std::filesystem::relative(this->m_file.raw_path()).string() << ":" << line << ":" << col << ": "
+#define SHIFT_TOKENIZER_WARNING_PREFIX(_line_, _col_) 				"warning: " << std::filesystem::relative(this->m_file.raw_path()).string() << ":" << line << ":" << col << ": "
 
 #define SHIFT_TOKENIZER_ERROR_LOG(__ERR__) 		if(m_error_handler) this->m_error_handler->stream() << __ERR__ << '\n', this->m_error_handler->flush_stream(error_handler::message_type::error)
 #define SHIFT_TOKENIZER_FATAL_ERROR_LOG(__ERR__)  SHIFT_TOKENIZER_ERROR_LOG(__ERR__); if(m_error_handler) this->m_error_handler->print_exit_clear()
+
+#define SHIFT_TOKENIZER_WARNING_LOG(__ERR__) 		if(m_error_handler) this->m_error_handler->stream() << __ERR__ << '\n', this->m_error_handler->flush_stream(error_handler::message_type::warning)
 
 #define SHIFT_TOKENIZER_ERROR(_line_, _col_, _len_, __ERR__) \
 if(this->m_error_handler) {\
@@ -52,6 +55,16 @@ if(this->m_error_handler) {\
 	this->m_error_handler->stream() << std::string(_len_, '^');\
 	this->m_error_handler->stream() << '\n';\
 	this->m_error_handler->flush_stream(error_handler::message_type::error);\
+}
+
+#define SHIFT_TOKENIZER_WARNING(_line_, _col_, _len_, __ERR__) \
+if(this->m_error_handler) {\
+	this->m_error_handler->stream() << SHIFT_TOKENIZER_WARNING_PREFIX(_line_, _col_) << __ERR__ << '\n'; this->m_error_handler->flush_stream(error_handler::message_type::warning);\
+	std::string_view __temp_line; shift_tokenizer_get_full_line(__temp_line); SHIFT_TOKENIZER_WARNING_LOG(__temp_line);\
+	this->m_error_handler->stream() << std::string((_col_)-1, ' ');\
+	this->m_error_handler->stream() << std::string(_len_, '^');\
+	this->m_error_handler->stream() << '\n';\
+	this->m_error_handler->flush_stream(error_handler::message_type::warning);\
 }
 
 #define SHIFT_TOKENIZER_FATAL_ERROR(_line_, _col_, _len_, __ERR__) 		SHIFT_TOKENIZER_ERROR(_line_, _col_, _len_, __ERR__); if(m_error_handler) this->m_error_handler->print_exit_clear()
@@ -595,14 +608,23 @@ namespace shift {
 								}
 								shift_tokenizer_advance_();
 
-								// TODO
-								// here, we should warn them if "current" is not a proper escape code
-								//
+								switch (std::tolower(current)) {
+									case 'a':
+									case 'b':
+									case 'f':
+									case 'n':
+									case 'r':
+									case 't':
+									case 'v':
+									case '\\':
+									case '\'':
+									case '"':
+										break;
+									default:
+										SHIFT_TOKENIZER_ERROR(line, col - 1, 2, "Unknown escape sequence");
+										break;
+								}
 
-								// TODO THIS MUST BE ACCOUNTED FOR
-								// If the string we are parsing is: "hello\\nworld",
-								// that is the EXACT same string we will get in the token data,
-								// instead of "\n" in real text form (if it is was "hello\nworld", we'd get "\n" in ascii form)
 								continue;
 							}
 
@@ -638,10 +660,22 @@ namespace shift {
 						if (shift_tokenizer_current_equal('\\')) {
 							if (shift_tokenizer_can_peek_()) {
 								shift_tokenizer_advance_(); // advance only once so below it can advance and then check for \'
-								// TODO
-								// here, we should warn them if "current" is not a proper escape code
-								//
-
+								switch (std::tolower(current)) {
+									case 'a':
+									case 'b':
+									case 'f':
+									case 'n':
+									case 'r':
+									case 't':
+									case 'v':
+									case '\\':
+									case '\'':
+									case '"':
+										break;
+									default:
+										SHIFT_TOKENIZER_ERROR(line, col - 1, 2, "Unknown escape sequence");
+										break;
+								}
 							}
 						} else if (shift_tokenizer_current_equal('\'')) {
 							if (this->m_error_handler) {
