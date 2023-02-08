@@ -1097,18 +1097,13 @@ namespace shift {
                 if (name.end == std::vector<compiler::token>::const_iterator())
                     name.end = this->m_tokenizer->get_index();
 
-                std::list<typename std::list<std::pair<mods, const token*>>::const_iterator> remove_mods;
 
                 for (auto cur = this->m_mods.cbegin(); cur != this->m_mods.cend(); ++cur) {
                     auto const mod = cur->first;
                     if ((mod & type_modifiers) != 0x0) {
                         type.mods |= mod;
-                        remove_mods.push_back(cur);
+                        cur = --this->m_mods.erase(cur);
                     }
-                }
-
-                for (auto const m : remove_mods) {
-                    this->m_mods.erase(m);
                 }
 
                 if (last_type == token::token_type::DOT) {
