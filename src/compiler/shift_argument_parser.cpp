@@ -34,10 +34,7 @@ namespace shift {
 		}
 
 		bool argument_parser::contains_argument(const std::string_view other) const noexcept {
-			for (typename std::vector<std::string_view>::size_type i = 0; i < m_args.size(); i++)
-				if (m_args[i] == other)
-					return true;
-			return false;
+			return std::find(this->m_args.cbegin(), this->m_args.cend(), other) != this->m_args.cend();
 		}
 
 		std::string_view argument_parser::get_argument(typename std::vector<std::string_view>::size_type id) const {
@@ -48,14 +45,6 @@ namespace shift {
 
 		std::string argument_parser::to_string(void) const {
 			std::string ret;
-			{
-				typename std::string::size_type res_size = 0;
-				std::for_each(this->m_args.begin(), this->m_args.end(), [&res_size](const std::string_view v) {
-					res_size += v.size();
-					});
-
-				ret.reserve(res_size + size_t(std::max<ssize_t>(0, this->m_args.size() - 1)));
-			}
 
 			for (size_t i = 0; i < this->m_args.size(); i++) {
 				if (i > 0) ret += ' ';
@@ -161,7 +150,6 @@ namespace shift {
 
 		void argument_parser::resolve_libraries_and_sources(void) {
 			{ // Remove inexistent library paths
-				std::list<std::list<filesystem::directory>::const_iterator> remove_lib_paths;
 				for (auto lib_path = this->get_library_paths().cbegin(); lib_path != this->get_library_paths().cend(); ++lib_path) {
 					if (!(*lib_path)) {
 						// If the library directory does not exist, issue a warning
@@ -169,18 +157,13 @@ namespace shift {
 							SHIFT_WARNING("Ignored inexistent library path: " << lib_path->raw_path());
 						}
 
-						// Schedule the library directory for removal
-						remove_lib_paths.push_back(lib_path);
+						// Remove the inexistent library directory
+						lib_path = --this->get_library_paths().erase(lib_path);
 					}
-				}
-
-				for (const auto& lib_path : remove_lib_paths) {
-					this->get_library_paths().erase(lib_path);
 				}
 			}
 
 			{ // Remove inexistent libraries
-				std::list<std::list<filesystem::file>::iterator> remove_lib;
 				for (auto lib_file = this->get_libraries().begin(); lib_file != this->get_libraries().end(); ++lib_file) {
 					if (!(*lib_file)) {
 						// If it is not in current directory, checks directories from inputed library paths
@@ -203,18 +186,13 @@ namespace shift {
 						if (this->m_error_handler) {
 							SHIFT_WARNING("Ignored inexistent library: " << lib_file->get_path());
 						}
-						// Schedule the library for removal
-						remove_lib.push_back(lib_file);
+						// Remove the inexistent library
+						lib_file = --this->get_libraries().erase(lib_file);
 					}
-				}
-
-				for (const auto& lib : remove_lib) {
-					this->get_libraries().erase(lib);
 				}
 			}
 
 			{ // Remove inexistent source files
-				std::list<std::list<filesystem::file>::const_iterator> remove_source;
 				for (auto source_file = this->get_source_files().cbegin(); source_file != this->get_source_files().cend(); ++source_file) {
 					std::string::size_type star_index;
 					const std::string str = source_file->get_path();
@@ -227,13 +205,8 @@ namespace shift {
 						if (this->m_error_handler) {
 							SHIFT_WARNING("Ignored inexistent source file: " << str);
 						}
-						//this->get_source_files().remove(str);
-						remove_source.push_back(source_file);
+						source_file = --this->get_source_files().erase(source_file);
 					}
-				}
-
-				for (const auto& file : remove_source) {
-					this->get_source_files().erase(file);
 				}
 			}
 		}
