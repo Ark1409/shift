@@ -227,7 +227,6 @@ namespace shift {
                 }
 
                 if (token_->is_use()) {
-                    // TODO use statements inside classes
                     m_parse_use(clazz.use_statements);
                     continue;
                 }
@@ -356,8 +355,7 @@ namespace shift {
                 }
 
                 if (token_->is_identifier()) {
-                    // it must be either a variable declaration or a function declaration
-                    // TODO check if return type is void
+                    // It must be either a variable declaration or a function declaration
                     shift_type type;
 
                     if (token_->is_void()) {
@@ -366,10 +364,9 @@ namespace shift {
                         this->m_tokenizer->next_token();
                     } else {
                         type = m_parse_type("variable or function type");
-                    }
-
-                    if (type.name.size() == 0) {
-                        this->m_token_error(*type.name.begin, "expected variable or function type");
+                        if (type.name.size() == 0) {
+                            this->m_token_error(*type.name.begin, "expected variable or function type");
+                        }
                     }
 
                     const token* name = &this->m_tokenizer->current_token();
@@ -395,7 +392,7 @@ namespace shift {
                     }
 
                     const token& next_token = this->m_tokenizer->next_token();
-                    if (next_token.is_left_bracket() || token_->is_void()) {
+                    if (next_token.is_left_bracket()) {
                         // function definition
                         shift_function func;
                         func.name = name;
@@ -504,6 +501,10 @@ namespace shift {
 
                         clazz.functions.push_back(std::move(func));
                     } else if (next_token.is_semicolon() || next_token.is_binary_operator() || next_token.is_unary_operator()) {
+                        if(token_->is_void()) {
+                            this->m_token_error(*token_, "'void' is not a valid variable type");
+                        }
+                        
                         // variable declaration
                         shift_variable variable;
                         variable.name = name;
@@ -558,7 +559,6 @@ namespace shift {
                 }
 
                 else if (_token->is_use()) {
-                    // TODO use statements inside classes
                     statement.set_use(_token);
                     m_parse_use();
                     shift_module& module_ = this->m_global_uses.back();
@@ -1468,7 +1468,7 @@ namespace shift {
                         expr->begin = this->m_tokenizer->get_index();
 
                         if (this->m_tokenizer->current_token().is_this() || this->m_tokenizer->current_token().is_base()) {
-                            // Allow (this|base)[.]* at the beginning of the expression
+                            // Allow (this|base)[.]? at the beginning of the expression
                             this->m_tokenizer->next_token();
                             if (this->m_tokenizer->current_token().is_dot()) {
                                 this->m_tokenizer->next_token();

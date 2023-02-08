@@ -1,3 +1,6 @@
+/**
+ * @file compiler/shift_parser.h
+ */
 #include "compiler/shift_tokenizer.h"
 #include "compiler/shift_error_handler.h"
 
