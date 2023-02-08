@@ -202,17 +202,15 @@ namespace shift {
         }
 
         template<typename T>
-        std::remove_reference_t<T> remove(std::list<T>& list, const typename std::list<T>::size_type index) {
-            typename std::list<T>::size_type __index = 0;
-            for (typename std::list<T>::iterator it = list.begin(); it != list.end(); it++, __index++) {
-                if (__index == index) {
-                    std::remove_reference_t<T> ret = std::move(*it);
-                    list.erase(it);
-                    return ret;
-                }
-            }
+        std::remove_reference_t<T> remove(std::list<T>& list, typename std::list<T>::size_type index) {
+            if (index < 0 || index >= list.size())
+                throw std::out_of_range(std::to_string(index) + " is not in range [0," + std::to_string(list.size()) + ")");
 
-            throw std::out_of_range(std::to_string(index) + " is not in range [0," + std::to_string(list.size()) + ")");
+            typename std::list<T>::iterator it = list.begin();
+            it = it + index;
+            std::remove_reference_t<T> ret = std::move(*it);
+            list.erase(it);
+            return ret;
         }
 
         template<typename CharT, typename Traits, typename Alloc>
