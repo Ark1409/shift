@@ -31,5 +31,9 @@ namespace shift {
                     m_parsers.push_back(std::move(_parser));
             }
         }
+
+        void compiler::analyze() {
+            this->m_analyzer.analyze();
+        }
     }
 }

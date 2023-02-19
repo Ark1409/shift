@@ -1,6 +1,8 @@
 /**
  * @file compiler/shift_parser.h
  */
+#ifndef SHIFT_PARSER_H_
+#define SHIFT_PARSER_H_ 1
 #include "compiler/shift_tokenizer.h"
 #include "compiler/shift_error_handler.h"
 
@@ -13,10 +15,16 @@
 
 namespace shift {
     namespace compiler {
+        class analyzer;
         class parser {
         public:
             inline parser(tokenizer* const tokenizer) noexcept;
             inline parser(error_handler* const error_handler, tokenizer* const tokenizer) noexcept;
+            inline parser(const parser&) noexcept;
+            inline parser(parser&&) noexcept;
+
+            parser& operator=(const parser&);
+            parser& operator=(parser&&) noexcept;
 
             void parse();
 
@@ -52,6 +60,21 @@ namespace shift {
                 typename std::vector<token>::const_iterator begin, end;
 
                 inline auto size() const noexcept { return end - begin; }
+
+                std::string to_string() const noexcept {
+                    std::string str;
+
+                    for (auto b = begin; b != end; ++b) {
+                        str += b->get_data();
+
+                        auto const next = b + 1;
+                        if (next != end && next->is_identifier() && b->is_identifier()) {
+                            str += ' ';
+                        }
+                    }
+
+                    return str;
+                }
             };
 
             struct shift_type {
@@ -329,6 +352,17 @@ namespace shift {
                 std::list<shift_module> use_statements;
                 std::list<shift_function> functions;
                 std::list<shift_variable> variables;
+
+                std::string get_fqn() const noexcept {
+                    std::string str;
+
+                    if (module_) str = module_->to_string();
+                    if (str.size() > 0) str += '.';
+
+                    str += name->get_data();
+
+                    return str;
+                }
             };
         private:
             void m_parse_access_specifier(void);
@@ -384,10 +418,26 @@ namespace shift {
             shift_module m_module;
             std::list<shift_module> m_global_uses;
             std::list<shift_class> m_classes;
+
+            friend class analyzer;
         };
 
         inline parser::parser(tokenizer* const tokenizer) noexcept: m_tokenizer(tokenizer), m_error_handler(tokenizer->get_error_handler()) {}
         inline parser::parser(error_handler* const error_handler, tokenizer* const tokenizer) noexcept: m_tokenizer(tokenizer), m_error_handler(error_handler) {}
+        inline parser::parser(parser&& p) noexcept: m_tokenizer(p.m_tokenizer), m_error_handler(p.m_error_handler),
+            m_mods(std::move(p.m_mods)), m_module(std::move(p.m_module)),
+            m_global_uses(std::move(p.m_global_uses)), m_classes(std::move(p.m_classes)) {
+            for (auto& clazz : m_classes) {
+                clazz.module_ = &m_module;
+            }
+        }
+
+        inline parser::parser(const parser& p) noexcept: m_tokenizer(p.m_tokenizer), m_error_handler(p.m_error_handler),
+            m_mods(p.m_mods), m_module(p.m_module), m_global_uses(p.m_global_uses), m_classes(p.m_classes) {
+            for (auto& clazz : m_classes) {
+                clazz.module_ = &m_module;
+            }
+        }
     }
 }
 
@@ -398,3 +448,4 @@ constexpr inline shift::compiler::parser::mods& operator|=(shift::compiler::pars
 constexpr inline shift::compiler::parser::mods operator&(const shift::compiler::parser::mods f, const shift::compiler::parser::mods other) noexcept { return shift::compiler::parser::mods(std::underlying_type_t<shift::compiler::parser::mods>(f) & std::underlying_type_t<shift::compiler::parser::mods>(other)); }
 constexpr inline shift::compiler::parser::mods& operator&=(shift::compiler::parser::mods& f, const shift::compiler::parser::mods other) noexcept { return f = operator&(f, other); }
 constexpr inline shift::compiler::parser::mods operator~(const shift::compiler::parser::mods f) noexcept { return shift::compiler::parser::mods(~std::underlying_type_t<shift::compiler::parser::mods>(f)); }
+#endif

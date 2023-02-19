@@ -6,7 +6,7 @@
 #include <cstring>
 #include <algorithm>
 
-#define SHIFT_PARSER_ERROR_PREFIX 				"error: " << std::filesystem::relative(this->m_tokenizer->get_file().get_path()).native() << ": " // std::filesystem::relative call every time probably isn't that optimal
+#define SHIFT_PARSER_ERROR_PREFIX 				"error: " << std::filesystem::relative(this->m_tokenizer->get_file().get_path()).string() << ": " // std::filesystem::relative call every time probably isn't that optimal
 #define SHIFT_PARSER_WARNING_PREFIX 			"warning: " << std::filesystem::relative(this->m_tokenizer->get_file().get_path()).string() << ": " // std::filesystem::relative call every time probably isn't that optimal
 
 #define SHIFT_PARSER_ERROR_PREFIX_EXT_(__line__, __col__) "error: " << std::filesystem::relative(this->m_tokenizer->get_file().get_path()).string() << ":" << __line__ << ":" << __col__ << ": " // std::filesystem::relative call every time probably isn't that optimal
@@ -32,14 +32,14 @@
 #define SHIFT_PARSER_WARNING_(__token, __WARN__) 	this->m_error_handler->stream() << SHIFT_PARSER_WARNING_PREFIX_EXT(__token) << __WARN__ << '\n'; this->m_error_handler->flush_stream(shift::compiler::error_handler::message_type::warning)
 #define SHIFT_PARSER_FATAL_WARNING_(__token, __WARN__) 		SHIFT_PARSER_WARNING(__token, __WARN__); SHIFT_PARSER_PRINT()
 
-#define SHIFT_PARSER_WARNING_LOG_(__token, __WARN__) 		this->m_error_handler->stream() << __WARN__ << '\n'; this->m_error_handler->flush_stream(shift::compiler::error_handler::message_type::warning)
-#define SHIFT_PARSER_FATAL_WARNING_LOG_(__token, __WARN__)  SHIFT_PARSER_WARNING_LOG_(__token, __WARN__); SHIFT_PARSER_PRINT()
+#define SHIFT_PARSER_WARNING_LOG_(__WARN__) 		this->m_error_handler->stream() << __WARN__ << '\n'; this->m_error_handler->flush_stream(shift::compiler::error_handler::message_type::warning)
+#define SHIFT_PARSER_FATAL_WARNING_LOG_(__WARN__)  SHIFT_PARSER_WARNING_LOG_(__WARN__); SHIFT_PARSER_PRINT()
 
 #define SHIFT_PARSER_ERROR_(__token, __ERR__) 			this->m_error_handler->stream() << SHIFT_PARSER_ERROR_PREFIX_EXT(__token) << __ERR__ << '\n'; this->m_error_handler->flush_stream(shift::compiler::error_handler::message_type::error)
 #define SHIFT_PARSER_FATAL_ERROR_(__token, __ERR__) 		SHIFT_PARSER_ERROR_(__token, __ERR__); SHIFT_PARSER_PRINT()
 
-#define SHIFT_PARSER_ERROR_LOG_(__token, __ERR__) 		this->m_error_handler->stream() << __ERR__ << '\n'; this->m_error_handler->flush_stream(shift::compiler::error_handler::message_type::error)
-#define SHIFT_PARSER_FATAL_ERROR_LOG_(__token, __ERR__)  SHIFT_PARSER_ERROR_LOG_(__token, __ERR__); SHIFT_PARSER_PRINT()
+#define SHIFT_PARSER_ERROR_LOG_( __ERR__) 		this->m_error_handler->stream() << __ERR__ << '\n'; this->m_error_handler->flush_stream(shift::compiler::error_handler::message_type::error)
+#define SHIFT_PARSER_FATAL_ERROR_LOG_( __ERR__)  SHIFT_PARSER_ERROR_LOG_(__ERR__); SHIFT_PARSER_PRINT()
 
 #define SHIFT_PARSER_OBJECT_CLASS "shift.object"
 
@@ -105,6 +105,32 @@ namespace shift {
         static constexpr parser::mods type_modifiers = parser::mods::CONST_;
         static constexpr parser::mods constructor_modifiers = visibility_modifiers;
         static constexpr parser::mods variable_modifiers = visibility_modifiers | parser::mods::STATIC | parser::mods::CONST_ | parser::mods::EXTERN;
+
+        parser& parser::operator=(const parser& p) {
+            this->m_tokenizer = p.m_tokenizer;
+            this->m_error_handler = p.m_error_handler;
+            this->m_mods = p.m_mods;
+            this->m_module = p.m_module;
+            this->m_global_uses = p.m_global_uses;
+            this->m_classes = p.m_classes;
+            for (auto& clazz : m_classes) {
+                clazz.module_ = &m_module;
+            }
+            return *this;
+        }
+
+        parser& parser::operator=(parser&& p) noexcept {
+            this->m_tokenizer = p.m_tokenizer;
+            this->m_error_handler = p.m_error_handler;
+            this->m_mods = std::move(p.m_mods);
+            this->m_module = std::move(p.m_module);
+            this->m_global_uses = std::move(p.m_global_uses);
+            this->m_classes = std::move(p.m_classes);
+            for (auto& clazz : m_classes) {
+                clazz.module_ = &m_module;
+            }
+            return *this;
+        }
 
         void parser::parse() {
             for (const token* current = &this->m_tokenizer->current_token(); !current->is_null_token(); current = &this->m_tokenizer->next_token()) {
@@ -504,10 +530,10 @@ namespace shift {
 
                         clazz.functions.push_back(std::move(func));
                     } else if (next_token.is_semicolon() || next_token.is_binary_operator() || next_token.is_unary_operator()) {
-                        if(token_->is_void()) {
+                        if (token_->is_void()) {
                             this->m_token_error(*token_, "'void' is not a valid variable type");
                         }
-                        
+
                         // variable declaration
                         shift_variable variable;
                         variable.name = name;

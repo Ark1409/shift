@@ -22,6 +22,7 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(
     SOURCES
     src/main.cpp
+    src/compiler/shift_analyzer.cpp
     src/compiler/shift_argument_parser.cpp
     src/compiler/shift_compiler.cpp
     src/compiler/shift_error_handler.cpp
