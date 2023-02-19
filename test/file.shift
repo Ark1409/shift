@@ -17,7 +17,7 @@ public class file {
 
     public const intern.[] test (, int){ while const(true) this.base.run()_; }
 
-    private static void name = "Hello World inside\n\emy home";
+    private static void name = "Hello World inside\nmy home";
 }
 
 private static class private extern namer {

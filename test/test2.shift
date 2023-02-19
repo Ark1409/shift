@@ -1,0 +1,13 @@
+module shift;
+use shift;
+use shift;
+use shift.lang;
+
+class my_name {
+    use shift;
+    use shift.lang.io;
+}
+
+class my_name {
+    use test;
+}
