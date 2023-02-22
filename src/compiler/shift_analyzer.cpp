@@ -174,11 +174,48 @@ namespace shift {
                         } else {
                             _var.type.name_class = type_class_candidates.front();
                         }
+
+                        for (parser::shift_function& func : clazz.functions) {
+                            if (!func.return_type.name.begin->is_void()) {
+                                std::string return_type_class_name = func.return_type.name.to_string();
+
+                                auto return_type_class_candidates = _scope.find_classes(return_type_class_name);
+
+                                if (return_type_class_candidates.size() > 1) {
+                                    this->m_name_error(_parser, func.return_type.name, "ambiguous class reference to '" + return_type_class_name + "'");
+                                } else if (return_type_class_candidates.size() == 0) {
+                                    this->m_name_error(_parser, func.return_type.name, "unable to resolve class '" + return_type_class_name + "'");
+                                } else {
+                                    func.return_type.name_class = return_type_class_candidates.front();
+                                }
+                            }
+
+                            std::unordered_set<std::string_view> param_names;
+                            for (auto& [param_type, param_name] : func.parameters) {
+                                if (!param_name->is_null_token() && param_names.find(param_name->get_data()) != param_names.end()) {
+                                    this->m_token_error(_parser, *param_name, "duplicate parameter name '" + std::string(param_name->get_data()) + "' in function '" + func.get_fqn() + "'");
+                                }
+
+                                std::string param_type_class_name = param_type.name.to_string();
+
+                                auto param_type_class_candidates = _scope.find_classes(param_type_class_name);
+
+                                if (param_type_class_candidates.size() > 1) {
+                                    this->m_name_error(_parser, param_type.name, "ambiguous class reference to '" + param_type_class_name + "'");
+                                } else if (param_type_class_candidates.size() == 0) {
+                                    this->m_name_error(_parser, param_type.name, "unable to resolve class '" + param_type_class_name + "'");
+                                } else {
+                                    param_type.name_class = param_type_class_candidates.front();
+                                }
+                                if (!param_name->is_null_token())
+                                    param_names.emplace(param_name->get_data());
+                            }
+                        }
                     }
                 }
             }
         }
-        
+
         void analyzer::m_token_error(const parser& parser_, const token& token_, const std::string_view msg) {
             if (!this->m_error_handler) return;
             SHIFT_ANALYZER_ERROR_(parser_, token_, msg);
