@@ -75,11 +75,18 @@ namespace shift {
 
                     return str;
                 }
+
+                inline operator std::string() const noexcept { return to_string(); }
+
+                inline bool operator==(const std::string& str) const noexcept { return to_string() == str; }
+                inline bool operator!=(const std::string& str) const noexcept { return !operator==(str); }
             };
 
             struct shift_type {
                 parser::mods mods = parser::mods(0x0);
                 shift_name name;
+                shift_class* name_class = nullptr;
+                size_t array_dimensions = 0;
             };
 
             struct shift_expression {
@@ -87,6 +94,11 @@ namespace shift {
                 shift_expression* parent = nullptr;
                 typename std::vector<token>::const_iterator begin, end;
                 std::list<shift_expression> sub;
+
+                union {
+                    shift_class* class_type = nullptr;
+                    shift_function* function;
+                };
 
                 inline auto size() const noexcept { return end - begin; }
 
@@ -341,19 +353,36 @@ namespace shift {
                 shift_type return_type;
                 std::list<std::pair<shift_type, const token*>> parameters;
                 std::list<shift_statement> statements;
+
+                inline std::string get_fqn() const noexcept {
+                    std::string str;
+                    if (clazz) str = clazz->get_fqn();
+                    if (str.size() > 0) str += '.';
+                    str += name->get_data();
+                    return str;
+                }
+
+                inline std::string get_fqn(const size_t id) const noexcept {
+                    std::string str;
+                    if (clazz) str = clazz->get_fqn();
+                    if (str.size() > 0) str += '.';
+                    str += std::string(name->get_data()) + '@' + std::to_string(id);
+                    return str;
+                }
             };
 
             struct shift_class {
                 shift_module* module_ = nullptr;
-                shift_class* parent = nullptr, * base = nullptr;
+                shift_name parent, base;
+                shift_class* parent_class = nullptr, * base_class = nullptr;
                 const token* name = nullptr;
                 mods mods = parser::mods(0x0);
-                typename std::list<shift_module>::const_iterator implicit_use_statements;
+                size_t implicit_use_statements = 0;
                 std::list<shift_module> use_statements;
                 std::list<shift_function> functions;
                 std::list<shift_variable> variables;
 
-                std::string get_fqn() const noexcept {
+                inline std::string get_fqn() const noexcept {
                     std::string str;
 
                     if (module_) str = module_->to_string();

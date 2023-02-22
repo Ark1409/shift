@@ -41,6 +41,50 @@
 #define SHIFT_ANALYZER_ERROR_LOG_(__ERR__) 		this->m_error_handler->stream() << __ERR__ << '\n'; this->m_error_handler->flush_stream(shift::compiler::error_handler::message_type::error)
 #define SHIFT_ANALYZER_FATAL_ERROR_LOG_( __ERR__)  SHIFT_ANALYZER_ERROR_LOG_(__ERR__); SHIFT_ANALYZER_PRINT()
 
+#define SHIFT_ANALYZER_OBJECT_CLASS "shift.object"
+
+#define SHIFT_ANALYZER_INT8_CLASS "shift.byte"
+#define SHIFT_ANALYZER_CHAR_CLASS SHIFT_ANALYZER_INT8_CLASS
+#define SHIFT_ANALYZER_BYTE_CLASS SHIFT_ANALYZER_CHAR_CLASS
+
+#define SHIFT_ANALYZER_INT16_CLASS "shift.short"
+#define SHIFT_ANALYZER_SHORT_CLASS SHIFT_ANALYZER_INT16_CLASS
+
+#define SHIFT_ANALYZER_INT32_CLASS "shift.int"
+#define SHIFT_ANALYZER_INT_CLASS SHIFT_ANALYZER_INT32_CLASS
+
+#define SHIFT_ANALYZER_INT64_CLASS "shift.long"
+#define SHIFT_ANALYZER_LONG_CLASS SHIFT_ANALYZER_INT64_CLASS
+
+#define SHIFT_ANALYZER_UINT16_CLASS "shift.ushort"
+#define SHIFT_ANALYZER_USHORT_CLASS SHIFT_ANALYZER_UINT16_CLASS
+
+#define SHIFT_ANALYZER_UINT32_CLASS "shift.uint"
+#define SHIFT_ANALYZER_UINT_CLASS SHIFT_ANALYZER_UINT32_CLASS
+
+#define SHIFT_ANALYZER_UINT64_CLASS "shift.ulong"
+#define SHIFT_ANALYZER_ULONG_CLASS SHIFT_ANALYZER_UINT64_CLASS
+
+#define SHIFT_ANALYZER_SINT8_CLASS "shift.sbyte"
+#define SHIFT_ANALYZER_SCHAR_CLASS SHIFT_ANALYZER_SINT8_CLASS
+#define SHIFT_ANALYZER_SBYTE_CLASS SHIFT_ANALYZER_SCHAR_CLASS
+
+#define SHIFT_ANALYZER_SINT16_CLASS SHIFT_ANALYZER_INT16_CLASS
+#define SHIFT_ANALYZER_SSHORT_CLASS SHIFT_ANALYZER_SINT16_CLASS
+
+#define SHIFT_ANALYZER_SINT32_CLASS SHIFT_ANALYZER_INT32_CLASS
+#define SHIFT_ANALYZER_SINT_CLASS SHIFT_ANALYZER_SINT32_CLASS
+
+#define SHIFT_ANALYZER_SINT64_CLASS SHIFT_ANALYZER_INT64_CLASS
+#define SHIFT_ANALYZER_SLONG_CLASS SHIFT_ANALYZER_SINT64_CLASS
+
+#define SHIFT_ANALYZER_FLOAT_CLASS "shift.float"
+#define SHIFT_ANALYZER_DOUBLE_CLASS "shift.double"
+
+#define SHIFT_ANALYZER_STRING_CLASS "shift.string"
+
+#define SHIFT_ANALYZER_BOOLEAN_CLASS "shift.bool"
+#define SHIFT_ANALYZER_BOOL_CLASS SHIFT_ANALYZER_BOOLEAN_CLASS
 
 namespace shift {
     namespace compiler {
@@ -58,57 +102,83 @@ namespace shift {
                     // TODO check to see if the class name would override a module name
                     if (m_classes.find(fqn) == m_classes.end()) {
                         m_classes[std::move(fqn)] = &clazz;
+
+                        size_t index = 0;
+                        for (parser::shift_function& func : clazz.functions) {
+                            std::string function_fqn = func.get_fqn(index);
+                            if (m_functions.find(function_fqn) == m_functions.end()) {
+                                m_functions[std::move(function_fqn)] = &func;
+                                index++;
+                            } else {
+                                this->m_token_error(_parser, *clazz.name, "function '" + function_fqn + "' has already been defined");
+                            }
+                        }
                     } else {
                         this->m_token_error(_parser, *clazz.name, "class '" + fqn + "' has already been defined");
                     }
                 }
             }
 
+            scope _scope;
+            _scope.base = this;
+
             for (parser& _parser : *m_parsers) {
+                _scope.parser = &_parser;
+
                 const std::string module_name = _parser.m_module.to_string();
 
                 for (parser::shift_module const& use : _parser.m_global_uses) {
-                    const std::string use_string = use.to_string();
-                    if (!m_contains_module(use_string)) {
-                        this->m_token_error(_parser, *use.begin, "module '" + use.to_string() + "' does not exist");
-                    } else if (_parser.m_is_module_defined() && use_string == module_name) {
-                        this->m_token_warning(_parser, *use.begin, "redundant 'use' statement");
+                    if (!_scope.contains_module(use)) {
+                        this->m_name_error(_parser, use, "module '" + use.to_string() + "' does not exist");
+                    } else if (use == module_name) {
+                        this->m_name_warning(_parser, use, "redundant 'use' statement");
                     }
                 }
 
                 for (parser::shift_class& clazz : _parser.m_classes) {
+                    _scope.clazz = &clazz;
+
                     for (parser::shift_module const& use : clazz.use_statements) {
-                        const std::string use_string = use.to_string();
-                        if (!m_contains_module(use_string)) {
-                            this->m_token_error(_parser, *use.begin, "module '" + use.to_string() + "' does not exist");
+                        if (!_scope.contains_module(use)) {
+                            this->m_name_error(_parser, use, "module '" + use.to_string() + "' does not exist");
                         } else if (this->m_error_handler && this->m_error_handler->is_print_warnings()) {
-                            if (_parser.m_is_module_defined() && use.to_string() == module_name) {
-                                this->m_token_warning(_parser, *use.begin, "redundant 'use' statement");
+                            if (use == module_name) {
+                                this->m_name_warning(_parser, use, "redundant 'use' statement");
                             } else {
-                                auto end = clazz.implicit_use_statements;
-                                ++end;
-                                for (auto b = _parser.m_global_uses.cbegin(); b != end; ++b) {
-                                    if (b->to_string() == use_string) {
-                                        this->m_token_warning(_parser, *use.begin, "redundant 'use' statement");
+                                std::string use_string = use.to_string();
+                                size_t index = 0;
+                                for (auto b = _parser.m_global_uses.cbegin(); index < clazz.implicit_use_statements && b != _parser.m_global_uses.cend(); ++b, index++) {
+                                    if (*b == use_string) {
+                                        this->m_name_warning(_parser, use, "redundant 'use' statement");
                                         break;
                                     }
                                 }
                             }
                         }
                     }
+
+                    for (parser::shift_variable& _var : clazz.variables) {
+                        auto _vars = _scope.find_variables(_var.name);
+                        if (_vars.size() > 1 && (*(++_vars.begin()))->name == _var.name) {
+                            this->m_token_error(_parser, *_var.name, "variable with name '" + std::string(_var.name->get_data()) + "' has already been defined inside class '" + clazz.get_fqn() + "'");
+                        }
+
+                        std::string type_class_name = _var.type.name.to_string();
+
+                        auto type_class_candidates = _scope.find_classes(type_class_name);
+
+                        if (type_class_candidates.size() > 1) {
+                            this->m_name_error(_parser, _var.type.name, "ambiguous class reference to '" + type_class_name + "'");
+                        } else if (type_class_candidates.size() == 0) {
+                            this->m_name_error(_parser, _var.type.name, "unable to resolve class '" + type_class_name + "'");
+                        } else {
+                            _var.type.name_class = type_class_candidates.front();
+                        }
+                    }
                 }
             }
         }
-
-        bool analyzer::m_contains_module(const parser::shift_module& m) const noexcept {
-            return m_contains_module(m.to_string());
-        }
-
-        bool analyzer::m_contains_module(const std::string& m) const noexcept {
-            return m_modules.find(m) != m_modules.end();
-        }
-
-
+        
         void analyzer::m_token_error(const parser& parser_, const token& token_, const std::string_view msg) {
             if (!this->m_error_handler) return;
             SHIFT_ANALYZER_ERROR_(parser_, token_, msg);
@@ -152,6 +222,51 @@ namespace shift {
 
         void analyzer::m_token_warning(const parser& parser_, const token& token_, const std::string& msg) { return m_token_warning(parser_, token_, std::string_view(msg.c_str(), msg.length())); }
         void analyzer::m_token_warning(const parser& parser_, const token& token_, const char* const msg) { return m_token_warning(parser_, token_, std::string_view(msg, std::strlen(msg))); }
+
+        void analyzer::m_name_error(const parser& parser_, const parser::shift_name& name, const std::string_view msg) {
+            if (!this->m_error_handler) return;
+            SHIFT_ANALYZER_ERROR_(parser_, *name.begin, msg);
+            std::string line = std::string(this->m_get_line(parser_, *name.begin));
+            size_t use_col = name.begin->get_file_index().col;
+
+            for (auto cur = line.begin(); cur != line.begin() + use_col - 1; ++cur) {
+                char& ch = *cur;
+                if (ch == '\t') {
+                    ch = ' ';
+                    use_col -= 3;
+                }
+            } // TODO deal with tabs
+
+            std::string indexer(use_col - 1, ' ');
+            indexer.append((name.end - 1)->get_file_index().col + (name.end - 1)->get_data().size() - name.begin->get_file_index().col, '^');
+            SHIFT_ANALYZER_ERROR_LOG(line);
+            SHIFT_ANALYZER_ERROR_LOG(indexer);
+        }
+
+        void analyzer::m_name_error(const parser& parser_, const parser::shift_name& name, const std::string& msg) { return m_name_error(parser_, name, std::string_view(msg.c_str(), msg.length())); }
+        void analyzer::m_name_error(const parser& parser_, const parser::shift_name& name, const char* const msg) { return m_name_error(parser_, name, std::string_view(msg, std::strlen(msg))); }
+
+        void analyzer::m_name_warning(const parser& parser_, const parser::shift_name& name, const std::string_view msg) {
+            if (!this->m_error_handler) return;
+            if (!this->m_error_handler->is_print_warnings()) return;
+            SHIFT_ANALYZER_WARNING_(parser_, *name.begin, msg);
+            std::string line = std::string(this->m_get_line(parser_, *name.begin));
+            size_t use_col = name.begin->get_file_index().col;
+            std::for_each(line.begin(), line.end(), [&use_col](char& ch) {
+                if (ch == '\t') {
+                    ch = ' ';
+                    use_col -= 3;
+                }
+                });
+
+            std::string indexer(use_col - 1, ' ');
+            indexer.append((name.end - 1)->get_file_index().col + (name.end - 1)->get_data().size() - name.begin->get_file_index().col, '^');
+            SHIFT_ANALYZER_WARNING_LOG(line);
+            SHIFT_ANALYZER_WARNING_LOG(indexer);
+        }
+
+        void analyzer::m_name_warning(const parser& parser_, const parser::shift_name& name, const std::string& msg) { return m_name_warning(parser_, name, std::string_view(msg.c_str(), msg.length())); }
+        void analyzer::m_name_warning(const parser& parser_, const parser::shift_name& name, const char* const msg) { return m_name_warning(parser_, name, std::string_view(msg, std::strlen(msg))); }
 
         void analyzer::m_error(const parser& parser_, const std::string_view msg) {
             if (!this->m_error_handler) return;

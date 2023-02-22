@@ -41,51 +41,6 @@
 #define SHIFT_PARSER_ERROR_LOG_( __ERR__) 		this->m_error_handler->stream() << __ERR__ << '\n'; this->m_error_handler->flush_stream(shift::compiler::error_handler::message_type::error)
 #define SHIFT_PARSER_FATAL_ERROR_LOG_( __ERR__)  SHIFT_PARSER_ERROR_LOG_(__ERR__); SHIFT_PARSER_PRINT()
 
-#define SHIFT_PARSER_OBJECT_CLASS "shift.object"
-
-#define SHIFT_PARSER_INT8_CLASS "shift.byte"
-#define SHIFT_PARSER_CHAR_CLASS SHIFT_PARSER_INT8_CLASS
-#define SHIFT_PARSER_BYTE_CLASS SHIFT_PARSER_CHAR_CLASS
-
-#define SHIFT_PARSER_INT16_CLASS "shift.short"
-#define SHIFT_PARSER_SHORT_CLASS SHIFT_PARSER_INT16_CLASS
-
-#define SHIFT_PARSER_INT32_CLASS "shift.int"
-#define SHIFT_PARSER_INT_CLASS SHIFT_PARSER_INT32_CLASS
-
-#define SHIFT_PARSER_INT64_CLASS "shift.long"
-#define SHIFT_PARSER_LONG_CLASS SHIFT_PARSER_INT64_CLASS
-
-#define SHIFT_PARSER_UINT16_CLASS "shift.ushort"
-#define SHIFT_PARSER_USHORT_CLASS SHIFT_PARSER_UINT16_CLASS
-
-#define SHIFT_PARSER_UINT32_CLASS "shift.uint"
-#define SHIFT_PARSER_UINT_CLASS SHIFT_PARSER_UINT32_CLASS
-
-#define SHIFT_PARSER_UINT64_CLASS "shift.ulong"
-#define SHIFT_PARSER_ULONG_CLASS SHIFT_PARSER_UINT64_CLASS
-
-#define SHIFT_PARSER_SINT8_CLASS "shift.sbyte"
-#define SHIFT_PARSER_SCHAR_CLASS SHIFT_PARSER_SINT8_CLASS
-#define SHIFT_PARSER_SBYTE_CLASS SHIFT_PARSER_SCHAR_CLASS
-
-#define SHIFT_PARSER_SINT16_CLASS SHIFT_PARSER_INT16_CLASS
-#define SHIFT_PARSER_SSHORT_CLASS SHIFT_PARSER_SINT16_CLASS
-
-#define SHIFT_PARSER_SINT32_CLASS SHIFT_PARSER_INT32_CLASS
-#define SHIFT_PARSER_SINT_CLASS SHIFT_PARSER_SINT32_CLASS
-
-#define SHIFT_PARSER_SINT64_CLASS SHIFT_PARSER_INT64_CLASS
-#define SHIFT_PARSER_SLONG_CLASS SHIFT_PARSER_SINT64_CLASS
-
-#define SHIFT_PARSER_FLOAT_CLASS "shift.float"
-#define SHIFT_PARSER_DOUBLE_CLASS "shift.double"
-
-#define SHIFT_PARSER_STRING_CLASS "shift.string"
-
-#define SHIFT_PARSER_BOOLEAN_CLASS "shift.bool"
-#define SHIFT_PARSER_BOOL_CLASS SHIFT_PARSER_BOOLEAN_CLASS
-
 namespace shift {
     namespace compiler {
         using token_type = token::token_type;
@@ -185,7 +140,7 @@ namespace shift {
             m_classes.emplace_back();
             shift_class& clazz = m_classes.back();
 
-            clazz.implicit_use_statements = --this->m_global_uses.cend();
+            clazz.implicit_use_statements = this->m_global_uses.size();
             clazz.module_ = &this->m_module;
 
             for (const token* access_specifier_token = &this->m_tokenizer->next_token(); access_specifier_token->is_access_specifier(); access_specifier_token = &this->m_tokenizer->next_token()) {
@@ -589,7 +544,7 @@ namespace shift {
 
                 else if (_token->is_use()) {
                     statement.set_use(_token);
-                    m_parse_use();
+                    m_parse_use(this->m_global_uses);
                     shift_module& module_ = this->m_global_uses.back();
                     statement.set_use_module(std::move(module_));
                     this->m_global_uses.pop_back();
@@ -1071,12 +1026,11 @@ namespace shift {
             for (const token* access_specifier_token = &this->m_tokenizer->current_token(); access_specifier_token->is_access_specifier(); access_specifier_token = &this->m_tokenizer->next_token()) {
                 this->m_parse_access_specifier();
             }
-            token::token_type last_type = token::token_type(0x0);
+            token::token_type last_type = token::token_type::NULL_TOKEN;
             {
                 parser::shift_name name;
                 name.begin = this->m_tokenizer->get_index();
 
-                // TODO type const[] will include the "const" inside the type name with this model
                 for (const token* token = &this->m_tokenizer->current_token(); !token->is_null_token(); token = &this->m_tokenizer->next_token()) {
                     if (token->is_access_specifier()) {
                         if (name.end == std::vector<compiler::token>::const_iterator()) {
@@ -1150,7 +1104,8 @@ namespace shift {
                 else if (token->is_left_square_bracket()) {
                     if (last_type != token::token_type::IDENTIFIER && last_type != token::token_type::RIGHT_SQUARE_BRACKET) {
                         this->m_token_error(*token, "unexpected '[' in " + std::string(name_type));
-                    }
+                    } else type.array_dimensions++;
+                    
                     last_type = token::token_type::LEFT_SQUARE_BRACKET;
                 }
 
@@ -1166,8 +1121,6 @@ namespace shift {
                     break;
                 } else break;
             }
-
-            type.name.end = this->m_tokenizer->get_index();
 
             if (last_type == token::token_type::LEFT_SQUARE_BRACKET) {
                 const token& last = this->m_tokenizer->reverse_peek_token();
@@ -1288,6 +1241,17 @@ namespace shift {
                         expr->end = expr->begin + 1;
                     } else {
                         this->m_token_error(*_token, "unexpected string literal in expression");
+                    }
+                    continue;
+                }
+
+                if (_token->is_char_literal()) {
+                    if (expr->type == token::token_type::NULL_TOKEN) {
+                        expr->type = token::token_type::CHAR_LITERAL;
+                        expr->begin = this->m_tokenizer->get_index();
+                        expr->end = expr->begin + 1;
+                    } else {
+                        this->m_token_error(*_token, "unexpected character literal in expression");
                     }
                     continue;
                 }
