@@ -384,8 +384,10 @@ FodyWeavers.xsd
 *.sln.iml
 
 # CMake
+build
 build/
 build/*
+build/**
 build/bin/
 build/lib/
 build/.cmake/
@@ -414,7 +416,7 @@ install_manifest.txt
 compile_commands.json
 CTestTestfile.cmake
 _deps
-
+CMakeUserPresets.json
 
 # Prerequisites
 *.d
