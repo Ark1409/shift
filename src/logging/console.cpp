@@ -24,7 +24,7 @@ namespace shift {
 				if (!GetConsoleMode(hStdOut, &temp))
 					return false;
 
-				if (!SetConsoleMode(hStdOut, temp | ENABLE_VIRTUAL_TERMINAL_PROCESSING))
+				if (!SetConsoleMode(hStdOut, temp | ENABLE_VIRTUAL_TERMINAL_PROCESSING | ENABLE_PROCESSED_OUTPUT))
 					return false;
 
 				stdOutOldConsoleMode.emplace(temp);
@@ -37,7 +37,7 @@ namespace shift {
 				if (!GetConsoleMode(hStdErr, &temp))
 					return false;
 
-				if (!SetConsoleMode(hStdErr, temp | ENABLE_VIRTUAL_TERMINAL_PROCESSING))
+				if (!SetConsoleMode(hStdErr, temp | ENABLE_VIRTUAL_TERMINAL_PROCESSING | ENABLE_PROCESSED_OUTPUT))
 					return false;
 
 				stdErrOldConsoleMode.emplace(temp);
