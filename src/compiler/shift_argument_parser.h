@@ -46,32 +46,32 @@ namespace shift {
 				 * Tells the error handler to treat warnings as errors.
 				 * Implicitly enables @a FLAG_WARNINGS.
 				 */
-				 FLAG_WERROR = FLAG_WARNINGS | 0x2, /**< FLAG_WERROR */
+				FLAG_WERROR = FLAG_WARNINGS | 0x2, /**< FLAG_WERROR */
 
-				 /**
-				  * Tells the compiler to output a .cpp file which can then be compiled to the final executable.
-				  */
-				  FLAG_CPP_OUTPUT = 0x4, /**< FLAG_CPP_OUTPUT */
+				/**
+				 * Tells the compiler to output a .cpp file which can then be compiled to the final executable.
+				 */
+				FLAG_CPP_OUTPUT = 0x4, /**< FLAG_CPP_OUTPUT */
 
-				  /**
-				   * Tells the compiler to avoid linking the Shift standard library.
-				   * This flag is not currently supported.
-				   */
-				   FLAG_NO_STD = 0x8, /**< FLAG_NO_STD */
+				/**
+				 * Tells the compiler to avoid linking the Shift standard library.
+				 * This flag is not currently supported.
+				 */
+				FLAG_NO_STD = 0x8, /**< FLAG_NO_STD */
 
-				   /**
-					* Indicates that the user requested to also print the compiler's help page.
-					* If this flag is used in conjunction with others, the compiler will print out the help page then finish its other tasks before closing.
-					* If this flag is used by itself, the compiler will print out the help page and immediately close.
-					*/
-					FLAG_HELP = 0x10, /**< FLAG_HELP */
+				/**
+				 * Indicates that the user requested to also print the compiler's help page.
+				 * If this flag is used in conjunction with others, the compiler will print out the help page then finish its other tasks before closing.
+				 * If this flag is used by itself, the compiler will print out the help page and immediately close.
+				 */
+				FLAG_HELP = 0x10, /**< FLAG_HELP */
 
-					/**
-					 * Indicates a value of no flags.
-					 * This is usually never used, as FLAG_HELP is used whenever a user passes in no parameters.
-					 * This flag can be used to prevent the help page from being printed out.
-					 */
-					 FLAG_NO_FLAGS = 0x0 /**< FLAG_NO_FLAGS */
+				/**
+				 * Indicates a value of no flags.
+				 * This is usually never used, as FLAG_HELP is used whenever a user passes in no parameters.
+				 * This flag can be used to prevent the help page from being printed out.
+				 */
+				FLAG_NO_FLAGS = 0x0 /**< FLAG_NO_FLAGS */
 			};
 		public:
 			/// Constructs argument parser from command-line argc and argv
