@@ -44,6 +44,33 @@
 
 namespace shift {
     namespace utils {
+        template<typename NumT>
+        NumT str_to_num(const std::string& str) {
+            NumT ret;
+            if constexpr (std::is_floating_point_v<NumT>) {
+                const long double temp = std::stold(str);
+                if (temp > std::numeric_limits<NumT>::max() || temp < std::numeric_limits<NumT>::lowest()) throw std::runtime_error("shift::utils::str_to_num");
+                ret = static_cast<NumT>(temp);
+            } else {
+                if constexpr (!std::is_signed_v<NumT>) {
+                    const unsigned long long temp = std::stoull(str);
+                    if (temp > std::numeric_limits<NumT>::max()) throw std::runtime_error("shift::utils::str_to_num");
+                    ret = static_cast<NumT>(temp);
+                } else {
+                    const signed long long temp = std::stoll(str);
+                    if (temp > std::numeric_limits<NumT>::max() || temp < std::numeric_limits<NumT>::min()) throw std::runtime_error("shift::utils::str_to_num");
+                    ret = static_cast<NumT>(temp);
+                }
+            }
+            return ret;
+        }
+
+        template<typename NumT>
+        inline NumT str_to_num(const std::string_view str) { return str_to_num<NumT>(std::string(str)); }
+
+        template<typename NumT>
+        inline NumT str_to_num(const char* const str) { return str_to_num<NumT>(std::string(str)); }
+
         template<typename CharT>
         constexpr inline size_t strlen(const CharT* const str) noexcept {
             size_t i = 0;
@@ -291,15 +318,11 @@ namespace shift {
 
             size_type count = 0;
 
-            const size_type len = str.length();
             const size_type delim_len = delim.length();
 
             if (delim_len > 0) {
-                for (size_type i = 0; i < len && (i + delim_len - 1) < len; i++) {
-                    if (Traits::compare(str.data(), delim.data(), delim_len) == 0) {
-                        count++;
-                        i += delim_len - 1;
-                    }
+                for (size_type begin = str.find(delim); begin != std::basic_string_view<CharT, Traits>::npos; begin = str.find(delim, begin += delim_len)) {
+                    count++;
                 }
             }
 
@@ -321,37 +344,26 @@ namespace shift {
             return count<CharT, Traits>(std::basic_string_view<CharT, Traits>(str.data(), str.length()), std::basic_string_view<CharT, Traits>(delim.data(), delim.length()));
         }
 
-
         template<typename CharT, typename Traits>
         std::vector<std::basic_string_view<CharT, Traits>> split(const std::basic_string_view<CharT, Traits> str,
             const std::basic_string_view<CharT, Traits> delim) {
             typedef std::basic_string_view<CharT, Traits> string_view_type;
             typedef std::vector<string_view_type> vector_type;
-            typedef typename std::vector<string_view_type>::size_type size_type;
+            typedef typename string_view_type::size_type size_type;
 
             vector_type tokens;
 
-            const size_type len = str.length();
-            const size_type delim_len = delim.length();
-
             tokens.reserve(count(str, delim) + 1);
 
-            {
-                size_type i = 0, last_pos = 0;
-                if (delim_len > 0) {
-                    for (; i < len && (i + delim_len - 1) < len; i++) {
-                        if (Traits::compare(str.data(), delim.data(), delim_len) == 0) {
-                            i += delim_len - 1;
-                            tokens.push_back(string_view_type(&str[last_pos], i - last_pos));
-                            last_pos = i + 1;
-                        }
-                    }
-                }
+            const size_type delim_len = delim.length();
 
-                if (i < len) {
-                    tokens.push_back(string_view_type(&str[last_pos], len - last_pos));
+            size_type last = 0;
+            if (delim_len > 0) {
+                for (size_type begin = str.find(delim); begin != std::basic_string_view<CharT, Traits>::npos; begin += delim_len, last = begin, begin = str.find(delim, begin)) {
+                    tokens.emplace_back(&str[last], begin - last);
                 }
             }
+            tokens.emplace_back(&str[last], str.length() - last);
 
             return tokens;
         }
