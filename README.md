@@ -1,5 +1,5 @@
 # shift
-This is the official repository for the 'shift' programming language.
+This is the official repository for the 'shift' programming language. This project is still under heavy development with many missing or incomplete features; experimental behaviour is to be expected.
 
 # Introduction
 
