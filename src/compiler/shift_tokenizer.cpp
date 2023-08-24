@@ -139,16 +139,16 @@ namespace shift {
 		}
 
 		void tokenizer::tokenize(void) {
-			if (!this->m_file) // Immediately exit if file does not exist
-				return;
-
 			// Clear all class data in case this function has been called more than once
 			this->m_tokens.clear();
-			std::string().swap(this->m_filedata);
+			this->m_filedata.clear();
 			this->m_lines.clear();
 			utils::clear_stack(this->m_token_marks);
 
 			this->m_token_index = this->m_tokens.cbegin();
+
+			if (!this->m_file) // Immediately exit if file does not exist
+				return;
 
 			std::uintmax_t filesize = this->m_file.size(); // retrieves real size of file on disk; we know it must be at least this large
 			{ // read the file
@@ -229,7 +229,7 @@ namespace shift {
 							shift_tokenizer_reverse_();
 							m_tokens.push_back(token(std::string_view(&this->m_filedata[old_i], i - old_i + 1), token::token_type::HEX_NUMBER, { line,
 									old_col }));
-						} else if (shift_tokenizer_current_equal('.') && isdigit(shift_tokenizer_peek_())) {
+						} else if (shift_tokenizer_current_equal('.')) {
 							for (shift_tokenizer_pre_advance_(); i < filesize && isdigit(current); shift_tokenizer_advance_());
 
 							if (shift_tokenizer_current_equal('f') || shift_tokenizer_current_equal('F')) {
@@ -267,10 +267,9 @@ namespace shift {
 						if (shift_tokenizer_char_equal(shift_tokenizer_peek_(), '=')) {
 							m_tokens.push_back(token(std::string_view(&this->m_filedata[i], 2), token::token_type::NOT_EQUAL, { line, col }));
 							shift_tokenizer_advance_();
-							continue;
+						} else {
+							m_tokens.push_back(token(std::string_view(&this->m_filedata[i], 1), token::token_type::NOT, { line, col }));
 						}
-
-						m_tokens.push_back(token(std::string_view(&this->m_filedata[i], 1), token::token_type::NOT, { line, col }));
 						continue;
 					}
 
@@ -320,13 +319,12 @@ namespace shift {
 										old_col }));
 							} else {
 								shift_tokenizer_reverse_();
-								m_tokens.push_back(token(std::string_view(&this->m_filedata[old_i], i - old_i + 1), token::token_type::DOUBLE, { line,
+								m_tokens.push_back(token(std::string_view(&this->m_filedata[old_i], i - old_i + 1), token::token_type::FLOAT, { line,
 										old_col }));
 							}
-
-							continue;
+						} else {
+							m_tokens.push_back(token(std::string_view(&this->m_filedata[i], 1), token::token_type::DOT, { line, col }));
 						}
-						m_tokens.push_back(token(std::string_view(&this->m_filedata[i], 1), token::token_type::DOT, { line, col }));
 						continue;
 					}
 
@@ -576,6 +574,8 @@ namespace shift {
 								shift_tokenizer_advance_()) {
 								if (shift_tokenizer_current_equal('\n')) {
 									shift_tokenizer_next_line();
+								} else if (shift_tokenizer_current_equal('\t')) {
+									col += 3; // tabs are 4 spaces. col with be incremented the 4th time by shift_tokenizer_advance_() in the for loop
 								}
 							}
 							shift_tokenizer_advance_();
@@ -641,7 +641,7 @@ namespace shift {
 						if (!string_end) {
 							// error, unfinished string
 							if (this->m_error_handler) {
-								SHIFT_TOKENIZER_ERROR(line, old_col, i - old_i + 1, "String literal must be terminated");
+								SHIFT_TOKENIZER_ERROR(line, old_col, i - old_i + 1, "string literal must be terminated");
 							}
 						}
 

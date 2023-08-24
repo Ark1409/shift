@@ -52,7 +52,7 @@ namespace shift {
 			 *   act as bit-fields
 			 *
 			 */
-			enum token_type: uint_fast16_t {
+			enum token_type : uint_fast16_t {
 				IDENTIFIER = 1, // [a-zA-Z_][a-zA-Z0-9_]*
 				INTEGER_LITERAL, // [-]?[0-9]+
 				NUMBER_LITERAL = INTEGER_LITERAL,
@@ -228,11 +228,11 @@ namespace shift {
 
 			constexpr inline bool is_access_specifier(void) const noexcept {
 				return (this->is_identifier())
-					&& (this->is_public() || this->is_protected() || this->is_private() || this->is_static() || this->is_extern() || this->is_binary()
-						|| this->is_const() || this->is_unsafe());
+					&& (this->is_public() || this->is_protected() || this->is_private() || this->is_static() || this->is_const() || this->is_extern()
+						|| this->is_binary() || this->is_unsafe());
 			}
 
-			constexpr inline bool is_overload_operator(void) const noexcept { return this->is_prefix_overload_operator() || this->is_suffix_overload_operator(); }
+			constexpr inline bool is_overload_operator(void) const noexcept { return this->is_prefix_overload_operator() || this->is_suffix_overload_operator() || this->is_binary_operator(); }
 
 			constexpr inline bool is_prefix_overload_operator(void) const noexcept { return this->is_unary_operator(); }
 
@@ -283,7 +283,7 @@ namespace shift {
 					&& (this->is_binary() || this->is_const() || this->is_extern() || this->is_module() || this->is_namespace() || this->is_private()
 						|| this->is_protected() || this->is_public() || this->is_req() || this->is_unsafe() || this->is_use() || this->is_void()
 						|| this->is_class() || this->is_init() || this->is_operator() || this->is_constructor() || this->is_destructor()
-						|| this->is_this() || this->is_base() || this->is_if() || this->is_else() || this->is_while() || this->is_do() || this->is_return() 
+						|| this->is_this() || this->is_base() || this->is_if() || this->is_else() || this->is_while() || this->is_do() || this->is_return()
 						|| this->is_continue() || this->is_break() || this->is_for() || this->is_true() || this->is_false() || this->is_access_specifier());
 			}
 
@@ -315,6 +315,8 @@ namespace shift {
 			constexpr inline bool is_char_literal(void) const noexcept { return (this->m_type == CHAR_LITERAL); }
 
 			constexpr inline bool is_character_literal(void) const noexcept { return is_char_literal(); }
+
+			constexpr inline bool is_colon(void) const noexcept { return (this->m_type == token_type::COLON); }
 
 			constexpr inline bool is_semicolon(void) const noexcept { return (this->m_type == token_type::SEMICOLON); }
 
@@ -364,10 +366,10 @@ namespace shift {
 
 		inline constexpr token token::null = token();
 
-		inline token::token(const std::string& str, const token_type type, const file_indexer index) noexcept: m_data(str.c_str(),
+		inline token::token(const std::string& str, const token_type type, const file_indexer index) noexcept : m_data(str.c_str(),
 			str.length()), m_type(type), m_index(index) {}
 
-		constexpr inline token::token(const std::string_view str, const token_type type, const file_indexer index) noexcept: m_data(str), m_type(
+		constexpr inline token::token(const std::string_view str, const token_type type, const file_indexer index) noexcept : m_data(str), m_type(
 			type), m_index(index) {}
 
 		class tokenizer {
@@ -438,7 +440,7 @@ namespace shift {
 			typename std::vector<token>::const_iterator m_token_index;
 		};
 
-		inline tokenizer::tokenizer(error_handler* const handler, const filesystem::file& file): m_error_handler(handler),
+		inline tokenizer::tokenizer(error_handler* const handler, const filesystem::file& file) : m_error_handler(handler),
 			m_file(file) {}
 
 		inline tokenizer::tokenizer(error_handler* const handler, filesystem::file&& file) : m_error_handler(handler),
