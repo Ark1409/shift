@@ -11,7 +11,7 @@
 namespace shift::utils {
     /**
      * @brief ordered_set is an ordered container that contains a set of unique objects of type V. Search, insertion,
-     * and removal of elements have average constant-time complexity. Internally, this uses std::unordered_map, std::unordered_set, 
+     * and removal of elements have average constant-time complexity. Internally, this uses std::unordered_map, std::unordered_set,
      * and std::list in order to provide (average) constant-time complexity.
      *
      * Container elements may not be modified (even by non const iterators) since modification could change an element's hash and corrupt the container.
@@ -157,6 +157,38 @@ namespace shift::utils {
          * References and iterators to the erased element are invalidated.
          */
         inline void pop_back() { if (size() > 0) { erase(m_lookup[m_order.back()]); } }
+
+        /**
+         * @brief Attemps to append the given element to the container.
+         * @return A std::pair<iterator, bool>, of which the first element is an iterator that points
+         *           to the possibly inserted element, and the second is a bool
+         *           that is true if the element was actually inserted.
+         */
+        inline std::pair<iterator, bool> push(const value_type& value) {
+            auto it = find(value);
+            return it == end() ? std::pair<iterator, bool>{insert(cend(), value), true} : std::pair<iterator, bool>{ it, false };
+        }
+
+        /**
+         * @brief Attemps to append the given element to the container.
+         * @return A std::pair<iterator, bool>, of which the first element is an iterator that points
+         *           to the possibly inserted element, and the second is a bool
+         *           that is true if the element was actually inserted.
+         */
+        inline std::pair<iterator, bool> push(value_type&& value) {
+            auto it = find(value);
+            return it == end() ? std::pair<iterator, bool>{insert(cend(), std::move(value)), true} : std::pair<iterator, bool>{ it, false };
+        }
+
+        /**
+         *  @brief Builds and inserts an element into the container.
+         *  @param args  Arguments used to generate an element.
+         *  @return A std::pair<iterator, bool>, of which the first element is an iterator that points
+         *           to the possibly inserted element, and the second is a bool
+         *           that is true if the element was actually inserted.
+         */
+        template<typename... Args>
+        inline std::pair<iterator, bool> emplace(Args&&... args) { return push(value_type(std::forward<Args>(args)...)); }
 
         /**
          * @brief Inserts element(s) into the container. If the container doesn't already contain an element with an equivalent key,

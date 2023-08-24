@@ -22,20 +22,27 @@ namespace shift::utils {
         typedef typename std::list<typename base_ordered_set_type::value_type const*>::const_iterator iterator_type;
     public:
         typedef std::conditional_t<std::is_const_v<std::remove_reference_t<V>>, base_ordered_set_type const, base_ordered_set_type> ordered_set_type;
-        typedef std::conditional_t<std::is_const_v<std::remove_reference_t<V>>, typename ordered_set_type::value_type const, typename ordered_set_type::value_type> const value_type;
+        typedef typename ordered_set_type::value_type const value_type;
         typedef value_type& reference_type;
         typedef value_type* pointer_type;
+        
+        typedef typename iterator_type::iterator_category iterator_category;
+        typedef typename iterator_type::difference_type difference_type;
+        typedef reference_type reference;
+        typedef pointer_type pointer;
     public:
-        template<typename V1, typename = std::enable_if_t<std::is_const_v<std::remove_reference_t<V>> && std::is_same_v<std::remove_const_t<std::remove_reference_t<V>>, std::remove_const_t<std::remove_reference_t<V1>>>>>
-        inline ordered_set_iterator(const ordered_set_iterator<std::remove_const_t<std::remove_reference_t<V>>, Hash, Pred, Alloc>& other) noexcept
+        template<typename V1, typename = std::enable_if_t<std::is_const_v<std::remove_reference_t<V>>&& std::is_same_v<std::remove_const_t<std::remove_reference_t<V>>, std::remove_const_t<std::remove_reference_t<V1>>>>>
+        inline ordered_set_iterator(const ordered_set_iterator<V1, Hash, Pred, Alloc>& other) noexcept
             : m_order_it(other.m_order_it) {}
 
-        template<typename V1, typename = std::enable_if_t<std::is_const_v<std::remove_reference_t<V>> && std::is_same_v<std::remove_const_t<std::remove_reference_t<V>>, std::remove_const_t<std::remove_reference_t<V1>>>>>
+        template<typename V1, typename = std::enable_if_t<std::is_const_v<std::remove_reference_t<V>>&& std::is_same_v<std::remove_const_t<std::remove_reference_t<V>>, std::remove_const_t<std::remove_reference_t<V1>>>>>
         inline ordered_set_iterator(ordered_set_iterator<V1, Hash, Pred, Alloc>&& other) noexcept
             : m_order_it(std::move(other.m_order_it)) {}
 
         inline ordered_set_iterator(iterator_type it) noexcept
             : m_order_it(it) {}
+
+        inline ordered_set_iterator() {}
 
         ordered_set_iterator(const ordered_set_iterator&) noexcept = default;
         ordered_set_iterator(ordered_set_iterator&&) noexcept = default;
