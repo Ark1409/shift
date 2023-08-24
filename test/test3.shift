@@ -1,0 +1,18 @@
+module shift.io;
+class file {
+    use shift;
+    private var my_var = null;
+    private auto a = my_file.own_file;
+
+    private void run() {
+        if(executable) {
+            native_run();
+        }
+    }
+
+    private static io.file list() { return true; }
+
+    private void run() {
+        
+    }
+}

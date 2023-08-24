@@ -1,0 +1,34 @@
+module shift;
+
+class bool {}
+class int {private constructor(bool) {}}
+
+
+class test {
+    public constructor(bool){}
+    private bool operator+(int i) {return i;}
+    //private int operator=(bool){return true;}
+    private int operator=(int){return true;}
+    private void run() {}
+    private int run(int) {}
+    public int operator+=(int other){return true;}
+    private ulong operator==(shift.int) {return ture; }
+}
+
+void test() {return i & (i << (i>8));}
+
+extern void main() ;
+
+extern int my_test_var=3;
+
+void main() {
+    test t;
+    //t = t + 5;
+    //t+=5;
+    //bool b = t.run(3);
+    if(t+=t.run(3)) ;
+    if(t != 3);
+    shift.test my_own_test;
+    shift.test2 my_own_test;
+    shift.test2.run();
+}

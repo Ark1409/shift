@@ -1,0 +1,128 @@
+module shift;
+use shift;
+use shift.io;
+
+long l = test++;
+
+class object {
+    public constructor() {}
+    protected constructor(string s) {}
+    public string to_string() {}
+    public int hash_code(int, float param2, double param2, string param2,short,sbyte param2) {}
+}
+
+class bool {}
+class double {}
+class long {}
+class short {}
+
+class ushort {}
+class ulong {}
+class byte {}
+class sbyte {}
+class uint {}
+
+class int {
+    //protected constructor (float f) {}
+    //private constructor(int i) {}
+    protected constructor(){}
+    private constructor(float) {
+        return ;
+    }
+    private float hello= 3.f;
+
+    public object operator+(object other) {
+        return 3;
+    }
+    object operator[](test) {
+
+    }
+}
+class float {/*protected protected constructor(int i) {}*/ protected float run_func() {}}
+class string {float run(int i1, int i1) {}}
+
+float run_my() {return null;}
+int run_my() {return 3;}
+
+int var_test = shift.run_my();
+extern int my_int_new = 3;
+
+
+
+class my_class {
+    private int my_var = s8967.shift.int.i(5)[3][9].test.a[3].func(3,8,"string").test[1].o;
+    private int[][] my_var1=3;
+    private int var2 = my_var1[12][2]["ssss"];
+    private static int var3 = 5 + 7*++"s";
+    private string s="sf";
+    private string s1 = s.run(3,3);
+    //private string s3 = 5;
+    private float s3 = 5;
+    private int i3 = s3.run_func();
+    private int i__ = new int[5];
+    private int my_var = 3.0f;
+    private new_int_type new_var33 = my_var1.hello;
+    //private void v = 3;
+    //int i = int.int(3) + this.this.run[3]() + 0b101210;
+
+    //int operator+ = 3;
+}
+
+int my_number =3 ;
+
+class my_class2 {
+    public constructor() {
+        if(1) {
+            run("hello world",33,3.f);
+        } else {if(3.f) {
+            func.ray=9;
+        } else {
+            runner(3);
+        }}
+        return 33;
+        my_number=3.d;
+        return null;
+    }
+uint i = 3;
+    public initi my_func(float i) {
+        return 3787;
+        while(0.0f) {
+            use hello;
+            if(1) {
+                break;
+            }
+        }
+        
+        {
+            uint i = 3;
+            uint i = 3;
+            ;
+            {
+                uint i = 3;
+            }
+        }
+        break;
+        while(false) {
+            new super_safe.clazz("test");
+        }
+    }
+
+    static void func1() {
+        set_running(true);
+        for(uint i = 3;2;) {
+
+        }
+    }
+
+    void func2() {
+        return;
+        if(true) {
+
+        } else if(false) {
+
+        } else if(new object("hello")) {
+
+        } else ;
+        //else ;
+    }
+}

@@ -1,7 +1,8 @@
 module shift;
 use shift;
 use shift;
-use shift.lang;
+use sshift.     lang    ;
+use shift.io;
 
 class my_name {
     use shift;
@@ -10,4 +11,18 @@ class my_name {
 
 class my_name {
     use test;
+}
+
+class file {
+
+}
+
+class my_file {
+    private static file[][] own_file = 3;
+    private static int own_file = 44;
+    private static long own_file = 'f'+'d';
+
+    private void runnner(int a,long,double a,short a) {
+        
+    }
 }

@@ -23,12 +23,13 @@ namespace shift {
             for (tokenizer& _tokenizer : m_tokenizers) {
                 const auto error_count_begin = m_error_handler.get_error_count();
 
-                parser _parser(&m_error_handler, &_tokenizer);
+                m_parsers.emplace_back(&m_error_handler, &_tokenizer);
+                parser& _parser = m_parsers.back();
                 _parser.parse();
 
                 const auto error_count_end = m_error_handler.get_error_count();
-                if (error_count_begin == error_count_end)
-                    m_parsers.push_back(std::move(_parser));
+                if (error_count_begin != error_count_end)
+                    m_parsers.erase(--m_parsers.end());
             }
         }
 
