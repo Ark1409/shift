@@ -36,30 +36,30 @@ namespace shift {
 
             void m_set_null(shift_expression& value) const noexcept;
 
-            utils::ordered_set<shift_function*>& m_match_types(utils::ordered_set<shift_function*>& funcs, std::list<shift_expression>& params);
+            utils::ordered_set<shift_function*>& m_filter_functions(utils::ordered_set<shift_function*>& funcs, std::list<shift_expression>& params);
 
-            inline utils::ordered_set<shift_function*>& m_match_types(utils::ordered_set<shift_function*>& funcs, shift_expression& param) {
+            inline utils::ordered_set<shift_function*>& m_filter_functions(utils::ordered_set<shift_function*>& funcs, shift_expression& param) {
                 std::list<shift_expression> list;
                 list.push_back(std::move(param));
-                m_match_types(funcs, list);
+                m_filter_functions(funcs, list);
                 param = std::move(list.front());
                 return funcs;
             }
 
-            inline utils::ordered_set<shift_function*>& m_match_types(utils::ordered_set<shift_function*>& funcs, shift_expression* const param) {
+            inline utils::ordered_set<shift_function*>& m_filter_functions(utils::ordered_set<shift_function*>& funcs, shift_expression* const param) {
                 if (param) {
-                    return m_match_types(funcs, *param);
+                    return m_filter_functions(funcs, *param);
                 }
 
                 std::list<shift_expression> list;
-                return m_match_types(funcs, list);
+                return m_filter_functions(funcs, list);
             }
 
             inline bool contains_module(const std::string& module_) const { return this->m_modules.find(module_) == this->m_modules.end(); }
             inline void m_analyze_scope(std::list<shift_statement>& statements, scope* parent_scope = nullptr) { return m_analyze_scope(statements.begin(), statements.end(), parent_scope); }
             void m_analyze_scope(typename std::list<shift_statement>::iterator statements_begin, typename std::list<shift_statement>::iterator statements_end, scope* parent_scope = nullptr);
             void m_analyze_function(shift_function& func, scope* parent_scope = nullptr);
-            void m_resolve_types(shift_expression*, scope* const parent_scope = nullptr);
+            void m_resolve_expression(shift_expression*, scope* const parent_scope = nullptr);
             utils::ordered_set<shift_function*> m_get_implicit_conversions(shift_class* const from, shift_class* const to) const noexcept;
             bool m_check_access(scope const* const parent_scope, shift_expression const* expr);
             void m_token_error(const parser& parser_, const token& token_, const std::string_view msg);

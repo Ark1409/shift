@@ -3,6 +3,7 @@ module shift;
 class bool {}
 class int {private constructor(bool) {}}
 
+void test() {return (int)i & (i << (i>8));}
 
 class test {
     public constructor(bool){}
@@ -15,7 +16,6 @@ class test {
     private ulong operator==(shift.int) {return ture; }
 }
 
-void test() {return i & (i << (i>8));}
 
 extern void main() ;
 
