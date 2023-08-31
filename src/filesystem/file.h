@@ -26,10 +26,10 @@ namespace shift {
 		/// Represents a file in the file system. Each file requires a path where it is or will be located.
 		class file {
 		public:
-			file(const std::string_view path);
-			file(const std::string& path);
-			file(const std::filesystem::path& path);
-			file(std::filesystem::path&& path) noexcept;
+			inline file(const std::string_view path);
+			inline file(const std::string& path);
+			inline file(const std::filesystem::path& path);
+			inline file(std::filesystem::path&& path) noexcept;
 			file(const file&) = default;
 			file(file&&) noexcept = default;
 			~file() noexcept = default;
@@ -37,7 +37,7 @@ namespace shift {
 			file& operator=(const file&) = default;
 			file& operator=(file&&) noexcept = default;
 
-			bool operator==(const std::filesystem::path& path) const noexcept;
+			SHIFT_API bool operator==(const std::filesystem::path& path) const noexcept;
 			inline bool operator==(const file& other) const noexcept { return operator==(other.m_path); }
 			inline bool operator==(const std::string_view path) const noexcept { return operator==(std::filesystem::path(path)); }
 			inline bool operator==(const std::string& path) const noexcept { return operator==(std::filesystem::path(path)); }
@@ -50,12 +50,12 @@ namespace shift {
 			inline operator const std::filesystem::path& (void) const noexcept { return this->raw_path(); }
 			inline operator std::filesystem::path& (void) noexcept { return this->raw_path(); }
 
-			directory get_directory(void) const;
-			directory get_parent(void) const;
+			SHIFT_API directory get_directory(void) const;
+			SHIFT_API directory get_parent(void) const;
 
-			bool create(const bool parent = true) noexcept;
-			bool remove(void) noexcept;
-			bool exists(void) const noexcept;
+			SHIFT_API bool create(const bool parent = true) noexcept;
+			SHIFT_API bool remove(void) noexcept;
+			SHIFT_API bool exists(void) const noexcept;
 
 			inline std::filesystem::path& raw_path(void) noexcept { return this->m_path; }
 			inline const std::filesystem::path& raw_path(void) const noexcept { return this->m_path; }

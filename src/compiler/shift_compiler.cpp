@@ -4,7 +4,7 @@
 #include "compiler/shift_compiler.h"
 
 namespace shift::compiler {
-    void compiler::tokenize() {
+    SHIFT_API void compiler::tokenize() {
         for (filesystem::file const& file : m_args.get_source_files()) {
             const auto error_count_begin = m_error_handler.get_error_count();
 
@@ -18,7 +18,7 @@ namespace shift::compiler {
         }
     }
 
-    void compiler::parse() {
+    SHIFT_API void compiler::parse() {
         for (tokenizer& _tokenizer : m_tokenizers) {
             const auto error_count_begin = m_error_handler.get_error_count();
 
@@ -31,7 +31,7 @@ namespace shift::compiler {
         }
     }
 
-    void compiler::analyze() {
+    SHIFT_API void compiler::analyze() {
         this->m_analyzer.analyze();
     }
 }

@@ -426,7 +426,7 @@ namespace shift {
             return ends_with(std::basic_string_view<CharT, Traits>(str.data(), str.length()), std::basic_string_view<CharT, Traits>(end.data(), end.length()));
         }
 
-        [[noreturn]] void exit(int status = EXIT_FAILURE) noexcept;
+        [[noreturn]] SHIFT_API void exit(int status = EXIT_FAILURE) noexcept;
     }
 }
 

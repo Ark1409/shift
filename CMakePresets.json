@@ -5,30 +5,57 @@
         "minor": 21,
         "patch": 0
     },
-    "configurePresets": [{
+    "configurePresets": [
+        {
             "name": "mingw-x64-debug",
             "displayName": "MinGW Debug x64",
+            "description": "Build for mingw-w64-x86_64 (debug)",
             "binaryDir": "${sourceDir}/build",
             "generator": "MinGW Makefiles",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Debug",
                 "CMAKE_INSTALL_PREFIX": "C:/Program Files/shift",
                 "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
-                "CMAKE_CXX_FLAGS_INIT": "-Werror -Wall -Wextra -Wpedantic -Wwrite-strings -Wformat=2 -Wformat-security -Wformat-nonliteral -Wformat-y2k -Wcast-align -Wcast-qual -Walloca -Walloc-zero -Wstringop-overflow=4 -Wpacked -Wpadded -Wpointer-arith -Wredundant-decls -Wstack-protector -Wswitch-default -Wswitch -Wunreachable-code -Wunused -Wunused-parameter -Wmissing-format-attribute -Wmissing-noreturn -Wdisabled-optimization -fmessage-length=0 -m64",
+                "CMAKE_CXX_FLAGS_INIT": "-Wall -Wextra -Wpedantic -Wwrite-strings -Wformat=2 -Wformat-security -Wformat-nonliteral -Wformat-y2k -Wcast-align -Wcast-qual -Walloca -Walloc-zero -Wstringop-overflow=4 -Wpacked -Wpadded -Wpointer-arith -Wredundant-decls -Wstack-protector -Wswitch-default -Wswitch -Wunreachable-code -Wunused -Wunused-parameter -Wmissing-format-attribute -Wmissing-noreturn -Wdisabled-optimization -fmessage-length=0 -m64",
                 "CMAKE_CXX_FLAGS_DEBUG": "-Og -g3"
             }
         },
         {
             "name": "mingw-x64-release",
             "displayName": "MinGW Release x64",
+            "description": "Build for mingw-w64-x86_64 (release)",
             "binaryDir": "${sourceDir}/build",
             "generator": "MinGW Makefiles",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release",
                 "CMAKE_INSTALL_PREFIX": "C:/Program Files/shift",
                 "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
-                "CMAKE_CXX_FLAGS_INIT": "-Werror -Wall -Wextra -Wpedantic -Wwrite-strings -Wformat=2 -Wformat-security -Wformat-nonliteral -Wformat-y2k -Wcast-align -Wcast-qual -Walloca -Walloc-zero -Wstringop-overflow=4 -Wpacked -Wpadded -Wpointer-arith -Wredundant-decls -Wstack-protector -Wswitch-default -Wswitch -Wunreachable-code -Wunused -Wunused-parameter -Wmissing-format-attribute -Wmissing-noreturn -Wdisabled-optimization -fmessage-length=0 -m64"
+                "CMAKE_CXX_FLAGS_INIT": "-Wall -Wextra -Wpedantic -Wwrite-strings -Wformat=2 -Wformat-security -Wformat-nonliteral -Wformat-y2k -Wcast-align -Wcast-qual -Walloca -Walloc-zero -Wstringop-overflow=4 -Wpacked -Wpadded -Wpointer-arith -Wredundant-decls -Wstack-protector -Wswitch-default -Wswitch -Wunreachable-code -Wunused -Wunused-parameter -Wmissing-format-attribute -Wmissing-noreturn -Wdisabled-optimization -fmessage-length=0 -m64"
             }
+        }
+    ],
+    "testPresets": [
+        {
+            "name": "default",
+            "displayName": "default",
+            "description": "default",
+            "hidden": true,
+            "output": {"outputOnFailure": true, "verbosity": "verbose"},
+            "execution": {"noTestsAction": "error", "stopOnFailure": true}
+        },
+        {
+            "name": "mingw-x64-debug-test",
+            "displayName": "MinGW Debug x64 Tests",
+            "description": "Runs tests for mingw-x64-debug",
+            "inherits": "default",
+            "configurePreset": "mingw-x64-debug"
+        },
+        {
+            "name": "mingw-x64-release-test",
+            "displayName": "MinGW Release x64 Tests",
+            "description": "Runs tests for mingw-x64-release",
+            "inherits": "default",
+            "configurePreset": "mingw-x64-release"
         }
     ]
 }

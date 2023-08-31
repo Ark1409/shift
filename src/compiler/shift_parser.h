@@ -516,7 +516,7 @@ namespace shift::compiler {
         parser& operator=(const parser&) = delete;
         parser& operator=(parser&&) noexcept = delete;
 
-        void parse();
+        SHIFT_API void parse();
 
         inline tokenizer* get_tokenizer() const noexcept { return m_tokenizer; }
         inline void set_tokenizer(tokenizer* const tokenizer) noexcept { m_tokenizer = tokenizer; }
@@ -524,7 +524,7 @@ namespace shift::compiler {
         inline const error_handler* get_error_handler() const noexcept { return m_error_handler; }
         inline void set_error_handler(error_handler* const error_handler) noexcept { m_error_handler = error_handler; }
 
-        static uint_fast8_t operator_priority(const token::token_type type, const bool prefix = false) noexcept;
+        SHIFT_API static uint_fast8_t operator_priority(const token::token_type type, const bool prefix = false) noexcept;
     private:
         void m_parse_access_specifier(void);
         void m_parse_use(void);

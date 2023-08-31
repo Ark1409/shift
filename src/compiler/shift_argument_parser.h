@@ -75,7 +75,7 @@ namespace shift {
 			};
 		public:
 			/// Constructs argument parser from command-line argc and argv
-			argument_parser(error_handler* const, const size_t argc = 0, const char* const* const argv = nullptr) noexcept;
+			SHIFT_API argument_parser(error_handler* const, const size_t argc = 0, const char* const* const argv = nullptr) noexcept;
 
 			/// Constructs argument parser from array of arguments
 			inline argument_parser(error_handler* const, const std::vector<std::string_view>& args) noexcept;
@@ -95,14 +95,14 @@ namespace shift {
 			/**
 			 * Parses the given command-line arguments.
 			 */
-			void parse(void);
+			SHIFT_API void parse(void);
 
 			/**
 			 * Retrieves the argument at the given index
 			 * @param[in] index The index of the argument
 			 * @return A std::string_view representing the argument
 			 */
-			std::string_view get_argument(typename std::vector<std::string_view>::size_type index) const;
+			SHIFT_API std::string_view get_argument(typename std::vector<std::string_view>::size_type index) const;
 
 			/**
 			 * Checks whether the argument below is within the argument list.
@@ -112,7 +112,7 @@ namespace shift {
 			 * @param[in] arg The argument to check against
 			 * @return True if the argument exist within the argument list, false otherwise.
 			 */
-			bool contains_argument(const std::string_view arg) const noexcept;
+			SHIFT_API bool contains_argument(const std::string_view arg) const noexcept;
 
 			inline bool contains_argument(const std::string& arg) const noexcept { return contains_argument(std::string_view(arg.data(), arg.length())); }
 
@@ -120,7 +120,7 @@ namespace shift {
 			 * Transforms the arguments into a single string, separating each argument with a space.
 			 * @return The argument list as a std::string.
 			 */
-			std::string to_string(void) const;
+			SHIFT_API std::string to_string(void) const;
 
 			argument_parser& operator=(const argument_parser&) noexcept = default;
 			argument_parser& operator=(argument_parser&&) noexcept = default;

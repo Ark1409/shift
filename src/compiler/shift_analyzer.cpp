@@ -119,7 +119,7 @@ namespace shift {
         static std::vector<token>::iterator m_equals_equals_token;
         static std::vector<token>::iterator m_not_equal_token;
 
-        void analyzer::analyze() {
+        SHIFT_API void analyzer::analyze() {
             // TODO add default classes (shift.int, shift.string, shift.long) before starting to analyze
             m_init_defaults();
 

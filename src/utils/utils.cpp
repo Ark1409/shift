@@ -4,7 +4,7 @@
 
 namespace shift {
     namespace utils {
-        [[noreturn]] void exit(int status) noexcept {
+        [[noreturn]] SHIFT_API void exit(int status) noexcept {
             std::cout.flush();
             std::cerr.flush();
             shift::logging::disable_colored_console();

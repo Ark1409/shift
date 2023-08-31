@@ -47,192 +47,190 @@
 
 #define SHIFT_CONSOLE_RESET									"\033[0m"
 /** namespace shift */
-namespace shift {
-	/** namspace logging */
-	namespace logging {
-		/**
-		 * Allows changing of color in the console.
-		 * @return True if coloured console text was successfully enabled, false otherwise.
-		 */
-		bool enable_colored_console(void) noexcept;
+namespace shift::logging {
 
-		/**
-		 * Disables change of color in the console.
-		 */
-		void disable_colored_console(void) noexcept;
+	/**
+	 * Allows changing of color in the console.
+	 * @return True if coloured console text was successfully enabled, false otherwise.
+	 */
+	SHIFT_API bool enable_colored_console(void) noexcept;
 
-		/**
-		 * Checks whether colored console has been enabled (by enable_colored_console)
-		 * @return True if colored console has been enabled, false otherwise.
-		 */
-		bool has_colored_console(void) noexcept;
+	/**
+	 * Disables change of color in the console.
+	 */
+	SHIFT_API void disable_colored_console(void) noexcept;
 
-		/** Utility functions for standard output streams that permit colored console text. */
+	/**
+	 * Checks whether colored console has been enabled (by enable_colored_console)
+	 * @return True if colored console has been enabled, false otherwise.
+	 */
+	SHIFT_API bool has_colored_console(void) noexcept;
 
-		/// Resets all color formatting back to the default (usually white text with black background on normal cmd.exe).
-		inline std::ostream& creset(std::ostream& os) {
-			return os << SHIFT_CONSOLE_RESET;
-		}
+	/** Utility functions for standard output streams that permit colored console text. */
 
-		/// Black text
-		inline std::ostream& black(std::ostream& os) {
-			return os << SHIFT_CONSOLE_BEGIN_FOREGROUND_BLACK;
-		}
+	/// Resets all color formatting back to the default (usually white text with black background on normal cmd.exe).
+	inline std::ostream& creset(std::ostream& os) {
+		return os << SHIFT_CONSOLE_RESET;
+	}
 
-		/// Red text
-		inline std::ostream& red(std::ostream& os) {
-			return os << SHIFT_CONSOLE_BEGIN_FOREGROUND_RED;
-		}
+	/// Black text
+	inline std::ostream& black(std::ostream& os) {
+		return os << SHIFT_CONSOLE_BEGIN_FOREGROUND_BLACK;
+	}
 
-		/// Green text
-		inline std::ostream& green(std::ostream& os) {
-			return os << SHIFT_CONSOLE_BEGIN_FOREGROUND_GREEN;
-		}
+	/// Red text
+	inline std::ostream& red(std::ostream& os) {
+		return os << SHIFT_CONSOLE_BEGIN_FOREGROUND_RED;
+	}
 
-		/// Yellow text
-		inline std::ostream& yellow(std::ostream& os) {
-			return os << SHIFT_CONSOLE_BEGIN_FOREGROUND_YELLOW;
-		}
+	/// Green text
+	inline std::ostream& green(std::ostream& os) {
+		return os << SHIFT_CONSOLE_BEGIN_FOREGROUND_GREEN;
+	}
 
-		/// Blue text
-		inline std::ostream& blue(std::ostream& os) {
-			return os << SHIFT_CONSOLE_BEGIN_FOREGROUND_BLUE;
-		}
+	/// Yellow text
+	inline std::ostream& yellow(std::ostream& os) {
+		return os << SHIFT_CONSOLE_BEGIN_FOREGROUND_YELLOW;
+	}
 
-		/// Magenta text
-		inline std::ostream& magenta(std::ostream& os) {
-			return os << SHIFT_CONSOLE_BEGIN_FOREGROUND_MAGENTA;
-		}
+	/// Blue text
+	inline std::ostream& blue(std::ostream& os) {
+		return os << SHIFT_CONSOLE_BEGIN_FOREGROUND_BLUE;
+	}
 
-		/// Cyan text
-		inline std::ostream& cyan(std::ostream& os) {
-			return os << SHIFT_CONSOLE_BEGIN_FOREGROUND_CYAN;
-		}
+	/// Magenta text
+	inline std::ostream& magenta(std::ostream& os) {
+		return os << SHIFT_CONSOLE_BEGIN_FOREGROUND_MAGENTA;
+	}
 
-		/// White text
-		inline std::ostream& white(std::ostream& os) {
-			return os << SHIFT_CONSOLE_BEGIN_FOREGROUND_WHITE;
-		}
+	/// Cyan text
+	inline std::ostream& cyan(std::ostream& os) {
+		return os << SHIFT_CONSOLE_BEGIN_FOREGROUND_CYAN;
+	}
 
-		/// Bright black text
-		inline std::ostream& lblack(std::ostream& os) {
-			return os << SHIFT_CONSOLE_BEGIN_FOREGROUND_BRIGHT_BLACK;
-		}
+	/// White text
+	inline std::ostream& white(std::ostream& os) {
+		return os << SHIFT_CONSOLE_BEGIN_FOREGROUND_WHITE;
+	}
 
-		/// Light red text
-		inline std::ostream& lred(std::ostream& os) {
-			return os << SHIFT_CONSOLE_BEGIN_FOREGROUND_BRIGHT_RED;
-		}
+	/// Bright black text
+	inline std::ostream& lblack(std::ostream& os) {
+		return os << SHIFT_CONSOLE_BEGIN_FOREGROUND_BRIGHT_BLACK;
+	}
 
-		/// Light green text
-		inline std::ostream& lgreen(std::ostream& os) {
-			return os << SHIFT_CONSOLE_BEGIN_FOREGROUND_BRIGHT_GREEN;
-		}
+	/// Light red text
+	inline std::ostream& lred(std::ostream& os) {
+		return os << SHIFT_CONSOLE_BEGIN_FOREGROUND_BRIGHT_RED;
+	}
 
-		/// Light yellow text
-		inline std::ostream& lyellow(std::ostream& os) {
-			return os << SHIFT_CONSOLE_BEGIN_FOREGROUND_BRIGHT_YELLOW;
-		}
+	/// Light green text
+	inline std::ostream& lgreen(std::ostream& os) {
+		return os << SHIFT_CONSOLE_BEGIN_FOREGROUND_BRIGHT_GREEN;
+	}
 
-		/// Light blue text
-		inline std::ostream& lblue(std::ostream& os) {
-			return os << SHIFT_CONSOLE_BEGIN_FOREGROUND_BRIGHT_BLUE;
-		}
+	/// Light yellow text
+	inline std::ostream& lyellow(std::ostream& os) {
+		return os << SHIFT_CONSOLE_BEGIN_FOREGROUND_BRIGHT_YELLOW;
+	}
 
-		/// Light magenta text
-		inline std::ostream& lmagenta(std::ostream& os) {
-			return os << SHIFT_CONSOLE_BEGIN_FOREGROUND_BRIGHT_MAGENTA;
-		}
+	/// Light blue text
+	inline std::ostream& lblue(std::ostream& os) {
+		return os << SHIFT_CONSOLE_BEGIN_FOREGROUND_BRIGHT_BLUE;
+	}
 
-		/// Light cyan text
-		inline std::ostream& lcyan(std::ostream& os) {
-			return os << SHIFT_CONSOLE_BEGIN_FOREGROUND_BRIGHT_CYAN;
-		}
+	/// Light magenta text
+	inline std::ostream& lmagenta(std::ostream& os) {
+		return os << SHIFT_CONSOLE_BEGIN_FOREGROUND_BRIGHT_MAGENTA;
+	}
 
-		/// Bright white text
-		inline std::ostream& lwhite(std::ostream& os) {
-			return os << SHIFT_CONSOLE_BEGIN_FOREGROUND_BRIGHT_WHITE;
-		}
+	/// Light cyan text
+	inline std::ostream& lcyan(std::ostream& os) {
+		return os << SHIFT_CONSOLE_BEGIN_FOREGROUND_BRIGHT_CYAN;
+	}
 
-		/// Black background
-		inline std::ostream& bblack(std::ostream& os) {
-			return os << SHIFT_CONSOLE_BEGIN_BACKGROUND_BLACK;
-		}
+	/// Bright white text
+	inline std::ostream& lwhite(std::ostream& os) {
+		return os << SHIFT_CONSOLE_BEGIN_FOREGROUND_BRIGHT_WHITE;
+	}
 
-		/// Red background
-		inline std::ostream& bred(std::ostream& os) {
-			return os << SHIFT_CONSOLE_BEGIN_BACKGROUND_RED;
-		}
+	/// Black background
+	inline std::ostream& bblack(std::ostream& os) {
+		return os << SHIFT_CONSOLE_BEGIN_BACKGROUND_BLACK;
+	}
 
-		/// Green background
-		inline std::ostream& bgreen(std::ostream& os) {
-			return os << SHIFT_CONSOLE_BEGIN_BACKGROUND_GREEN;
-		}
+	/// Red background
+	inline std::ostream& bred(std::ostream& os) {
+		return os << SHIFT_CONSOLE_BEGIN_BACKGROUND_RED;
+	}
 
-		/// Yellow background
-		inline std::ostream& byellow(std::ostream& os) {
-			return os << SHIFT_CONSOLE_BEGIN_BACKGROUND_YELLOW;
-		}
+	/// Green background
+	inline std::ostream& bgreen(std::ostream& os) {
+		return os << SHIFT_CONSOLE_BEGIN_BACKGROUND_GREEN;
+	}
 
-		/// Blue background
-		inline std::ostream& bblue(std::ostream& os) {
-			return os << SHIFT_CONSOLE_BEGIN_BACKGROUND_BLUE;
-		}
+	/// Yellow background
+	inline std::ostream& byellow(std::ostream& os) {
+		return os << SHIFT_CONSOLE_BEGIN_BACKGROUND_YELLOW;
+	}
 
-		/// Magenta background
-		inline std::ostream& bmagenta(std::ostream& os) {
-			return os << SHIFT_CONSOLE_BEGIN_BACKGROUND_MAGENTA;
-		}
+	/// Blue background
+	inline std::ostream& bblue(std::ostream& os) {
+		return os << SHIFT_CONSOLE_BEGIN_BACKGROUND_BLUE;
+	}
 
-		/// Cyan background
-		inline std::ostream& bcyan(std::ostream& os) {
-			return os << SHIFT_CONSOLE_BEGIN_BACKGROUND_CYAN;
-		}
+	/// Magenta background
+	inline std::ostream& bmagenta(std::ostream& os) {
+		return os << SHIFT_CONSOLE_BEGIN_BACKGROUND_MAGENTA;
+	}
 
-		/// White background
-		inline std::ostream& bwhite(std::ostream& os) {
-			return os << SHIFT_CONSOLE_BEGIN_BACKGROUND_WHITE;
-		}
+	/// Cyan background
+	inline std::ostream& bcyan(std::ostream& os) {
+		return os << SHIFT_CONSOLE_BEGIN_BACKGROUND_CYAN;
+	}
 
-		/// Bright black background
-		inline std::ostream& blblack(std::ostream& os) {
-			return os << SHIFT_CONSOLE_BEGIN_BACKGROUND_BRIGHT_BLACK;
-		}
+	/// White background
+	inline std::ostream& bwhite(std::ostream& os) {
+		return os << SHIFT_CONSOLE_BEGIN_BACKGROUND_WHITE;
+	}
 
-		/// Light red background
-		inline std::ostream& blred(std::ostream& os) {
-			return os << SHIFT_CONSOLE_BEGIN_BACKGROUND_BRIGHT_RED;
-		}
+	/// Bright black background
+	inline std::ostream& blblack(std::ostream& os) {
+		return os << SHIFT_CONSOLE_BEGIN_BACKGROUND_BRIGHT_BLACK;
+	}
 
-		/// Light green background
-		inline std::ostream& blgreen(std::ostream& os) {
-			return os << SHIFT_CONSOLE_BEGIN_BACKGROUND_BRIGHT_GREEN;
-		}
+	/// Light red background
+	inline std::ostream& blred(std::ostream& os) {
+		return os << SHIFT_CONSOLE_BEGIN_BACKGROUND_BRIGHT_RED;
+	}
 
-		/// Light yellow background
-		inline std::ostream& blyellow(std::ostream& os) {
-			return os << SHIFT_CONSOLE_BEGIN_BACKGROUND_BRIGHT_YELLOW;
-		}
+	/// Light green background
+	inline std::ostream& blgreen(std::ostream& os) {
+		return os << SHIFT_CONSOLE_BEGIN_BACKGROUND_BRIGHT_GREEN;
+	}
 
-		/// Light blue background
-		inline std::ostream& blblue(std::ostream& os) {
-			return os << SHIFT_CONSOLE_BEGIN_BACKGROUND_BRIGHT_BLUE;
-		}
+	/// Light yellow background
+	inline std::ostream& blyellow(std::ostream& os) {
+		return os << SHIFT_CONSOLE_BEGIN_BACKGROUND_BRIGHT_YELLOW;
+	}
 
-		/// Light magenta background
-		inline std::ostream& blmagenta(std::ostream& os) {
-			return os << SHIFT_CONSOLE_BEGIN_BACKGROUND_BRIGHT_MAGENTA;
-		}
+	/// Light blue background
+	inline std::ostream& blblue(std::ostream& os) {
+		return os << SHIFT_CONSOLE_BEGIN_BACKGROUND_BRIGHT_BLUE;
+	}
 
-		/// Light cyan background
-		inline std::ostream& blcyan(std::ostream& os) {
-			return os << SHIFT_CONSOLE_BEGIN_BACKGROUND_BRIGHT_CYAN;
-		}
+	/// Light magenta background
+	inline std::ostream& blmagenta(std::ostream& os) {
+		return os << SHIFT_CONSOLE_BEGIN_BACKGROUND_BRIGHT_MAGENTA;
+	}
 
-		/// Bright white background
-		inline std::ostream& blwhite(std::ostream& os) {
-			return os << SHIFT_CONSOLE_BEGIN_BACKGROUND_BRIGHT_WHITE;
-		}
+	/// Light cyan background
+	inline std::ostream& blcyan(std::ostream& os) {
+		return os << SHIFT_CONSOLE_BEGIN_BACKGROUND_BRIGHT_CYAN;
+	}
+
+	/// Bright white background
+	inline std::ostream& blwhite(std::ostream& os) {
+		return os << SHIFT_CONSOLE_BEGIN_BACKGROUND_BRIGHT_WHITE;
 	}
 }
 

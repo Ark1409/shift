@@ -19,7 +19,7 @@ namespace shift {
             inline analyzer(error_handler* const handler, std::list<parser>* const parsers) noexcept;
             inline analyzer(error_handler* const handler, std::list<parser>& parsers) noexcept;
 
-            void analyze();
+            SHIFT_API void analyze();
 
             inline const error_handler* get_error_handler() const noexcept { return m_error_handler; }
             inline void set_error_handler(error_handler* const handler) noexcept { m_error_handler = handler; }
