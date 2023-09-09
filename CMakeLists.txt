@@ -38,6 +38,7 @@ add_library(
     src/utils/utils.cpp
 )
 
+# Create base library for project
 add_library("${PROJECT_NAME}::${PROJECT_NAME}" ALIAS ${PROJECT_NAME})
 
 # shift can only compile with c++17 and later
@@ -77,6 +78,7 @@ add_executable(
     src/main.cpp
 )
 
+# Add target properties to shift compiler runner
 target_link_libraries(${PROJECT_NAME}-runner PRIVATE ${PROJECT_NAME})
 set_target_properties(${PROJECT_NAME}-runner PROPERTIES INTERPROCEDURAL_OPTIMIZATION True)
 set_target_properties(${PROJECT_NAME}-runner PROPERTIES POSITION_INDEPENDENT_CODE True)
