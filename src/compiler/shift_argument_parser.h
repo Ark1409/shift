@@ -20,14 +20,14 @@
 #define SHIFT_FLAG(FLAG) (SHIFT_FLAG_PREFIX FLAG)
 
 /// Command-line flags
-#define SHIFT_FLAG_WARNING 				SHIFT_FLAG("warnings")
-#define SHIFT_FLAG_WERROR 				SHIFT_FLAG("warnings-as-errors")
-#define SHIFT_FLAG_CPP_OUTPUT 			SHIFT_FLAG("cpp")
-#define SHIFT_FLAG_CPP_OUTPUT_2 		SHIFT_FLAG("c++") // same as SHIFT_FLAG_CPP_OUTPUT
-#define SHIFT_FLAG_LIB_PATH 			SHIFT_FLAG("lib-path")
-#define SHIFT_FLAG_LIB 					SHIFT_FLAG("lib")
-#define SHIFT_FLAG_HELP					SHIFT_FLAG("help")
-#define SHIFT_FLAG_NO_STD_LIB 			SHIFT_FLAG("no-std") // Not yet implemented
+#define SHIFT_FLAG_WARNING              SHIFT_FLAG("warnings")
+#define SHIFT_FLAG_WERROR               SHIFT_FLAG("warnings-as-errors")
+#define SHIFT_FLAG_CPP_OUTPUT           SHIFT_FLAG("cpp")
+#define SHIFT_FLAG_CPP_OUTPUT_2         SHIFT_FLAG("c++") // same as SHIFT_FLAG_CPP_OUTPUT
+#define SHIFT_FLAG_LIB_PATH             SHIFT_FLAG("lib-path")
+#define SHIFT_FLAG_LIB                  SHIFT_FLAG("lib")
+#define SHIFT_FLAG_HELP                 SHIFT_FLAG("help")
+#define SHIFT_FLAG_NO_STD_LIB           SHIFT_FLAG("no-std") // Not yet implemented
 
 namespace shift {
 	namespace compiler {
