@@ -34,6 +34,7 @@ namespace shift::utils {
         typedef typename std::unordered_map<K, V, Hash, Pred, Alloc>::const_reference const_reference;
         typedef typename std::unordered_map<K, V, Hash, Pred, Alloc>::pointer pointer;
         typedef typename std::unordered_map<K, V, Hash, Pred, Alloc>::const_pointer const_pointer;
+        typedef typename std::unordered_map<K, V, Hash, Pred, Alloc>::allocator_type allocator_type;
 
         typedef ordered_map_iterator<K, V, Hash, Pred, Alloc> iterator;
         typedef ordered_map_iterator<K, V const, Hash, Pred, Alloc> const_iterator;
@@ -52,13 +53,40 @@ namespace shift::utils {
          * @brief Copy constructor. Constructs the container with the copy of the contents of other.
          * @param other another container to be used as source to initialize the elements of the container with
          */
-        ordered_map(const ordered_map& other) = default;
+        ordered_map(const ordered_map& other) {
+            for (value_type const* p : other.m_order) {
+                auto [it, unused] = this->m_set.insert(*p);
+                this->m_order.push_back(it.operator->());
+                this->m_lookup[it.operator->()] = --this->m_order.cend();
+            }
+        }
 
         /**
          * @brief Move constructor. Constructs the container with the contents of other using move semantics.
          * @param other another container to be used as source to initialize the elements of the container with
          */
-        ordered_map(ordered_map&& other) = default;
+        ordered_map(ordered_map&& other) {
+            // Moving may invalidate iterators, see https://stackoverflow.com/a/11022447 and https://en.cppreference.com/w/cpp/container/unordered_set/operator%3D
+            if constexpr ((!std::allocator_traits<allocator_type>::propagate_on_container_move_assignment::value && this->m_set.get_allocator() != other.m_set.get_allocator())
+                || (!std::allocator_traits<typename std::list<value_type const*>::allocator_type>::propagate_on_container_move_assignment::value && this->m_order.get_allocator() != other.m_order.get_allocator())) {
+                // this->m_set or this->m_order will alloc new memory when moving
+
+                for (value_type* p : other.m_order) {
+                    auto [it, unused] = this->m_set.insert(std::move(*p));
+                    this->m_order.push_back(it.operator->());
+                    this->m_lookup[it.operator->()] = --this->m_order.cend();
+                }
+
+                other.m_order.clear();
+                other.m_set.clear();
+                other.m_lookup.clear();
+            } else {
+                // this->m_set and this->m_order both will not alloc new memory when moving
+                this->m_set = std::move(other.m_set);
+                this->m_order = std::move(other.m_order);
+                this->m_lookup = std::move(other.m_lookup);
+            }
+        }
 
         /**
          * @brief Constructs the container with the contents of the range [first, last). Sets max_load_factor() to 1.0.
@@ -86,7 +114,19 @@ namespace shift::utils {
          * @param other another container to use as data source
          * @return @c *this
          */
-        ordered_map& operator=(const ordered_map& other) = default;
+        ordered_map& operator=(const ordered_map& other) {
+            this->m_order.clear();
+            this->m_set.clear();
+            this->m_lookup.clear();
+
+            for (value_type const* p : other.m_order) {
+                auto [it, unused] = this->m_set.insert(*p);
+                this->m_order.push_back(it.operator->());
+                this->m_lookup[it.operator->()] = --this->m_order.cend();
+            }
+
+            return *this;
+        }
 
         /**
          * @brief Move assignment operator. Replaces the contents with those of other using move semantics (i.e. the data in other is moved from other into this container).
@@ -94,7 +134,32 @@ namespace shift::utils {
          * @param other another container to use as data source
          * @return *this
          */
-        ordered_map& operator=(ordered_map&& other) = default;
+        ordered_map& operator=(ordered_map&& other) {
+            // Moving may invalidate iterators, see https://stackoverflow.com/a/11022447 and https://en.cppreference.com/w/cpp/container/unordered_set/operator%3D
+            if constexpr ((!std::allocator_traits<allocator_type>::propagate_on_container_move_assignment::value && this->m_set.get_allocator() != other.m_set.get_allocator())
+                || (!std::allocator_traits<typename std::list<value_type const*>::allocator_type>::propagate_on_container_move_assignment::value && this->m_order.get_allocator() != other.m_order.get_allocator())) {
+                // this->m_set or this->m_order will alloc new memory when moving
+                this->m_order.clear();
+                this->m_set.clear();
+                this->m_lookup.clear();
+
+                for (value_type* p : other.m_order) {
+                    auto [it, unused] = this->m_set.insert(std::move(*p));
+                    this->m_order.push_back(it.operator->());
+                    this->m_lookup[it.operator->()] = --this->m_order.cend();
+                }
+
+                other.m_order.clear();
+                other.m_set.clear();
+                other.m_lookup.clear();
+            } else {
+                // this->m_set and this->m_order both will not alloc new memory when moving
+                this->m_set = std::move(other.m_set);
+                this->m_order = std::move(other.m_order);
+                this->m_lookup = std::move(other.m_lookup);
+            }
+            return *this;
+        }
 
         /**
          * @brief Checks if the container has no elements, i.e. whether begin() == end().

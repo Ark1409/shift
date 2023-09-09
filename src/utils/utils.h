@@ -19,6 +19,7 @@
 #include <stdexcept>
 #include <cstdlib>
 #include <algorithm>
+#include <functional>
 
 #ifdef SHIFT_DEBUG
 #   define debug_log(X) std::cout << X << '\n'
@@ -27,8 +28,8 @@
 #endif
 
 #ifdef SHIFT_DEBUG
-#	define SHIFT_FUNCTION_BENCHMARK_BEGIN debug_log("Starting benchmark for function: " << __func__); typename std::chrono::high_resolution_clock::time_point func_begin = std::chrono::high_resolution_clock::now(); size_t func_bytes_alloced = ::bytes_alloced;
-#	define SHIFT_FUNCTION_BENCHMARK_END typename std::chrono::high_resolution_clock::time_point func_end = std::chrono::high_resolution_clock::now(); debug_log("Ended benchmark for function: " << __func__ << "; Time: " << std::chrono::duration_cast<std::chrono::milliseconds>(func_end - func_begin) << "ms" << "; Bytes used: " << (::bytes_alloced-func_bytes_alloced) << " (" << ((double) ((double)::bytes_alloced-(double)func_bytes_alloced) / (double)1024)  << " KiB)");
+#	define SHIFT_FUNCTION_BENCHMARK_BEGIN debug_log("Starting benchmark for function: " << __func__); typename std::chrono::high_resolution_clock::time_point func_begin = std::chrono::high_resolution_clock::now(); //size_t func_bytes_alloced = ::bytes_alloced;
+#	define SHIFT_FUNCTION_BENCHMARK_END typename std::chrono::high_resolution_clock::time_point func_end = std::chrono::high_resolution_clock::now(); debug_log("Ended benchmark for function: " << __func__ << "; Time: " << std::chrono::duration_cast<std::chrono::milliseconds>(func_end - func_begin) << "ms"); //<< "; Bytes used: " << (::bytes_alloced-func_bytes_alloced) << " (" << ((double) ((double)::bytes_alloced-(double)func_bytes_alloced) / (double)1024)  << " KiB)");
 #else
 #	define SHIFT_FUNCTION_BENCHMARK_BEGIN
 #	define SHIFT_FUNCTION_BENCHMARK_END
@@ -427,6 +428,11 @@ namespace shift {
         }
 
         [[noreturn]] SHIFT_API void exit(int status = EXIT_FAILURE) noexcept;
+
+        constexpr inline std::size_t hash_combine(const std::size_t first, const std::size_t second) noexcept {
+            // Stolen from https://stackoverflow.com/a/2595226
+            return second + 0x9e3779b9 + (first << 6) + (first >> 2);
+        }
     }
 }
 
@@ -487,5 +493,12 @@ inline typename std::list<T>::const_iterator operator-(typename std::list<T>::co
     for (; count > 0; --count, --it);
     return it;
 }
+
+template<typename T1, typename T2>
+struct std::hash<std::pair<T1, T2>> {
+    constexpr inline std::size_t operator()(const std::pair<T1, T2>& p) const {
+        return shift::utils::hash_combine(std::hash<T1>()(p.first), std::hash<T2>()(p.second));
+    }
+};
 
 #endif /* SHIFT_UTILS_H_ */
