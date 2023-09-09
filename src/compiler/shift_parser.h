@@ -415,8 +415,7 @@ namespace shift::compiler {
         std::list<shift_function> functions;
         std::list<shift_variable> variables;
         shift_variable this_var, base_var;
-        constexpr static token this_token = token(std::string_view("this"), token::token_type::IDENTIFIER, { 0,0 });
-        constexpr static token base_token = token(std::string_view("base"), token::token_type::IDENTIFIER, { 0,0 });
+        
         parser* parser_ = nullptr;
 
         inline size_t has_base(const shift_class* const test) const noexcept {

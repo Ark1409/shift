@@ -72,7 +72,7 @@ namespace shift::compiler {
 }
 
 namespace shift::compiler {
-    
+
     using token_type = token::token_type;
 
     static constexpr inline bool is_operator(const token_type type) noexcept { return token(std::string_view(), type, file_indexer()).is_overload_operator(); }
@@ -93,6 +93,9 @@ namespace shift::compiler {
     static constexpr inline shift_mods destructor_modifiers = function_modifiers & ~shift_mods::STATIC;
     static constexpr inline shift_mods variable_modifiers = visibility_modifiers | shift_mods::STATIC | shift_mods::CONST_ | shift_mods::EXTERN;
     static constexpr inline shift_mods global_variable_modifiers = variable_modifiers & ~(shift_mods::STATIC | visibility_modifiers);
+
+    static constexpr token this_token = token(std::string_view("this"), token::token_type::IDENTIFIER, { 0,0 });
+    static constexpr token base_token = token(std::string_view("base"), token::token_type::IDENTIFIER, { 0,0 });
 
     // parser& parser::operator=(parser&& p) noexcept {
     //     this->m_tokenizer = p.m_tokenizer;
@@ -761,11 +764,11 @@ namespace shift::compiler {
 
         clazz.implicit_use_statements = this->m_global_uses.size();
         clazz.module_ = &this->m_module;
-        clazz.this_var.name = &clazz.this_token;
+        clazz.this_var.name = &this_token;
         clazz.this_var.clazz = &clazz;
         clazz.this_var.type.name_class = &clazz;
         clazz.this_var.type.mods = shift_mods::PRIVATE;
-        clazz.base_var.name = &clazz.base_token;
+        clazz.base_var.name = &base_token;
         clazz.base_var.clazz = &clazz;
         clazz.base_var.type.name_class = clazz.base.clazz; // TODO change
         clazz.base_var.type.mods = shift_mods::PRIVATE;
@@ -1833,7 +1836,7 @@ namespace shift::compiler {
 
             if (_token->is_binary_operator() || _token->is_unary_operator()) {
                 if (_token->is_binary_operator()) {
-                    if (expr->type == token::token_type::NULL_TOKEN && !_token->is_prefix_overload_operator()) {
+                    if (expr->type == token::token_type::NULL_TOKEN && !_token->is_prefix_overload_operator() && (!expr->parent || !expr->parent->is_bracket())) {
                         this->m_token_error(*_token, "unexpected operator '" + std::string(_token->get_data()) + "' inside expression");
                     }
                 } else {
@@ -2266,51 +2269,52 @@ namespace shift::compiler {
     bool parser::m_is_module_defined(void) const noexcept { return this->m_module.size() != 0; }
 
     SHIFT_API uint_fast8_t parser::operator_priority(const token_type type, const bool prefix) noexcept {
-        constexpr uint_fast8_t prefix_priority = 0xfc;
-
+        constexpr uint_fast8_t base_priority = 0x10;
+        constexpr uint_fast8_t prefix_priority = 0xfc - base_priority;
         switch (type) {
             case token_type::AND:
             case token_type::OR:
             case token_type::XOR:
             case token_type::SHIFT_LEFT:
             case token_type::SHIFT_RIGHT:
-                return 0x2;
+                return base_priority + 0x2;
 
             case token_type::AND_AND:
             case token_type::OR_OR:
-                return 0x3;
+                return base_priority + 0x3;
 
             case token_type::GREATER_THAN:
             case token_type::LESS_THAN:
-                return 0x4;
+                return base_priority + 0x4;
 
             case token_type::PLUS:
-                return 0x5;
+                return base_priority + 0x5;
 
             case token_type::MINUS:
-                return prefix ? prefix_priority : 0x5;
+                return prefix ? base_priority + prefix_priority : base_priority + 0x5;
 
             case token_type::MULTIPLY:
             case token_type::DIVIDE:
             case token_type::MODULO:
-                return 0x6;
+                return base_priority + 0x6;
 
             case token_type::MINUS_MINUS:
             case token_type::PLUS_PLUS:
-                return prefix ? prefix_priority : 0x7;
+                return prefix ? base_priority + prefix_priority : base_priority + 0x7;
 
             case token_type::NOT:
             case token_type::FLIP_BITS:
-                return prefix_priority;
+                return base_priority + prefix_priority;
 
             case token_type::LEFT_BRACKET: // bracket-ed expressions
             case token_type::LEFT_SQUARE_BRACKET: // array operator
             case token_type::IDENTIFIER: // variable names / function calls
-                return 0xfe;
+                return base_priority + prefix_priority + 1;
 
             default: {
                 // i = 5 + 3; -> should be -> (i) = (5 + 3); | if = had more priority -> (i = 5) + (3)
-                return (type & token_type::EQUALS) == token_type::EQUALS ? 0x1 : 0x0;
+                return (type & token_type::EQUALS) == token_type::EQUALS ?
+                    operator_priority(type & ~token_type::EQUALS, prefix) - base_priority : 0x0;
             }
         }
     }
