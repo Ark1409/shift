@@ -1,16 +1,13 @@
 module shift;
 
-class bool {}
-class int {private constructor(bool) {}}
-
-void test() {return (int)i & (i << (i>8));}
+void test() {return (int)((int)i & i) << (int)((int)i>8);}
 
 class test {
     public constructor(bool){}
     private bool operator+(int i) {return i;}
     //private int operator=(bool){return true;}
     private int operator=(int){return true;}
-    private void run() {}
+    private int run() {}
     private int run(int) {}
     public int operator+=(int other){return true;}
     private ulong operator==(shift.int) {return ture; }
@@ -31,4 +28,4 @@ void main() {
     shift.test my_own_test;
     shift.test2 my_own_test;
     shift.test2.run();
-}
+} 

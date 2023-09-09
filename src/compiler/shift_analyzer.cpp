@@ -417,6 +417,7 @@ namespace shift {
                         m_analyze_function(func, &_scope);
                     }
                 }
+                _scope.clazz = nullptr;
             }
             // for (parser& _parser : *m_parsers) {
             //     _scope.parser = &_parser;
@@ -594,12 +595,22 @@ namespace shift {
             }
         }
 
-        utils::ordered_set<shift_function*> analyzer::m_get_implicit_conversions(shift_class* const from, shift_class* const to) const noexcept {
+        utils::ordered_set<shift_function*> analyzer::m_get_implicit_conversions(shift_class* const from, shift_class* const to, std::unordered_set<shift_class*>& history) const noexcept {
             if (!from || !to || from == &m_void_class || to == &m_void_class || from == &m_null_class
-                || from == &m_void_class || to == &m_null_class || to == &m_void_class)
+                || to == &m_null_class || from == to)
                 return utils::ordered_set<shift_function*>();
 
+            static std::unordered_map<std::pair<shift_class*, shift_class*>, utils::ordered_set<shift_function*>> m_implicit_conversion_cache;
+
+            {
+                auto f = m_implicit_conversion_cache.find({ from, to });
+                if (f != m_implicit_conversion_cache.end()) {
+                    return f->second;
+                }
+            }
+
             utils::ordered_set<shift_function*> funcs;
+            auto [to_it, inserted] = history.emplace(to);
             for (shift_function& func : to->functions) {
                 if (func.name.begin->is_constructor()) {
                     // TODO check if function has explicit keyword
@@ -621,25 +632,34 @@ namespace shift {
                                 // exact match
                                 funcs.clear();
                                 funcs.push(&func);
-                                return funcs;
+                                break;
                             } else if (from->has_base(param.type.name_class)) {
                                 // base class match
                                 funcs.push(&func);
                             } else if (param.type.name_class != to) {
-                                auto sub_conversions = m_get_implicit_conversions(from, param.type.name_class);
-                                if (sub_conversions.size() == 1) {
-                                    funcs.push(&func);
-                                } else if (sub_conversions.size() > 1) {
-                                    for (auto& sub_conversion : sub_conversions) {
-                                        funcs.push(std::move(sub_conversion));
+                                if (history.find(param.type.name_class) == history.end()) {
+                                    auto [it, unused] = history.emplace(param.type.name_class);
+                                    auto sub_conversions = m_get_implicit_conversions(from, param.type.name_class, history);
+                                    if (sub_conversions.size() == 1) {
+                                        funcs.push(&func);
+                                    } else if (sub_conversions.size() > 1) {
+                                        for (auto& sub_conversion : sub_conversions) {
+                                            funcs.push(std::move(sub_conversion));
+                                        }
                                     }
+
+                                    history.erase(it);
                                 }
                             }
                         }
                     }
                 }
             }
-            return funcs;
+            if (inserted)
+                history.erase(to_it);
+
+            auto [cache_it, unused] = m_implicit_conversion_cache.insert(std::make_pair(std::pair<shift_class*, shift_class*>{from, to}, std::move(funcs)));
+            return cache_it->second;
         }
 
         bool analyzer::m_check_access(scope const* const parent_scope, shift_expression const* expr) {

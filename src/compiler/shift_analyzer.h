@@ -60,7 +60,11 @@ namespace shift {
             void m_analyze_scope(typename std::list<shift_statement>::iterator statements_begin, typename std::list<shift_statement>::iterator statements_end, scope* parent_scope = nullptr);
             void m_analyze_function(shift_function& func, scope* parent_scope = nullptr);
             void m_resolve_expression(shift_expression*, scope* const parent_scope = nullptr);
-            utils::ordered_set<shift_function*> m_get_implicit_conversions(shift_class* const from, shift_class* const to) const noexcept;
+            utils::ordered_set<shift_function*> m_get_implicit_conversions(shift_class* const from, shift_class* const to, std::unordered_set<shift_class*>& history) const noexcept;
+            inline utils::ordered_set<shift_function*> m_get_implicit_conversions(shift_class* const from, shift_class* const to) const noexcept {
+                std::unordered_set<shift_class*> history;
+                return m_get_implicit_conversions(from, to, history);
+            }
             bool m_check_access(scope const* const parent_scope, shift_expression const* expr);
             void m_token_error(const parser& parser_, const token& token_, const std::string_view msg);
             void m_token_error(const parser& parser_, const token& token_, const std::string& msg);

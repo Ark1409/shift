@@ -1,0 +1,157 @@
+module shift;
+
+class byte {
+    public extern constructor(sbyte);
+    public extern constructor(ushort);
+    public extern constructor(short);
+    public extern constructor(uint);
+    public extern constructor(int);
+    public extern constructor(ulong);
+    public extern constructor(long);
+    public extern constructor(float);
+    public extern constructor(double);
+    public extern constructor(bool);
+}
+
+class sbyte {
+    public extern constructor(byte);
+    public extern constructor(ushort);
+    public extern constructor(short);
+    public extern constructor(uint);
+    public extern constructor(int);
+    public extern constructor(ulong);
+    public extern constructor(long);
+    public extern constructor(float);
+    public extern constructor(double);
+    public extern constructor(bool);
+}
+
+class ushort {
+    public extern constructor(byte);
+    public extern constructor(sbyte);
+    public extern constructor(short);
+    public extern constructor(uint);
+    public extern constructor(int);
+    public extern constructor(ulong);
+    public extern constructor(long);
+    public extern constructor(float);
+    public extern constructor(double);
+    public extern constructor(bool);
+}
+
+class short {
+    public extern constructor(byte);
+    public extern constructor(sbyte);
+    public extern constructor(ushort);
+    public extern constructor(uint);
+    public extern constructor(int);
+    public extern constructor(ulong);
+    public extern constructor(long);
+    public extern constructor(float);
+    public extern constructor(double);
+    public extern constructor(bool);
+}
+
+class uint {
+    public extern constructor(byte);
+    public extern constructor(sbyte);
+    public extern constructor(ushort);
+    public extern constructor(short);
+    public extern constructor(int);
+    public extern constructor(ulong);
+    public extern constructor(long);
+    public extern constructor(float);
+    public extern constructor(double);
+    public extern constructor(bool);
+}
+
+class int {
+    public extern constructor(byte);
+    public extern constructor(sbyte);
+    public extern constructor(ushort);
+    public extern constructor(short);
+    public extern constructor(uint);
+    public extern constructor(ulong);
+    public extern constructor(long);
+    public extern constructor(float);
+    public extern constructor(double);
+    public extern constructor(bool);
+}
+
+class ulong {
+    public extern constructor(byte);
+    public extern constructor(sbyte);
+    public extern constructor(ushort);
+    public extern constructor(short);
+    public extern constructor(uint);
+    public extern constructor(int);
+    public extern constructor(long);
+    public extern constructor(float);
+    public extern constructor(double);
+    public extern constructor(bool);
+}
+
+class long {
+    public extern constructor(byte);
+    public extern constructor(sbyte);
+    public extern constructor(ushort);
+    public extern constructor(short);
+    public extern constructor(uint);
+    public extern constructor(int);
+    public extern constructor(ulong);
+    public extern constructor(float);
+    public extern constructor(double);
+    public extern constructor(bool);
+}
+
+class float {
+    public extern constructor(byte);
+    public extern constructor(sbyte);
+    public extern constructor(ushort);
+    public extern constructor(short);
+    public extern constructor(uint);
+    public extern constructor(int);
+    public extern constructor(ulong);
+    public extern constructor(long);
+    public extern constructor(double);
+    public extern constructor(bool);
+}
+
+class double {
+    public extern constructor(byte);
+    public extern constructor(sbyte);
+    public extern constructor(ushort);
+    public extern constructor(short);
+    public extern constructor(uint);
+    public extern constructor(int);
+    public extern constructor(ulong);
+    public extern constructor(long);
+    public extern constructor(float);
+    public extern constructor(bool);
+}
+
+class bool {
+    public extern constructor(byte);
+    public extern constructor(sbyte);
+    public extern constructor(ushort);
+    public extern constructor(short);
+    public extern constructor(uint);
+    public extern constructor(int);
+    public extern constructor(ulong);
+    public extern constructor(long);
+    public extern constructor(float);
+    public extern constructor(double);
+}
+
+class string {
+    public extern constructor(byte);
+    public extern constructor(sbyte);
+    public extern constructor(ushort);
+    public extern constructor(short);
+    public extern constructor(uint);
+    public extern constructor(int);
+    public extern constructor(ulong);
+    public extern constructor(long);
+    public extern constructor(float);
+    public extern constructor(double);
+}
