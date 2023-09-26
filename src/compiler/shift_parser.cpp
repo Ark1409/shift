@@ -89,7 +89,7 @@ namespace shift::compiler {
     static constexpr inline shift_mods function_modifiers = visibility_modifiers | shift_mods::STATIC | shift_mods::EXTERN;
     static constexpr inline shift_mods global_function_modifiers = function_modifiers & ~(shift_mods::STATIC | visibility_modifiers);
     static constexpr inline shift_mods type_modifiers = shift_mods::CONST_;
-    static constexpr inline shift_mods constructor_modifiers = function_modifiers & ~shift_mods::STATIC;
+    static constexpr inline shift_mods constructor_modifiers = (function_modifiers & ~shift_mods::STATIC) | shift_mods::EXPLICIT;
     static constexpr inline shift_mods destructor_modifiers = function_modifiers & ~shift_mods::STATIC;
     static constexpr inline shift_mods variable_modifiers = visibility_modifiers | shift_mods::STATIC | shift_mods::CONST_ | shift_mods::EXTERN;
     static constexpr inline shift_mods global_variable_modifiers = variable_modifiers & ~(shift_mods::STATIC | visibility_modifiers);
@@ -190,11 +190,14 @@ namespace shift::compiler {
 
                 func->module_ = &this->m_module;
 
+                const token* explicit_token = nullptr;
                 for (const auto& [mod, token_] : this->m_mods) {
                     if ((mod & constructor_modifiers) == 0x0) {
                         this->m_token_error(*token_, "unexpected '" + std::string(token_->get_data()) + "' specifier in constructor declaration");
                     } else {
                         func->mods |= mod;
+                        if (mod & shift_mods::EXPLICIT)
+                            explicit_token = token_;
                     }
                 }
                 this->m_clear_mods();
@@ -276,6 +279,12 @@ namespace shift::compiler {
                     }
                 } else if (this->m_tokenizer->reverse_peek_token().is_comma()) {
                     this->m_token_error(this->m_tokenizer->reverse_peek_token(), "misplaced ',' in constructor parameter list");
+                }
+
+                // TODO maybe allow intializer lists for implicit constructors with multiple parameters
+                // TODO check default parameter count before warning
+                if (parent_class && func->mods & shift_mods::EXPLICIT && func->parameters.size() > 1) {
+                    this->m_token_warning(*explicit_token, "redundant 'explicit' specifier");
                 }
 
                 const token& function_left_bracket = this->m_tokenizer->next_token();
@@ -839,161 +848,6 @@ namespace shift::compiler {
         }
     }
 
-    // void parser::m_parse_class(shift_class& clazz) {
-    //     for (const token* token_ = &this->m_tokenizer->current_token(); !token_->is_null_token(); token_ = &this->m_tokenizer->next_token()) {
-    //         if (token_->is_access_specifier()) {
-    //             this->m_parse_access_specifier();
-    //             continue;
-    //         }
-
-    //         if (token_->is_use()) {
-    //             m_parse_use(clazz.use_statements);
-    //             continue;
-    //         }
-
-    //         if (token_->is_constructor()) {
-    //             // parse constructor
-    //             clazz.functions.emplace_back();
-    //             shift_function& func = clazz.functions.back();
-    //             func.name.begin = this->m_tokenizer->get_index();
-    //             func.name.end = func.name.begin + 1;
-    //             func.clazz = &clazz;
-
-    //             for (const auto& [mod, token_] : this->m_mods) {
-    //                 if ((mod & constructor_modifiers) == 0x0) {
-    //                     this->m_token_error(*token_, "unexpected '" + std::string(token_->get_data()) + "' specifier in constructor declaration");
-    //                 } else {
-    //                     func.mods |= mod;
-    //                 }
-    //             }
-    //             this->m_clear_mods();
-
-    //             const token& next_token = this->m_tokenizer->next_token();
-
-    //             if (!next_token.is_left_bracket()) {
-    //                 if (!next_token.is_null_token()) {
-    //                     this->m_token_error(next_token, "expected '(' after class constructor declaration");
-    //                     this->m_skip_until(token::token_type::LEFT_BRACKET);
-    //                 } else {
-    //                     this->m_token_error(this->m_tokenizer->reverse_peek_token(), "expected '(' after class constructor declaration before end of file");
-    //                 }
-    //             }
-
-    //             // parse constructor parameters
-    //             for (this->m_tokenizer->next_token(); !this->m_tokenizer->current_token().is_null_token() && !this->m_tokenizer->current_token().is_right_bracket(); this->m_tokenizer->next_token()) {
-    //                 shift_variable param_var;
-    //                 param_var.function = &func;
-    //                 param_var.type = m_parse_type("constructor parameter");
-    //                 param_var.name = &this->m_tokenizer->current_token();
-
-    //                 if (param_var.type.name.size() == 0) {
-    //                     this->m_token_error(*param_var.type.name.begin, "expected parameter type in constructor parameter list, got '" + std::string(param_var.type.name.begin->get_data()) + "'");
-    //                 }
-
-    //                 if (param_var.name->is_comma() || param_var.name->is_right_bracket()) {
-    //                     // nameless parameters
-    //                     const token* const old_name = param_var.name;
-    //                     param_var.name = &token::null;
-
-    //                     {
-    //                         auto [it, ins] = func_null_params.emplace("@" + std::to_string(func.parameters.size()));
-    //                         func.parameters.push_back({ std::string_view(it->c_str(), it->length()), std::move(param_var) });
-    //                     }
-
-    //                     if (old_name->is_right_bracket())
-    //                         break;
-
-    //                     continue;
-    //                 }
-
-    //                 if (!param_var.name->is_identifier()) {
-    //                     if (!param_var.name->is_null_token()) {
-    //                         this->m_token_error(*param_var.name, "expected identifier for constructor parameter name");
-    //                     } else {
-    //                         this->m_token_error(this->m_tokenizer->reverse_peek_token(), "expected identifier for constructor parameter name before end of file");
-    //                     }
-    //                 } else if (param_var.name->is_keyword()) {
-    //                     this->m_token_error(*param_var.name, "'" + std::string(param_var.name->get_data()) + "' is not a valid constructor parameter name");
-    //                 }
-
-    //                 if (func.parameters.contains(param_var.name->get_data())) {
-    //                     this->m_token_error(*param_var.name, "duplicate parameter name '" + std::string(param_var.name->get_data()) + "' in function '" + func.get_fqn() + "'");
-    //                 }
-
-    //                 func.parameters.push_back({ param_var.name->get_data(), std::move(param_var) });
-
-    //                 const token& after_param_name = this->m_tokenizer->next_token();
-    //                 if (!after_param_name.is_comma()) {
-    //                     if (!after_param_name.is_right_bracket()) {
-    //                         if (!after_param_name.is_null_token()) {
-    //                             this->m_token_error(after_param_name, "expected ',' or ')' in constructor parameter list");
-    //                         } else {
-    //                             this->m_token_error(this->m_tokenizer->reverse_peek_token(), "expected ',' or ')' in constructor parameter list before end of file");
-    //                         }
-    //                     } else break;
-    //                 }
-    //             }
-
-    //             const token& function_right_parameter_bracket = this->m_tokenizer->current_token();
-
-    //             if (!function_right_parameter_bracket.is_right_bracket()) {
-    //                 if (!function_right_parameter_bracket.is_null_token()) {
-    //                     this->m_token_error(function_right_parameter_bracket, "expected ')' at end of constructor parameter list");
-    //                     this->m_skip_until(token::token_type::RIGHT_BRACKET);
-    //                 } else {
-    //                     this->m_token_error(this->m_tokenizer->reverse_peek_token(), "expected ')' at end of constructor parameter list before end of file");
-    //                 }
-    //             } else if (this->m_tokenizer->reverse_peek_token().is_comma()) {
-    //                 this->m_token_error(this->m_tokenizer->reverse_peek_token(), "misplaced ',' in constructor parameter list");
-    //             }
-
-    //             const token& function_left_bracket = this->m_tokenizer->next_token();
-
-    //             if (!function_left_bracket.is_left_scope_bracket()) {
-    //                 if (!function_left_bracket.is_null_token()) {
-    //                     this->m_token_error(function_left_bracket, "expected '{' after class constructor declaration");
-    //                     this->m_skip_until(token::token_type::LEFT_SCOPE_BRACKET);
-    //                 } else {
-    //                     this->m_token_error(this->m_tokenizer->reverse_peek_token(), "expected '{' after class constructor declaration before end of file");
-    //                 }
-    //             }
-
-    //             this->m_tokenizer->next_token(); // Move onto first token inside constructor body
-
-    //             // Parse constructor body
-    //             m_parse_function(func);
-
-    //             const token& function_right_bracket = this->m_tokenizer->current_token();
-
-    //             if (!function_right_bracket.is_right_scope_bracket()) {
-    //                 if (!function_right_bracket.is_null_token()) {
-    //                     this->m_token_error(function_right_bracket, "expected '}' after class constructor declaration");
-    //                     this->m_skip_until(token::token_type::RIGHT_SCOPE_BRACKET);
-    //                 } else {
-    //                     this->m_token_error(this->m_tokenizer->reverse_peek_token(), "expected '}' after class constructor declaration before end of file");
-    //                 }
-    //             }
-
-
-    //             continue;
-    //         }
-
-    //         if (token_->is_destructor()) {
-    //             // TODO parse destructor
-    //             continue;
-    //         }
-
-    //         if (token_->is_class()) {
-    //             // TODO support for classes inside of classes
-    //             continue;
-    //         }
-
-
-
-    //         if (token_->is_right_scope_bracket()) break;
-    //     }
-    // }
-
     void parser::m_parse_function(shift_function& func) {
         return m_parse_function_block(func, func.statements);
     }
@@ -1188,9 +1042,15 @@ namespace shift::compiler {
 
                     std::list<shift_statement> temp_statement;
                     m_parse_function_block(func, temp_statement, 1);
-                    if (temp_statement.size() > 0)
-                        // TODO add statement type checking
-                        statement.set_for_initializer(std::move(temp_statement.front()));
+                    if (temp_statement.size() > 0) {
+                        shift_statement& init_statement = temp_statement.front();
+
+                        if (init_statement.type != shift_statement::statement_type::expression && init_statement.type != shift_statement::statement_type::variable_alloc) {
+                            this->m_token_error(*init_statement.data[0].token, "invalid statement inside 'for' initializer");
+                        }
+
+                        statement.set_for_initializer(std::move(init_statement));
+                    }
                 }
 
                 {
@@ -1408,7 +1268,7 @@ namespace shift::compiler {
         {
             auto module_ = m_parse_name("module name");
             if (modules.contains(module_)) {
-                this->m_token_error(use_token, "redundant 'use' statement");
+                this->m_token_warning(use_token, "redundant 'use' statement");
             } else {
                 modules.push_back(std::move(module_));
             }
@@ -1620,8 +1480,10 @@ namespace shift::compiler {
         const token& current_token = this->m_tokenizer->current_token();
         const shift_mods mod = to_access_specifier(current_token);
         const shift_mods current_mods = this->m_get_mods();
+        const shift_mods current_visibility_mods = (current_mods | mod) & visibility_modifiers;
 
-        if ((current_mods & visibility_modifiers) != 0x0 && ((current_mods | mod) & visibility_modifiers) != (current_mods & visibility_modifiers)) {
+        // Check to make sure only one visibility modifier is on at a time (power of 2)
+        if ((current_visibility_mods & (current_visibility_mods - 1)) != 0x0) {
             // error if the one we have (i.e. the public, protected or private that is currently specified (the one being stored in current_mods)) is NOT the one now being parsed
             this->m_token_error(current_token, "unexpected visibility specifier");
         } else if ((current_mods & mod) == mod) {
@@ -2012,11 +1874,6 @@ namespace shift::compiler {
                             }
                         }
                     } else {
-                        // if (new_left.type != token::token_type::IDENTIFIER) {
-                        //     this->m_token_error(*expr->begin, "unexpected 'new' inside expression");
-                        // } else if (new_left.type == token::token_type::IDENTIFIER && new_left.begin->is_new()) {
-                        //     this->m_token_error(*new_left.begin, "unexpected 'new' inside expression");
-                        // }
                         this->m_token_error(*_token, "unexpected 'new' inside expression");
                     }
 
@@ -2132,53 +1989,6 @@ namespace shift::compiler {
                         expr->type = expr->sub.back().type;
                         expr->end = this->m_tokenizer->get_index() + size_t(!this->m_tokenizer->current_token().is_null_token());
                     }
-                    // expr->begin = this->m_tokenizer->get_index();
-
-                    // if (this->m_tokenizer->current_token().is_this() || this->m_tokenizer->current_token().is_base()) {
-                    //     // Allow (this|base)[.]? at the beginning of the expression
-                    //     this->m_tokenizer->next_token();
-                    //     if (this->m_tokenizer->current_token().is_dot()) {
-                    //         this->m_tokenizer->next_token();
-                    //         this->m_parse_name("expression");
-                    //     }
-                    // } else {
-                    //     this->m_parse_name("expression");
-                    // }
-
-                    // expr->end = this->m_tokenizer->get_index();
-
-                    // const token& after_name = this->m_tokenizer->current_token();
-
-                    // if (after_name.is_left_bracket()) {
-                    //     expr->set_function_call();
-                    //     this->m_tokenizer->next_token();
-                    //     expr->sub.push_back(m_parse_expression(token_type::RIGHT_BRACKET));
-
-                    //     const token& right_function_call_bracket = this->m_tokenizer->current_token();
-                    //     if (!right_function_call_bracket.is_right_bracket()) {
-                    //         if (!right_function_call_bracket.is_null_token()) {
-                    //             this->m_token_error(right_function_call_bracket, "expected ')' inside expression");
-                    //         } else {
-                    //             this->m_token_error(this->m_tokenizer->reverse_peek_token(), "expected ')' inside expression before end of file");
-                    //         }
-                    //     }
-                    // } else if (after_name.is_left_square_bracket()) {
-                    //     expr->set_array();
-                    //     do {
-                    //         this->m_tokenizer->next_token();
-                    //         expr->sub.push_back(std::move(m_parse_expression(token_type::RIGHT_SQUARE_BRACKET)));
-                    //         if (expr->sub.back().type == token::token_type::COMMA) {
-                    //             this->m_token_error(*expr->sub.back().begin, "unexpected ',' inside array indexer inside expression");
-                    //         }
-                    //         const token& right_array_bracket = this->m_tokenizer->current_token();
-                    //         if (!right_array_bracket.is_right_square_bracket()) {
-                    //             this->m_token_error(this->m_tokenizer->reverse_peek_token(), "expected ']' inside expression before end of file");
-                    //         }
-                    //     } while (this->m_tokenizer->next_token().is_left_square_bracket());
-                    //     this->m_tokenizer->reverse_token();
-                    // } else {
-                    //     this->m_tokenizer->reverse_token();
-                    // }
                 }
                 continue;
             }
@@ -2291,7 +2101,7 @@ namespace shift::compiler {
                 return base_priority + 0x5;
 
             case token_type::MINUS:
-                return prefix ? base_priority + prefix_priority : base_priority + 0x5;
+                return base_priority + (prefix ? prefix_priority : 0x5);
 
             case token_type::MULTIPLY:
             case token_type::DIVIDE:
@@ -2300,7 +2110,7 @@ namespace shift::compiler {
 
             case token_type::MINUS_MINUS:
             case token_type::PLUS_PLUS:
-                return prefix ? base_priority + prefix_priority : base_priority + 0x7;
+                return base_priority + (prefix ? prefix_priority : 0x7);
 
             case token_type::NOT:
             case token_type::FLIP_BITS:
@@ -2335,6 +2145,8 @@ namespace shift::compiler {
             return shift_mods::EXTERN;
         } else if (token.is_binary()) {
             return shift_mods::BINARY;
+        } else if (token.is_explicit()) {
+            return shift_mods::EXPLICIT;
         }
 
         return static_cast<mods>(0x0);

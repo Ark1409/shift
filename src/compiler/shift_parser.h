@@ -38,7 +38,7 @@ namespace shift::compiler {
 
         inline auto size() const noexcept { return end - begin; }
 
-        std::string to_string() const noexcept {
+        std::string to_string() const {
             std::string str;
 
             for (auto b = begin; b != end; ++b) {
@@ -53,12 +53,12 @@ namespace shift::compiler {
             return str;
         }
 
-        inline operator std::string() const noexcept { return to_string(); }
+        inline operator std::string() const { return to_string(); }
 
-        inline bool operator==(const shift_name& other) const noexcept { return to_string() == other.to_string(); }
-        inline bool operator!=(const shift_name& other) const noexcept { return !operator==(other); }
-        inline bool operator==(const std::string& str) const noexcept { return to_string() == str; }
-        inline bool operator!=(const std::string& str) const noexcept { return !operator==(str); }
+        inline bool operator==(const shift_name& other) const { return to_string() == other.to_string(); }
+        inline bool operator!=(const shift_name& other) const { return !operator==(other); }
+        inline bool operator==(const std::string& str) const { return to_string() == str; }
+        inline bool operator!=(const std::string& str) const { return !operator==(str); }
     };
 }
 
@@ -78,7 +78,8 @@ namespace shift::compiler {
         STATIC = 0x8,
         CONST_ = 0x10,
         BINARY = 0x20,
-        EXTERN = 0x40
+        EXTERN = 0x40,
+        EXPLICIT = 0x80
     };
 
     struct shift_type {
@@ -415,7 +416,7 @@ namespace shift::compiler {
         std::list<shift_function> functions;
         std::list<shift_variable> variables;
         shift_variable this_var, base_var;
-        
+
         parser* parser_ = nullptr;
 
         inline size_t has_base(const shift_class* const test) const noexcept {

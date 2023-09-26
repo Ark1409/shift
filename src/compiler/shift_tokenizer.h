@@ -223,10 +223,12 @@ namespace shift::compiler {
 
 		constexpr inline bool is_throw(void) const noexcept { return (this->is_identifier()) && (this->m_data == "throw"); }
 
+		constexpr inline bool is_explicit(void) const noexcept { return (this->is_identifier()) && (this->m_data == "explicit"); }
+
 		constexpr inline bool is_access_specifier(void) const noexcept {
 			return (this->is_identifier())
 				&& (this->is_public() || this->is_protected() || this->is_private() || this->is_static() || this->is_const() || this->is_extern()
-					|| this->is_binary() || this->is_unsafe());
+					|| this->is_binary() || this->is_unsafe() || this->is_explicit());
 		}
 
 		constexpr inline bool is_overload_operator(void) const noexcept { return this->is_prefix_overload_operator() || this->is_suffix_overload_operator() || this->is_binary_operator(); }
