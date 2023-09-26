@@ -11,7 +11,7 @@
 #define SHIFT_WARNING_PREFIX 			"warning: "
 #define SHIFT_ERROR_PREFIX 				"error: "	
 
-#define SHIFT_PRINT() if(this->m_error_handler) his->m_error_handler->print_clear()
+#define SHIFT_PRINT() if(this->m_error_handler) this->m_error_handler->print_clear()
 #define SHIFT_FATAL() if(this->m_error_handler) this->m_error_handler->print_exit_clear()
 
 #define SHIFT_WARNING(__WARN__) 		if(this->m_error_handler) this->m_error_handler->stream() << SHIFT_WARNING_PREFIX << __WARN__ << std::endl, this->m_error_handler->flush_stream(error_handler::message_type::warning)
