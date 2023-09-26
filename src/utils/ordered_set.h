@@ -91,7 +91,7 @@ namespace shift::utils {
                 this->m_order = std::move(other.m_order);
                 this->m_lookup = std::move(other.m_lookup);
             }
-        } // Moving may invalidate iterators, see https://stackoverflow.com/a/11022447
+        }
 
         /**
          * @brief Constructs the container with the contents of the range [first, last). Sets max_load_factor() to 1.0.
