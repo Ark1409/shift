@@ -471,25 +471,41 @@ std::basic_ostream<CharT, Traits>& operator<<(std::basic_ostream<CharT, Traits>&
 }
 
 template<typename T>
-inline typename std::list<T>::iterator operator+(typename std::list<T>::iterator it, typename std::list<T>::size_type const count) noexcept {
-    for (typename std::list<T>::size_type i = 0; i < count; i++, ++it);
+inline typename std::list<T>::iterator operator+(typename std::list<T>::iterator it, typename std::list<T>::difference_type count) noexcept;
+
+template<typename T>
+inline typename std::list<T>::const_iterator operator+(typename std::list<T>::const_iterator it, typename std::list<T>::difference_type count) noexcept;
+
+template<typename T>
+inline typename std::list<T>::iterator operator-(typename std::list<T>::iterator it, typename std::list<T>::difference_type count) noexcept;
+
+template<typename T>
+inline typename std::list<T>::const_iterator operator-(typename std::list<T>::const_iterator it, typename std::list<T>::difference_type count) noexcept;
+
+template<typename T>
+inline typename std::list<T>::iterator operator+(typename std::list<T>::iterator it, typename std::list<T>::difference_type count) noexcept {
+    if (count < 0) { return ::operator- <T>(it, -count); }
+    for (; count > 0; count--, ++it);
     return it;
 }
 
 template<typename T>
-inline typename std::list<T>::const_iterator operator+(typename std::list<T>::const_iterator it, typename std::list<T>::size_type const count) noexcept {
-    for (typename std::list<T>::size_type i = 0; i < count; i++, ++it);
+inline typename std::list<T>::const_iterator operator+(typename std::list<T>::const_iterator it, typename std::list<T>::difference_type count) noexcept {
+    if (count < 0) { return ::operator- <T>(it, -count); }
+    for (; count > 0; count--, ++it);
     return it;
 }
 
 template<typename T>
-inline typename std::list<T>::iterator operator-(typename std::list<T>::iterator it, typename std::list<T>::size_type count) noexcept {
+inline typename std::list<T>::iterator operator-(typename std::list<T>::iterator it, typename std::list<T>::difference_type count) noexcept {
+    if (count < 0) { return ::operator+ <T>(it, -count); }
     for (; count > 0; --count, --it);
     return it;
 }
 
 template<typename T>
-inline typename std::list<T>::const_iterator operator-(typename std::list<T>::const_iterator it, typename std::list<T>::size_type count) noexcept {
+inline typename std::list<T>::const_iterator operator-(typename std::list<T>::const_iterator it, typename std::list<T>::difference_type count) noexcept {
+    if (count < 0) { return ::operator+ <T>(it, -count); }
     for (; count > 0; --count, --it);
     return it;
 }
