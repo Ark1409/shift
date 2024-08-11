@@ -17,7 +17,7 @@
 
  // Command-line flag utility
 #define SHIFT_FLAG_PREFIX "-"
-#define SHIFT_FLAG(FLAG) (SHIFT_FLAG_PREFIX FLAG)
+#define SHIFT_FLAG(FLAG) SHIFT_FLAG_PREFIX FLAG
 
 /// Command-line flags
 #define SHIFT_FLAG_WARNING              SHIFT_FLAG("warnings")

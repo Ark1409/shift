@@ -149,7 +149,7 @@ namespace shift::compiler {
 
 	void argument_parser::resolve_libraries_and_sources(void) {
 		{ // Remove inexistent library paths
-			for (auto lib_path = this->get_library_paths().cbegin(); lib_path != this->get_library_paths().cend(); ++lib_path) {
+			for (auto lib_path = this->get_library_paths().begin(); lib_path != this->get_library_paths().end(); ++lib_path) {
 				if (!(*lib_path)) {
 					// If the library directory does not exist, issue a warning
 					if (this->m_error_handler) {

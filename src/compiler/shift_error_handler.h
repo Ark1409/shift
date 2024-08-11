@@ -21,8 +21,8 @@ namespace shift::compiler {
 			warning, // Represents a warning message from the compiler.
 			info
 		};
-	private:
-		typedef std::pair<std::string, message_type> _message_pair_type;
+	public:
+		typedef std::pair<std::string, message_type> message_pair_type;
 	public:
 		error_handler() = default;
 		inline error_handler(const error_handler&) noexcept;
@@ -92,15 +92,15 @@ namespace shift::compiler {
 
 		inline void pop_mark() { return pop_marks(1); }
 
-		inline void pop_marks(std::stack<std::deque<_message_pair_type>::size_type>::size_type count = -1) noexcept { utils::pop_stack(this->m_marks, count); }
+		inline void pop_marks(std::stack<std::deque<message_pair_type>::size_type>::size_type count = -1) noexcept { utils::pop_stack(this->m_marks, count); }
 
-		inline const std::stack<std::deque<_message_pair_type>::size_type>& get_marks(void) const noexcept { return this->m_marks; }
-		inline std::deque<_message_pair_type>& get_messages(void) noexcept { return this->m_messages; }
-		inline const std::deque<_message_pair_type>& get_messages(void) const noexcept { return this->m_messages; }
+		inline const std::stack<std::deque<message_pair_type>::size_type>& get_marks(void) const noexcept { return this->m_marks; }
+		inline std::deque<message_pair_type>& get_messages(void) noexcept { return this->m_messages; }
+		inline const std::deque<message_pair_type>& get_messages(void) const noexcept { return this->m_messages; }
 	private:
 		bool m_warnings = false, m_werror = false;
-		std::deque<_message_pair_type> m_messages;
-		std::stack<std::deque<_message_pair_type>::size_type> m_marks;
+		std::deque<message_pair_type> m_messages;
+		std::stack<std::deque<message_pair_type>::size_type> m_marks;
 		std::ostringstream m_message_stream;
 	};
 

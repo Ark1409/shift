@@ -97,7 +97,7 @@ namespace shift::compiler {
 	}
 
 	SHIFT_API void error_handler::print_exit(const bool color, std::ostream& out_stream, std::ostream& err_stream) const {
-		const bool __exit = std::find_if(this->m_messages.cbegin(), this->m_messages.cend(), [](const _message_pair_type& p) {
+		const bool __exit = std::find_if(this->m_messages.cbegin(), this->m_messages.cend(), [](const message_pair_type& p) {
 			return p.second == message_type::error;
 			}) != this->m_messages.cend();
 
@@ -107,13 +107,13 @@ namespace shift::compiler {
 	}
 
 	SHIFT_API size_t error_handler::get_error_count(void) const {
-		return std::count_if(this->m_messages.cbegin(), this->m_messages.cend(), [](const _message_pair_type& p) {
+		return std::count_if(this->m_messages.cbegin(), this->m_messages.cend(), [](const message_pair_type& p) {
 			return p.second == message_type::error;
 			});
 	}
 
 	SHIFT_API size_t error_handler::get_warning_count(void) const {
-		return std::count_if(this->m_messages.cbegin(), this->m_messages.cend(), [](const _message_pair_type& p) {
+		return std::count_if(this->m_messages.cbegin(), this->m_messages.cend(), [](const message_pair_type& p) {
 			return p.second == message_type::warning;
 			});
 	}
