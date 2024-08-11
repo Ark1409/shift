@@ -20,38 +20,38 @@ namespace shift::compiler {
 	SHIFT_API error_handler& error_handler::add_info(const std::string& info) noexcept {
 		if (!this->m_warnings)
 			return *this;
-		this->m_messages.push_back(_message_pair_type(info, message_type::info));
+		this->m_messages.push_back(message_pair_type(info, message_type::info));
 		return *this;
 	}
 
 	SHIFT_API error_handler& error_handler::add_warning(const std::string& warning) noexcept {
 		if (!this->m_warnings)
 			return *this;
-		this->m_messages.push_back(_message_pair_type(warning, this->m_werror ? message_type::error : message_type::warning));
+		this->m_messages.push_back(message_pair_type(warning, this->m_werror ? message_type::error : message_type::warning));
 		return *this;
 	}
 
 	SHIFT_API error_handler& error_handler::add_error(const std::string& error) noexcept {
-		this->m_messages.push_back(_message_pair_type(error, message_type::error));
+		this->m_messages.push_back(message_pair_type(error, message_type::error));
 		return *this;
 	}
 
 	SHIFT_API error_handler& error_handler::add_info(std::string&& info) noexcept {
 		if (!this->m_warnings)
 			return *this;
-		this->m_messages.push_back(_message_pair_type(std::move(info), message_type::info));
+		this->m_messages.push_back(message_pair_type(std::move(info), message_type::info));
 		return *this;
 	}
 
 	SHIFT_API error_handler& error_handler::add_warning(std::string&& warning) noexcept {
 		if (!this->m_warnings)
 			return *this;
-		this->m_messages.push_back(_message_pair_type(std::move(warning), this->m_werror ? message_type::error : message_type::warning));
+		this->m_messages.push_back(message_pair_type(std::move(warning), this->m_werror ? message_type::error : message_type::warning));
 		return *this;
 	}
 
 	SHIFT_API error_handler& error_handler::add_error(std::string&& error) noexcept {
-		this->m_messages.push_back(_message_pair_type(std::move(error), message_type::error));
+		this->m_messages.push_back(message_pair_type(std::move(error), message_type::error));
 		return *this;
 	}
 
@@ -63,7 +63,7 @@ namespace shift::compiler {
 
 		type = type == message_type::warning && this->m_werror ? message_type::error : type;
 
-		this->m_messages.push_back(_message_pair_type(m_message_stream.str(), type));
+		this->m_messages.push_back(message_pair_type(m_message_stream.str(), type));
 		m_message_stream.str("");
 	}
 
