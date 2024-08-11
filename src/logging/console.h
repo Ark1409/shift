@@ -66,7 +66,7 @@ namespace shift::logging {
 	 */
 	SHIFT_API bool has_colored_console(void) noexcept;
 
-	/** Utility functions for standard output streams that permit colored console text. */
+	/** Utility functions for output streams that permit colored console text. */
 
 	/// Resets all color formatting back to the default (usually white text with black background on normal cmd.exe).
 	inline std::ostream& creset(std::ostream& os) {

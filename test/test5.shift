@@ -1,4 +1,5 @@
-module shift;
+module shift.io;
+use shift;
 
 void test() {return (int)((int)i & i) << (int)((int)i>8);}
 
@@ -8,7 +9,7 @@ class test {
     //private int operator=(bool){return true;}
     private int operator=(int){return true;}
     private int run() {}
-    private int run(int) {}
+    //private int run(int) {}
     public int operator+=(int other){return true;}
     private ulong operator==(shift.int) {return ture; }
 }
@@ -28,4 +29,35 @@ void main() {
     shift.test my_own_test;
     shift.test2 my_own_test;
     shift.test2.run();
+
+    run(i,fsad,fasd,afsd);
+    //byte b1,b2;
+
+    run((b2-b1)*3);
+    int i = 3;
+    i += 5;
+    run1.time1 _ttt;
+
+    ulong _l=7;
+    _l.to_string();
+    _l.hash_code();
+    _l.run();
+
+    ulong[][] test = new ulong[5][2];
+    if(test.ho>3) {}
+    if(test.length>3) {}
+    if(test[0].length) {}
+    if(test[0][3][3+77][3].ho) {}
+    if(test[1][2].length) {}
+    if(count.__value>3) {}
+
+    int count = 3;
+    count.__value = 99;
+    test.length = 99;
+    count.test_var[3]=9;
+
+    if(count.__value>3) {}
+
+    shift.int.__value;
+    
 } 

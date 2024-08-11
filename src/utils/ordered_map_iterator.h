@@ -35,18 +35,18 @@ namespace shift::utils {
         typedef reference_type reference;
         typedef pointer_type pointer;
     public:
-        template<typename K1, typename = std::enable_if_t<std::is_const_v<std::remove_reference_t<V>>&& std::is_same_v<K1, K>>>
+        template<typename K1, typename = std::enable_if_t<std::is_const_v<std::remove_reference_t<V>> && std::is_same_v<K1, K>>>
         inline ordered_map_iterator(const ordered_map_iterator<K1, std::remove_const_t<std::remove_reference_t<V>>, Hash, Pred, Alloc>& other) noexcept
             : m_order_it(other.m_order_it) {}
 
-        template<typename K1, typename = std::enable_if_t<std::is_const_v<std::remove_reference_t<V>>&& std::is_same_v<K1, K>>>
+        template<typename K1, typename = std::enable_if_t<std::is_const_v<std::remove_reference_t<V>> && std::is_same_v<K1, K>>>
         inline ordered_map_iterator(ordered_map_iterator<K1, std::remove_const_t<std::remove_reference_t<V>>, Hash, Pred, Alloc>&& other) noexcept
             : m_order_it(std::move(other.m_order_it)) {}
 
         inline ordered_map_iterator(iterator_type it) noexcept
             : m_order_it(it) {}
 
-        inline ordered_map_iterator() {}
+        ordered_map_iterator() = default;
 
         ordered_map_iterator(const ordered_map_iterator&) noexcept = default;
         ordered_map_iterator(ordered_map_iterator&&) noexcept = default;

@@ -65,7 +65,7 @@ namespace shift::utils {
          * @brief Move constructor. Constructs the container with the contents of other using move semantics.
          * @param other another container to be used as source to initialize the elements of the container with
          */
-        ordered_map(ordered_map&& other) {
+        ordered_map(ordered_map&& other) noexcept {
             // Moving may invalidate iterators, see https://stackoverflow.com/a/11022447 and https://en.cppreference.com/w/cpp/container/unordered_set/operator%3D
             if constexpr ((!std::allocator_traits<allocator_type>::propagate_on_container_move_assignment::value && this->m_set.get_allocator() != other.m_set.get_allocator())
                 || (!std::allocator_traits<typename std::list<value_type const*>::allocator_type>::propagate_on_container_move_assignment::value && this->m_order.get_allocator() != other.m_order.get_allocator())) {
@@ -98,7 +98,7 @@ namespace shift::utils {
         template< class InputIt >
         inline ordered_map(InputIt first, InputIt last) {
             for (; first != last; ++first) {
-                push_back(*first);
+                push_back(std::forward<decltype(*first)>(*first));
             }
         }
 
@@ -134,7 +134,7 @@ namespace shift::utils {
          * @param other another container to use as data source
          * @return *this
          */
-        ordered_map& operator=(ordered_map&& other) {
+        ordered_map& operator=(ordered_map&& other) noexcept {
             // Moving may invalidate iterators, see https://stackoverflow.com/a/11022447 and https://en.cppreference.com/w/cpp/container/unordered_set/operator%3D
             if constexpr ((!std::allocator_traits<allocator_type>::propagate_on_container_move_assignment::value && this->m_set.get_allocator() != other.m_set.get_allocator())
                 || (!std::allocator_traits<typename std::list<value_type const*>::allocator_type>::propagate_on_container_move_assignment::value && this->m_order.get_allocator() != other.m_order.get_allocator())) {
@@ -165,7 +165,7 @@ namespace shift::utils {
          * @brief Checks if the container has no elements, i.e. whether begin() == end().
          * @return true if the container is empty, false otherwise
          */
-        inline bool empty() const noexcept { return m_map.empty(); }
+        [[nodiscard]] inline bool empty() const noexcept { return m_map.empty(); }
 
         /**
          * @brief Returns the number of elements in the container, i.e. std::distance(begin(), end()).
@@ -222,7 +222,7 @@ namespace shift::utils {
         inline void pop_back() { if (size() > 0) { erase(m_lookup_map[m_order.back()]); } }
 
         /**
-         * @brief Attemps to append the given element to the container.
+         * @brief Attempts to append the given element to the container.
          * @return A std::pair<iterator, bool>, of which the first element is an iterator that points
          *           to the possibly inserted element, and the second is a bool
          *           that is true if the element was actually inserted.
@@ -233,7 +233,7 @@ namespace shift::utils {
         }
 
         /**
-         * @brief Attemps to append the given element to the container.
+         * @brief Attempts to append the given element to the container.
          * @return A std::pair<iterator, bool>, of which the first element is an iterator that points
          *           to the possibly inserted element, and the second is a bool
          *           that is true if the element was actually inserted.
@@ -357,7 +357,7 @@ namespace shift::utils {
          * @brief Sorts the elements in ascending order. The order of equal elements is preserved. The first version uses operator< to compare the elements,
          * the second version uses the given comparison function comp. If an exception is thrown, the order of elements in *this is unspecified.
          * @tparam Compare bool cmp(value_type const& a, value_type const& b);
-         * @param comp comparison function object (i.e. an object that satisfies the requirements of Compare) which returns ​true if the first argument is less than (i.e. is ordered before) the second.
+         * @param comp comparison function object (i.e. an object that satisfies the requirements of Compare) which returns @c true if the first argument is less than (i.e. is ordered before) the second.
          */
         template<class Compare>
         inline void sort(Compare comp) { m_order.sort([&comp](value_type* const a, value_type* const b) { return comp(*a, *b); }); }

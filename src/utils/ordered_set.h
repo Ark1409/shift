@@ -10,7 +10,7 @@
 
 namespace shift::utils {
     /**
-     * @brief ordered_set is an ordered container that contains a set of unique objects of type V. Search, insertion,
+     * @brief ordered_set is an order preserving container that contains a set of unique objects of type V. Search, insertion,
      * and removal of elements have average constant-time complexity. Internally, this uses std::unordered_map, std::unordered_set,
      * and std::list in order to provide (average) constant-time complexity.
      *
@@ -68,7 +68,7 @@ namespace shift::utils {
          * @brief Move constructor. Constructs the container with the contents of other using move semantics.
          * @param other another container to be used as source to initialize the elements of the container with
          */
-        ordered_set(ordered_set&& other) {
+        ordered_set(ordered_set&& other) noexcept {
             // Moving may invalidate iterators, see https://stackoverflow.com/a/11022447 and https://en.cppreference.com/w/cpp/container/unordered_set/operator%3D
             if constexpr ((!std::allocator_traits<allocator_type>::propagate_on_container_move_assignment::value && this->m_set.get_allocator() != other.m_set.get_allocator())
                 || (!std::allocator_traits<typename std::list<value_type const*>::allocator_type>::propagate_on_container_move_assignment::value && this->m_order.get_allocator() != other.m_order.get_allocator())) {
@@ -100,10 +100,10 @@ namespace shift::utils {
          * @param first the range to copy the elements from
          * @param last the range to copy the elements from
          */
-        template< class InputIt >
+        template< std::input_iterator InputIt >
         inline ordered_set(InputIt first, InputIt last) {
             for (; first != last; ++first) {
-                push_back(std::move(*first));
+                emplace_back(*first);
             }
         }
 
@@ -141,7 +141,7 @@ namespace shift::utils {
          * @param other another container to use as data source
          * @return *this
          */
-        ordered_set& operator=(ordered_set&& other) {
+        ordered_set& operator=(ordered_set&& other) noexcept {
             // Moving may invalidate iterators, see https://stackoverflow.com/a/11022447 and https://en.cppreference.com/w/cpp/container/unordered_set/operator%3D
             if constexpr ((!std::allocator_traits<allocator_type>::propagate_on_container_move_assignment::value && this->m_set.get_allocator() != other.m_set.get_allocator())
                 || (!std::allocator_traits<typename std::list<value_type const*>::allocator_type>::propagate_on_container_move_assignment::value && this->m_order.get_allocator() != other.m_order.get_allocator())) {
@@ -175,7 +175,7 @@ namespace shift::utils {
          * @brief Checks if the container has no elements, i.e. whether begin() == end().
          * @return true if the container is empty, false otherwise
          */
-        inline bool empty() const noexcept { return m_set.empty(); }
+        [[nodiscard]] inline bool empty() const noexcept { return m_set.empty(); }
 
         /**
          * @brief Returns the number of elements in the container, i.e. std::distance(begin(), end()).
@@ -187,7 +187,7 @@ namespace shift::utils {
          * @brief Returns the maximum number of elements the container is able to hold due to system or library implementation limitations, i.e. std::distance(begin(), end()) for the largest container.
          * @return Maximum number of elements.
          */
-        inline size_type max_size() const noexcept { return std::min(m_order.max_size(), std::min(m_set.max_size(), m_lookup.max_size())); }
+        inline size_type max_size() const noexcept { return std::min<size_type>(m_order.max_size(), std::min<size_type>(m_set.max_size(), m_lookup.max_size())); }
 
         /**
          * @brief Erases all elements from the container. After this call, size() returns zero.
@@ -232,58 +232,91 @@ namespace shift::utils {
         inline void pop_back() { if (size() > 0) { erase(m_lookup[m_order.back()]); } }
 
         /**
-         * @brief Attemps to append the given element to the container.
+         * Inserts a new element to the beginning of the container. If the container doesn't already contain an element with an equivalent key,
+         * the element is inserted at the beginning. If the element already exists within the container, it is simply relocated.
+         *
+         * @tparam Args Parameter argument types
+         * @param args Arguments used to generate an element.
          * @return A std::pair<iterator, bool>, of which the first element is an iterator that points
-         *           to the possibly inserted element, and the second is a bool
-         *           that is true if the element was actually inserted.
-         */
-        inline std::pair<iterator, bool> push(const value_type& value) {
-            auto it = find(value);
-            return it == end() ? std::pair<iterator, bool>{insert(cend(), value), true} : std::pair<iterator, bool>{ it, false };
-        }
-
-        /**
-         * @brief Attemps to append the given element to the container.
-         * @return A std::pair<iterator, bool>, of which the first element is an iterator that points
-         *           to the possibly inserted element, and the second is a bool
-         *           that is true if the element was actually inserted.
-         */
-        inline std::pair<iterator, bool> push(value_type&& value) {
-            auto it = find(value);
-            return it == end() ? std::pair<iterator, bool>{insert(cend(), std::move(value)), true} : std::pair<iterator, bool>{ it, false };
-        }
-
-        /**
-         *  @brief Builds and inserts an element into the container.
-         *  @param args  Arguments used to generate an element.
-         *  @return A std::pair<iterator, bool>, of which the first element is an iterator that points
          *           to the possibly inserted element, and the second is a bool
          *           that is true if the element was actually inserted.
          */
         template<typename... Args>
-        inline std::pair<iterator, bool> emplace(Args&&... args) { return push(value_type(std::forward<Args>(args)...)); }
+        inline std::pair<iterator, bool> emplace_front(Args&&... args) {
+            return emplace(cbegin(), std::forward<Args>(args)...);
+        }
 
         /**
-         * @brief Inserts element(s) into the container. If the container doesn't already contain an element with an equivalent key,
-         * the element is inserted at the desired position. If the element already exists within the container, it is simply relocated.
-         * @param pos iterator before which the content will be inserted (pos may be the end() iterator)
-         * @param value element value to insert
-         * @return Returns an iterator to the inserted element
+         * Inserts a new element to the end of the container. If the container doesn't already contain an element with an equivalent key,
+         * the element is inserted at the end. If the element already exists within the container, it is simply relocated.
+         *
+         * @tparam Args Parameter argument types
+         * @param args Arguments used to generate an element.
+         * @return A std::pair<iterator, bool>, of which the first element is an iterator that points
+         *           to the (possibly) inserted element, and the second is a bool
+         *           that is true if the element was actually inserted.
          */
-        iterator insert(const_iterator pos, const value_type& value) {
-            auto c = m_set.find(value);
-            if (c == m_set.end()) {
-                auto r = m_set.insert(value);
+        template<typename... Args>
+        inline std::pair<iterator, bool> emplace_back(Args&&... args) {
+            return emplace(cend(), std::forward<Args>(args)...);
+        }
+
+        /**
+         * @brief Attempts to append the given element to the container.
+         * @return A std::pair<iterator, bool>, of which the first element is an iterator that points
+         *           to the (possibly) inserted element, and the second is a bool
+         *           that is true if the element was actually inserted.
+         */
+        inline std::pair<iterator, bool> push(const value_type& value) {
+            return emplace_back(value);
+        }
+
+        /**
+         * @brief Attempts to append the given element to the container.
+         * @return A std::pair<iterator, bool>, of which the first element is an iterator that points
+         *           to the (possibly) inserted element, and the second is a bool
+         *           that is true if the element was actually inserted.
+         */
+        inline std::pair<iterator, bool> push(value_type&& value) {
+            return emplace_back(value);
+        }
+
+        /**
+         *  @brief Builds and inserts an element into the container. If the container doesn't already contain an element with an equivalent key,
+         * the element is inserted at the desired position. If the element already exists within the container, it is simply relocated.
+         *  @param pos   The position before which the element will be inserted.
+         *  @param args  Arguments used to generate an element.
+         *  @return A std::pair<iterator, bool>, of which the first element is an iterator that points
+         *           to the (possibly) inserted element, and the second is a bool
+         *           that is true if the element was actually inserted.
+         */
+        template<typename... Args>
+        inline std::pair<iterator, bool> emplace(Args&&... args) { return emplace(cend(), std::forward<Args>(args)...); }
+
+
+        /**
+         *  @brief Builds and inserts an element into the container. If the container doesn't already contain an element with an equivalent key,
+         * the element is inserted at the desired position. If the element already exists within the container, it is simply relocated.
+         *  @param pos   The position before which the element will be inserted.
+         *  @param args  Arguments used to generate an element.
+         *  @return A std::pair<iterator, bool>, of which the first element is an iterator that points
+         *           to the (possibly) inserted element, and the second is a bool
+         *           that is true if the element was actually inserted.
+         */
+        template<typename... Args>
+        inline std::pair<iterator, bool> emplace(const_iterator pos, Args&&... args) {
+            auto r = m_set.emplace(std::forward<Args>(args)...);
+            if (r.second) {
                 auto i = m_order.insert(pos.m_order_it, r.first.operator->());
                 m_lookup[r.first.operator->()] = i;
-                return iterator(i);
+                return std::pair<iterator, bool>{iterator(i), true};
             } else {
-                auto f = m_lookup.find(c.operator->());
+                auto f = m_lookup.find(r.first.operator->());
                 typename std::list<value_type const*>::const_iterator p_it = f->second;
                 auto i = m_order.insert(pos.m_order_it, (*p_it));
                 f->second = i;
                 m_order.erase(p_it);
-                return iterator(i);
+                return std::pair<iterator, bool>{iterator(i), false};
             }
         }
 
@@ -294,22 +327,43 @@ namespace shift::utils {
          * @param value element value to insert
          * @return Returns an iterator to the inserted element
          */
-        iterator insert(const_iterator pos, value_type&& value) {
-            auto c = m_set.find(value);
-            if (c == m_set.end()) {
-                auto r = m_set.insert(std::move(value));
-                auto i = m_order.insert(pos.m_order_it, r.first.operator->());
-                m_lookup[r.first.operator->()] = i;
-                return iterator(i);
-            } else {
-                auto f = m_lookup.find(c.operator->());
-                typename std::list<value_type const*>::const_iterator p_it = f->second;
-                auto i = m_order.insert(pos.m_order_it, (*p_it));
-                f->second = i;
-                m_order.erase(p_it);
-                return iterator(i);
-            }
+        iterator insert(const_iterator pos, const value_type& value) { return emplace(pos, value).first; }
+
+        /**
+         * @brief Inserts element(s) into the container. If the container doesn't already contain an element with an equivalent key,
+         * the element is inserted at the desired position. If the element already exists within the container, it is simply relocated.
+         * @param pos iterator before which the content will be inserted (pos may be the end() iterator)
+         * @param value element value to insert
+         * @return Returns an iterator to the inserted element
+         */
+        iterator insert(const_iterator pos, value_type&& value) { return emplace(pos, std::move(value)).first; }
+
+        /**
+         *  @brief A template function that attempts to insert a range of
+         *  elements at the specified position(s).
+         *  @param  pos  Iterator pointing to the start of the range to be
+         *  @param  first  Iterator pointing to the start of the range to be
+         *                   inserted.
+         *  @param  last  Iterator pointing to the end of the range.
+         *
+         *  Complexity similar to that of the range constructor.
+         */
+        template<std::input_iterator InputIt>
+        inline void insert(const_iterator pos, InputIt first, InputIt last) {
+            for (; first != last; ++first, ++pos) { emplace(pos, *first); }
         }
+
+        /**
+         *  @brief A template function that attempts to insert a range of
+         *  elements.
+         *  @param  first  Iterator pointing to the start of the range to be
+         *                   inserted.
+         *  @param  last  Iterator pointing to the end of the range.
+         *
+         *  Complexity similar to that of the range constructor.
+         */
+        template<std::input_iterator InputIt>
+        inline void insert(InputIt first, InputIt last) { return insert(cend(), std::move(first), std::move(last)); }
 
         /**
          * @brief Erases the specified elements from the container.
@@ -506,7 +560,7 @@ namespace shift::utils {
         unordered_set_type m_set;
         std::unordered_map<value_type const*, typename std::list<value_type const*>::const_iterator> m_lookup;
 
-        friend class ordered_set_iterator<V, Hash, Pred, Alloc>;
+        friend struct ordered_set_iterator<V, Hash, Pred, Alloc>;
     };
 }
 #endif

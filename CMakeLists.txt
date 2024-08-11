@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 3.21)
 cmake_policy(SET CMP0048 NEW)
 
 # Set the project with latest version
-project(shift VERSION 0.1.128)
+project(shift VERSION 0.1.1)
 
 # Add option as to whether tests should be built (requires googletest download)
 option(SHIFT_TEST "Build shift tests" ON)
@@ -25,12 +25,13 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 add_library(
     ${PROJECT_NAME} 
     SHARED
-    src/compiler/shift_analyzer.cpp
+    # src/compiler/shift_analyzer.cpp
     src/compiler/shift_argument_parser.cpp
     src/compiler/shift_compiler.cpp
     src/compiler/shift_error_handler.cpp
     src/compiler/shift_parser.cpp
     src/compiler/shift_tokenizer.cpp
+    src/compiler/shift_analyzer.cpp
     src/filesystem/directory.cpp
     src/filesystem/drive.cpp
     src/filesystem/file.cpp
@@ -41,8 +42,8 @@ add_library(
 # Create base library for project
 add_library("${PROJECT_NAME}::${PROJECT_NAME}" ALIAS ${PROJECT_NAME})
 
-# shift can only compile with c++17 and later
-target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
+# shift can only compile with c++20 and later
+target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_20)
 
 # Add includes for the project
 target_include_directories(${PROJECT_NAME} PUBLIC include src)

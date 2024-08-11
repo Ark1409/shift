@@ -1,5 +1,12 @@
 module shift;
 
+class object {
+    private extern constructor();
+
+    public extern ulong hash_code();
+    public extern string to_string();
+}
+
 class byte {
     public extern constructor(sbyte);
     public extern constructor(ushort);
@@ -11,6 +18,107 @@ class byte {
     public extern constructor(float);
     public extern constructor(double);
     public extern constructor(bool);
+
+    public extern explicit constructor(object,string);
+
+    public extern bool operator==(object o);
+    public extern bool operator==(byte);
+    public extern bool operator==(sbyte);
+    public extern bool operator==(ushort);
+    public extern bool operator==(short);
+    public extern bool operator==(uint);
+    public extern bool operator==(int);
+    public extern bool operator==(ulong);
+    public extern bool operator==(long);
+    public extern bool operator==(float);
+    public extern bool operator==(double);
+    public extern bool operator==(bool);
+
+    public extern bool operator>(byte);
+    public extern bool operator>(sbyte);
+    public extern bool operator>(ushort);
+    public extern bool operator>(short);
+    public extern bool operator>(uint);
+    public extern bool operator>(int);
+    public extern bool operator>(ulong);
+    public extern bool operator>(long);
+    public extern bool operator>(float);
+    public extern bool operator>(double);
+
+    public extern bool operator<(byte);
+    public extern bool operator<(sbyte);
+    public extern bool operator<(ushort);
+    public extern bool operator<(short);
+    public extern bool operator<(uint);
+    public extern bool operator<(int);
+    public extern bool operator<(ulong);
+    public extern bool operator<(long);
+    public extern bool operator<(float);
+    public extern bool operator<(double);
+
+    public extern byte   operator+(byte);
+    public extern byte   operator+(sbyte);
+    public extern ushort operator+(ushort);
+    public extern short  operator+(short);
+    public extern uint   operator+(uint);
+    public extern int    operator+(int);
+    public extern ulong  operator+(ulong);
+    public extern long   operator+(long);
+    public extern float  operator+(float);
+    public extern double operator+(double);
+
+    public extern byte   operator-(byte);
+    public extern byte   operator-(sbyte);
+    public extern ushort operator-(ushort);
+    public extern short  operator-(short);
+    public extern uint   operator-(uint);
+    public extern int    operator-(int);
+    public extern ulong  operator-(ulong);
+    public extern long   operator-(long);
+    public extern float  operator-(float);
+    public extern double operator-(double);
+
+    public extern byte   operator*(byte);
+    public extern byte   operator*(sbyte);
+    public extern ushort operator*(ushort);
+    public extern short  operator*(short);
+    public extern uint   operator*(uint);
+    public extern int    operator*(int);
+    public extern ulong  operator*(ulong);
+    public extern long   operator*(long);
+    public extern float  operator*(float);
+    public extern double operator*(double);
+
+    public extern byte   operator/(byte);
+    public extern byte   operator/(sbyte);
+    public extern ushort operator/(ushort);
+    public extern short  operator/(short);
+    public extern uint   operator/(uint);
+    public extern int    operator/(int);
+    public extern ulong  operator/(ulong);
+    public extern long   operator/(long);
+    public extern float  operator/(float);
+    public extern double operator/(double);
+
+    public extern byte   operator%(byte);
+    public extern byte   operator%(sbyte);
+    public extern ushort operator%(ushort);
+    public extern short  operator%(short);
+    public extern uint   operator%(uint);
+    public extern int    operator%(int);
+    public extern ulong  operator%(ulong);
+    public extern long   operator%(long);
+    public extern float  operator%(float);
+    public extern double operator%(double);
+
+    public extern byte   operator<<(ulong);
+    public extern byte   operator>>(ulong);
+    public extern byte   operator&(ulong);
+    public extern byte   operator|(ulong);
+    public extern byte   operator^(ulong);
+    public extern byte   operator~();
+
+    public bool operator!() { return this == 0; }
 }
 
 class sbyte {
@@ -24,6 +132,104 @@ class sbyte {
     public extern constructor(float);
     public extern constructor(double);
     public extern constructor(bool);
+
+    public extern bool operator==(byte);
+    public extern bool operator==(sbyte);
+    public extern bool operator==(ushort);
+    public extern bool operator==(short);
+    public extern bool operator==(uint);
+    public extern bool operator==(int);
+    public extern bool operator==(ulong);
+    public extern bool operator==(long);
+    public extern bool operator==(float);
+    public extern bool operator==(double);
+    public extern bool operator==(bool);
+
+    public extern bool operator>(byte);
+    public extern bool operator>(sbyte);
+    public extern bool operator>(ushort);
+    public extern bool operator>(short);
+    public extern bool operator>(uint);
+    public extern bool operator>(int);
+    public extern bool operator>(ulong);
+    public extern bool operator>(long);
+    public extern bool operator>(float);
+    public extern bool operator>(double);
+
+    public extern bool operator<(byte);
+    public extern bool operator<(sbyte);
+    public extern bool operator<(ushort);
+    public extern bool operator<(short);
+    public extern bool operator<(uint);
+    public extern bool operator<(int);
+    public extern bool operator<(ulong);
+    public extern bool operator<(long);
+    public extern bool operator<(float);
+    public extern bool operator<(double);
+
+    public extern byte   operator+(byte);
+    public extern sbyte  operator+(sbyte);
+    public extern ushort operator+(ushort);
+    public extern short  operator+(short);
+    public extern uint   operator+(uint);
+    public extern int    operator+(int);
+    public extern ulong  operator+(ulong);
+    public extern long   operator+(long);
+    public extern float  operator+(float);
+    public extern double operator+(double);
+
+    public extern byte   operator-(byte);
+    public extern sbyte  operator-(sbyte);
+    public extern ushort operator-(ushort);
+    public extern short  operator-(short);
+    public extern uint   operator-(uint);
+    public extern int    operator-(int);
+    public extern ulong  operator-(ulong);
+    public extern long   operator-(long);
+    public extern float  operator-(float);
+    public extern double operator-(double);
+
+    public extern byte   operator*(byte);
+    public extern sbyte  operator*(sbyte);
+    public extern ushort operator*(ushort);
+    public extern short  operator*(short);
+    public extern uint   operator*(uint);
+    public extern int    operator*(int);
+    public extern ulong  operator*(ulong);
+    public extern long   operator*(long);
+    public extern float  operator*(float);
+    public extern double operator*(double);
+
+    public extern byte   operator/(byte);
+    public extern sbyte  operator/(sbyte);
+    public extern ushort operator/(ushort);
+    public extern short  operator/(short);
+    public extern uint   operator/(uint);
+    public extern int    operator/(int);
+    public extern ulong  operator/(ulong);
+    public extern long   operator/(long);
+    public extern float  operator/(float);
+    public extern double operator/(double);
+
+    public extern byte   operator%(byte);
+    public extern sbyte  operator%(sbyte);
+    public extern ushort operator%(ushort);
+    public extern short  operator%(short);
+    public extern uint   operator%(uint);
+    public extern int    operator%(int);
+    public extern ulong  operator%(ulong);
+    public extern long   operator%(long);
+    public extern float  operator%(float);
+    public extern double operator%(double);
+
+    public extern sbyte operator<<(ulong);
+    public extern sbyte operator>>(ulong);
+    public extern sbyte operator&(ulong);
+    public extern sbyte operator|(ulong);
+    public extern sbyte operator^(ulong);
+    public extern sbyte operator~();
+    
+    public bool operator!() { return this == 0; }
 }
 
 class ushort {
@@ -37,6 +243,104 @@ class ushort {
     public extern constructor(float);
     public extern constructor(double);
     public extern constructor(bool);
+
+    public extern bool operator==(byte);
+    public extern bool operator==(sbyte);
+    public extern bool operator==(ushort);
+    public extern bool operator==(short);
+    public extern bool operator==(uint);
+    public extern bool operator==(int);
+    public extern bool operator==(ulong);
+    public extern bool operator==(long);
+    public extern bool operator==(float);
+    public extern bool operator==(double);
+    public extern bool operator==(bool);
+
+    public extern bool operator>(byte);
+    public extern bool operator>(sbyte);
+    public extern bool operator>(ushort);
+    public extern bool operator>(short);
+    public extern bool operator>(uint);
+    public extern bool operator>(int);
+    public extern bool operator>(ulong);
+    public extern bool operator>(long);
+    public extern bool operator>(float);
+    public extern bool operator>(double);
+
+    public extern bool operator<(byte);
+    public extern bool operator<(sbyte);
+    public extern bool operator<(ushort);
+    public extern bool operator<(short);
+    public extern bool operator<(uint);
+    public extern bool operator<(int);
+    public extern bool operator<(ulong);
+    public extern bool operator<(long);
+    public extern bool operator<(float);
+    public extern bool operator<(double);
+
+    public extern ushort operator+(byte);
+    public extern ushort operator+(sbyte);
+    public extern ushort operator+(ushort);
+    public extern ushort operator+(short);
+    public extern uint   operator+(uint);
+    public extern int    operator+(int);
+    public extern ulong  operator+(ulong);
+    public extern long   operator+(long);
+    public extern float  operator+(float);
+    public extern double operator+(double);
+
+    public extern ushort operator-(byte);
+    public extern ushort operator-(sbyte);
+    public extern ushort operator-(ushort);
+    public extern ushort operator-(short);
+    public extern uint   operator-(uint);
+    public extern int    operator-(int);
+    public extern ulong  operator-(ulong);
+    public extern long   operator-(long);
+    public extern float  operator-(float);
+    public extern double operator-(double);
+
+    public extern ushort operator*(byte);
+    public extern ushort operator*(sbyte);
+    public extern ushort operator*(ushort);
+    public extern ushort operator*(short);
+    public extern uint   operator*(uint);
+    public extern int    operator*(int);
+    public extern ulong  operator*(ulong);
+    public extern long   operator*(long);
+    public extern float  operator*(float);
+    public extern double operator*(double);
+
+    public extern ushort operator/(byte);
+    public extern ushort operator/(sbyte);
+    public extern ushort operator/(ushort);
+    public extern ushort operator/(short);
+    public extern uint   operator/(uint);
+    public extern int    operator/(int);
+    public extern ulong  operator/(ulong);
+    public extern long   operator/(long);
+    public extern float  operator/(float);
+    public extern double operator/(double);
+
+    public extern ushort operator%(byte);
+    public extern ushort operator%(sbyte);
+    public extern ushort operator%(ushort);
+    public extern ushort operator%(short);
+    public extern uint   operator%(uint);
+    public extern int    operator%(int);
+    public extern ulong  operator%(ulong);
+    public extern long   operator%(long);
+    public extern float  operator%(float);
+    public extern double operator%(double);
+
+    public extern ushort operator<<(ulong);
+    public extern ushort operator>>(ulong);
+    public extern ushort operator&(ulong);
+    public extern ushort operator|(ulong);
+    public extern ushort operator^(ulong);
+    public extern ushort operator~();
+
+    public bool operator!() { return this == 0; } 
 }
 
 class short {
@@ -50,6 +354,103 @@ class short {
     public extern constructor(float);
     public extern constructor(double);
     public extern constructor(bool);
+
+    public extern bool operator==(byte);
+    public extern bool operator==(sbyte);
+    public extern bool operator==(ushort);
+    public extern bool operator==(short);
+    public extern bool operator==(uint);
+    public extern bool operator==(int);
+    public extern bool operator==(ulong);
+    public extern bool operator==(long);
+    public extern bool operator==(float);
+    public extern bool operator==(double);
+    public extern bool operator==(bool);
+
+    public extern bool operator>(byte);
+    public extern bool operator>(sbyte);
+    public extern bool operator>(ushort);
+    public extern bool operator>(short);
+    public extern bool operator>(uint);
+    public extern bool operator>(int);
+    public extern bool operator>(ulong);
+    public extern bool operator>(long);
+    public extern bool operator>(float);
+    public extern bool operator>(double);
+
+    public extern bool operator<(byte);
+    public extern bool operator<(sbyte);
+    public extern bool operator<(ushort);
+    public extern bool operator<(short);
+    public extern bool operator<(uint);
+    public extern bool operator<(int);
+    public extern bool operator<(ulong);
+    public extern bool operator<(long);
+    public extern bool operator<(float);
+    public extern bool operator<(double);
+
+    public extern short  operator+(byte);
+    public extern short  operator+(sbyte);
+    public extern ushort operator+(ushort);
+    public extern short  operator+(short);
+    public extern uint   operator+(uint);
+    public extern int    operator+(int);
+    public extern ulong  operator+(ulong);
+    public extern long   operator+(long);
+    public extern float  operator+(float);
+    public extern double operator+(double);
+
+    public extern short  operator-(byte);
+    public extern short  operator-(sbyte);
+    public extern ushort operator-(ushort);
+    public extern short  operator-(short);
+    public extern uint   operator-(uint);
+    public extern int    operator-(int);
+    public extern ulong  operator-(ulong);
+    public extern long   operator-(long);
+    public extern float  operator-(float);
+    public extern double operator-(double);
+
+    public extern short  operator*(byte);
+    public extern short  operator*(sbyte);
+    public extern ushort operator*(ushort);
+    public extern short  operator*(short);
+    public extern uint   operator*(uint);
+    public extern int    operator*(int);
+    public extern ulong  operator*(ulong);
+    public extern long   operator*(long);
+    public extern float  operator*(float);
+    public extern double operator*(double);
+
+    public extern short  operator/(byte);
+    public extern short  operator/(sbyte);
+    public extern ushort operator/(ushort);
+    public extern short  operator/(short);
+    public extern uint   operator/(uint);
+    public extern int    operator/(int);
+    public extern ulong  operator/(ulong);
+    public extern long   operator/(long);
+    public extern float  operator/(float);
+    public extern double operator/(double);
+
+    public extern short  operator%(byte);
+    public extern short  operator%(sbyte);
+    public extern ushort operator%(ushort);
+    public extern short  operator%(short);
+    public extern uint   operator%(uint);
+    public extern int    operator%(int);
+    public extern ulong  operator%(ulong);
+    public extern long   operator%(long);
+    public extern float  operator%(float);
+    public extern double operator%(double);
+
+    public extern short operator<<(ulong);
+    public extern short operator>>(ulong);
+    public extern short operator&(ulong);
+    public extern short operator|(ulong);
+    public extern short operator^(ulong);
+    public extern short operator~();
+    public bool operator!() { return this == 0; }
 }
 
 class uint {
@@ -63,6 +464,110 @@ class uint {
     public extern constructor(float);
     public extern constructor(double);
     public extern constructor(bool);
+
+    public extern bool operator==(byte);
+    public extern bool operator==(sbyte);
+    public extern bool operator==(ushort);
+    public extern bool operator==(short);
+    public extern bool operator==(uint);
+    public extern bool operator==(int);
+    public extern bool operator==(ulong);
+    public extern bool operator==(long);
+    public extern bool operator==(float);
+    public extern bool operator==(double);
+    public extern bool operator==(bool);
+
+    public extern bool operator>(byte);
+    public extern bool operator>(sbyte);
+    public extern bool operator>(ushort);
+    public extern bool operator>(short);
+    public extern bool operator>(uint);
+    public extern bool operator>(int);
+    public extern bool operator>(ulong);
+    public extern bool operator>(long);
+    public extern bool operator>(float);
+    public extern bool operator>(double);
+
+    public extern bool operator<(byte);
+    public extern bool operator<(sbyte);
+    public extern bool operator<(ushort);
+    public extern bool operator<(short);
+    public extern bool operator<(uint);
+    public extern bool operator<(int);
+    public extern bool operator<(ulong);
+    public extern bool operator<(long);
+    public extern bool operator<(float);
+    public extern bool operator<(double);
+
+    public extern uint   operator+(byte);
+    public extern uint   operator+(sbyte);
+    public extern uint   operator+(ushort);
+    public extern uint   operator+(short);
+    public extern uint   operator+(uint);
+    public extern uint   operator+(int);
+    public extern ulong  operator+(ulong);
+    public extern long   operator+(long);
+    public extern float  operator+(float);
+    public extern double operator+(double);
+
+    public extern uint   operator-(byte);
+    public extern uint   operator-(sbyte);
+    public extern uint   operator-(ushort);
+    public extern uint   operator-(short);
+    public extern uint   operator-(uint);
+    public extern uint   operator-(int);
+    public extern ulong  operator-(ulong);
+    public extern long   operator-(long);
+    public extern float  operator-(float);
+    public extern double operator-(double);
+
+    public extern uint   operator*(byte);
+    public extern uint   operator*(sbyte);
+    public extern uint   operator*(ushort);
+    public extern uint   operator*(short);
+    public extern uint   operator*(uint);
+    public extern uint   operator*(int);
+    public extern ulong  operator*(ulong);
+    public extern long   operator*(long);
+    public extern float  operator*(float);
+    public extern double operator*(double);
+
+    public extern uint   operator/(byte);
+    public extern uint   operator/(sbyte);
+    public extern uint   operator/(ushort);
+    public extern uint   operator/(short);
+    public extern uint   operator/(uint);
+    public extern uint   operator/(int);
+    public extern ulong  operator/(ulong);
+    public extern long   operator/(long);
+    public extern float  operator/(float);
+    public extern double operator/(double);
+
+    public extern uint   operator%(byte);
+    public extern uint   operator%(sbyte);
+    public extern uint   operator%(ushort);
+    public extern uint   operator%(short);
+    public extern uint   operator%(uint);
+    public extern uint   operator%(int);
+    public extern ulong  operator%(ulong);
+    public extern long   operator%(long);
+    public extern float  operator%(float);
+    public extern double operator%(double);
+
+    public extern uint   operator<<(ulong);
+    public extern uint   operator>>(ulong);
+    public extern uint   operator&(ulong);
+    public extern uint   operator|(ulong);
+    public extern uint   operator^(ulong);
+    public extern uint   operator~();
+    
+    public bool operator!() { return this == 0; }
+}
+
+private class run1 {
+    class time1 {
+        
+    }
 }
 
 class int {
@@ -76,6 +581,103 @@ class int {
     public extern constructor(float);
     public extern constructor(double);
     public extern constructor(bool);
+
+    public extern bool operator==(byte);
+    public extern bool operator==(sbyte);
+    public extern bool operator==(ushort);
+    public extern bool operator==(short);
+    public extern bool operator==(uint);
+    public extern bool operator==(int);
+    public extern bool operator==(ulong);
+    public extern bool operator==(long);
+    public extern bool operator==(float);
+    public extern bool operator==(double);
+    public extern bool operator==(bool);
+
+    public extern bool operator>(byte);
+    public extern bool operator>(sbyte);
+    public extern bool operator>(ushort);
+    public extern bool operator>(short);
+    public extern bool operator>(uint);
+    public extern bool operator>(int);
+    public extern bool operator>(ulong);
+    public extern bool operator>(long);
+    public extern bool operator>(float);
+    public extern bool operator>(double);
+
+    public extern bool operator<(byte);
+    public extern bool operator<(sbyte);
+    public extern bool operator<(ushort);
+    public extern bool operator<(short);
+    public extern bool operator<(uint);
+    public extern bool operator<(int);
+    public extern bool operator<(ulong);
+    public extern bool operator<(long);
+    public extern bool operator<(float);
+    public extern bool operator<(double);
+
+    public extern int    operator+(byte);
+    public extern int    operator+(sbyte);
+    public extern int    operator+(ushort);
+    public extern int    operator+(short);
+    public extern uint   operator+(uint);
+    public extern int    operator+(int);
+    public extern ulong  operator+(ulong);
+    public extern long   operator+(long);
+    public extern float  operator+(float);
+    public extern double operator+(double);
+
+    public extern int    operator-(byte);
+    public extern int    operator-(sbyte);
+    public extern int    operator-(ushort);
+    public extern int    operator-(short);
+    public extern uint   operator-(uint);
+    public extern int    operator-(int);
+    public extern ulong  operator-(ulong);
+    public extern long   operator-(long);
+    public extern float  operator-(float);
+    public extern double operator-(double);
+
+    public extern int    operator*(byte);
+    public extern int    operator*(sbyte);
+    public extern int    operator*(ushort);
+    public extern int    operator*(short);
+    public extern uint   operator*(uint);
+    public extern int    operator*(int);
+    public extern ulong  operator*(ulong);
+    public extern long   operator*(long);
+    public extern float  operator*(float);
+    public extern double operator*(double);
+
+    public extern int    operator/(byte);
+    public extern int    operator/(sbyte);
+    public extern int    operator/(ushort);
+    public extern int    operator/(short);
+    public extern uint   operator/(uint);
+    public extern int    operator/(int);
+    public extern ulong  operator/(ulong);
+    public extern long   operator/(long);
+    public extern float  operator/(float);
+    public extern double operator/(double);
+
+    public extern int    operator%(byte);
+    public extern int    operator%(sbyte);
+    public extern int    operator%(ushort);
+    public extern int    operator%(short);
+    public extern uint   operator%(uint);
+    public extern int    operator%(int);
+    public extern ulong  operator%(ulong);
+    public extern long   operator%(long);
+    public extern float  operator%(float);
+    public extern double operator%(double);
+
+    public extern int    operator<<(ulong);
+    public extern int    operator>>(ulong);
+    public extern int    operator&(ulong);
+    public extern int    operator|(ulong);
+    public extern int    operator^(ulong);
+    public extern int    operator~();
+    public bool operator!() { return this == 0; }
 }
 
 class ulong {
@@ -89,6 +691,103 @@ class ulong {
     public extern constructor(float);
     public extern constructor(double);
     public extern constructor(bool);
+
+    public extern bool operator==(byte);
+    public extern bool operator==(sbyte);
+    public extern bool operator==(ushort);
+    public extern bool operator==(short);
+    public extern bool operator==(uint);
+    public extern bool operator==(int);
+    public extern bool operator==(ulong);
+    public extern bool operator==(long);
+    public extern bool operator==(float);
+    public extern bool operator==(double);
+    public extern bool operator==(bool);
+
+    public extern bool operator>(byte);
+    public extern bool operator>(sbyte);
+    public extern bool operator>(ushort);
+    public extern bool operator>(short);
+    public extern bool operator>(uint);
+    public extern bool operator>(int);
+    public extern bool operator>(ulong);
+    public extern bool operator>(long);
+    public extern bool operator>(float);
+    public extern bool operator>(double);
+
+    public extern bool operator<(byte);
+    public extern bool operator<(sbyte);
+    public extern bool operator<(ushort);
+    public extern bool operator<(short);
+    public extern bool operator<(uint);
+    public extern bool operator<(int);
+    public extern bool operator<(ulong);
+    public extern bool operator<(long);
+    public extern bool operator<(float);
+    public extern bool operator<(double);
+
+    public extern ulong  operator+(byte);
+    public extern ulong  operator+(sbyte);
+    public extern ulong  operator+(ushort);
+    public extern ulong  operator+(short);
+    public extern ulong  operator+(uint);
+    public extern ulong  operator+(int);
+    public extern ulong  operator+(ulong);
+    public extern ulong  operator+(long);
+    public extern float  operator+(float);
+    public extern double operator+(double);
+
+    public extern ulong  operator-(byte);
+    public extern ulong  operator-(sbyte);
+    public extern ulong  operator-(ushort);
+    public extern ulong  operator-(short);
+    public extern ulong  operator-(uint);
+    public extern ulong  operator-(int);
+    public extern ulong  operator-(ulong);
+    public extern ulong  operator-(long);
+    public extern float  operator-(float);
+    public extern double operator-(double);
+
+    public extern ulong  operator*(byte);
+    public extern ulong  operator*(sbyte);
+    public extern ulong  operator*(ushort);
+    public extern ulong  operator*(short);
+    public extern ulong  operator*(uint);
+    public extern ulong  operator*(int);
+    public extern ulong  operator*(ulong);
+    public extern ulong  operator*(long);
+    public extern float  operator*(float);
+    public extern double operator*(double);
+
+    public extern ulong  operator/(byte);
+    public extern ulong  operator/(sbyte);
+    public extern ulong  operator/(ushort);
+    public extern ulong  operator/(short);
+    public extern ulong  operator/(uint);
+    public extern ulong  operator/(int);
+    public extern ulong  operator/(ulong);
+    public extern ulong  operator/(long);
+    public extern float  operator/(float);
+    public extern double operator/(double);
+
+    public extern ulong  operator%(byte);
+    public extern ulong  operator%(sbyte);
+    public extern ulong  operator%(ushort);
+    public extern ulong  operator%(short);
+    public extern ulong  operator%(uint);
+    public extern ulong  operator%(int);
+    public extern ulong  operator%(ulong);
+    public extern ulong  operator%(long);
+    public extern float  operator%(float);
+    public extern double operator%(double);
+
+    public extern ulong  operator<<(ulong);
+    public extern ulong  operator>>(ulong);
+    public extern ulong  operator&(ulong);
+    public extern ulong  operator|(ulong);
+    public extern ulong  operator^(ulong);
+    public extern ulong  operator~();
+    public bool operator!() { return this == 0; }
 }
 
 class long {
@@ -102,6 +801,104 @@ class long {
     public extern constructor(float);
     public extern constructor(double);
     public extern constructor(bool);
+    public extern constructor(long);
+
+    public extern bool operator==(byte);
+    public extern bool operator==(sbyte);
+    public extern bool operator==(ushort);
+    public extern bool operator==(short);
+    public extern bool operator==(uint);
+    public extern bool operator==(int);
+    public extern bool operator==(ulong);
+    public extern bool operator==(long);
+    public extern bool operator==(float);
+    public extern bool operator==(double);
+    public extern bool operator==(bool);
+
+    public extern bool operator>(byte);
+    public extern bool operator>(sbyte);
+    public extern bool operator>(ushort);
+    public extern bool operator>(short);
+    public extern bool operator>(uint);
+    public extern bool operator>(int);
+    public extern bool operator>(ulong);
+    public extern bool operator>(long);
+    public extern bool operator>(float);
+    public extern bool operator>(double);
+
+    public extern bool operator<(byte);
+    public extern bool operator<(sbyte);
+    public extern bool operator<(ushort);
+    public extern bool operator<(short);
+    public extern bool operator<(uint);
+    public extern bool operator<(int);
+    public extern bool operator<(ulong);
+    public extern bool operator<(long);
+    public extern bool operator<(float);
+    public extern bool operator<(double);
+
+    public extern long   operator+(byte);
+    public extern long   operator+(sbyte);
+    public extern long   operator+(ushort);
+    public extern long   operator+(short);
+    public extern long   operator+(uint);
+    public extern long   operator+(int);
+    public extern ulong  operator+(ulong);
+    public extern long   operator+(long);
+    public extern float  operator+(float);
+    public extern double operator+(double);
+
+    public extern long   operator-(byte);
+    public extern long   operator-(sbyte);
+    public extern long   operator-(ushort);
+    public extern long   operator-(short);
+    public extern long   operator-(uint);
+    public extern long   operator-(int);
+    public extern ulong  operator-(ulong);
+    public extern long   operator-(long);
+    public extern float  operator-(float);
+    public extern double operator-(double);
+
+    public extern long   operator*(byte);
+    public extern long   operator*(sbyte);
+    public extern long   operator*(ushort);
+    public extern long   operator*(short);
+    public extern long   operator*(uint);
+    public extern long   operator*(int);
+    public extern ulong  operator*(ulong);
+    public extern long   operator*(long);
+    public extern float  operator*(float);
+    public extern double operator*(double);
+
+    public extern long   operator/(byte);
+    public extern long   operator/(sbyte);
+    public extern long   operator/(ushort);
+    public extern long   operator/(short);
+    public extern long   operator/(uint);
+    public extern long   operator/(int);
+    public extern ulong  operator/(ulong);
+    public extern long   operator/(long);
+    public extern float  operator/(float);
+    public extern double operator/(double);
+
+    public extern long   operator%(byte);
+    public extern long   operator%(sbyte);
+    public extern long   operator%(ushort);
+    public extern long   operator%(short);
+    public extern long   operator%(uint);
+    public extern long   operator%(int);
+    public extern ulong  operator%(ulong);
+    public extern long   operator%(long);
+    public extern float  operator%(float);
+    public extern double operator%(double);
+
+    public extern long   operator<<(ulong);
+    public extern long   operator>>(ulong);
+    public extern long   operator&(ulong);
+    public extern long   operator|(ulong);
+    public extern long   operator^(ulong);
+    public extern long   operator~();
+    public bool operator!() { return this == (int)0; }
 }
 
 class float {
@@ -115,6 +912,103 @@ class float {
     public extern constructor(long);
     public extern constructor(double);
     public extern constructor(bool);
+
+    public extern bool operator==(byte);
+    public extern bool operator==(sbyte);
+    public extern bool operator==(ushort);
+    public extern bool operator==(short);
+    public extern bool operator==(uint);
+    public extern bool operator==(int);
+    public extern bool operator==(ulong);
+    public extern bool operator==(long);
+    public extern bool operator==(float);
+    public extern bool operator==(double);
+    public extern bool operator==(bool);
+
+    public extern bool operator>(byte);
+    public extern bool operator>(sbyte);
+    public extern bool operator>(ushort);
+    public extern bool operator>(short);
+    public extern bool operator>(uint);
+    public extern bool operator>(int);
+    public extern bool operator>(ulong);
+    public extern bool operator>(long);
+    public extern bool operator>(float);
+    public extern bool operator>(double);
+
+    public extern bool operator<(byte);
+    public extern bool operator<(sbyte);
+    public extern bool operator<(ushort);
+    public extern bool operator<(short);
+    public extern bool operator<(uint);
+    public extern bool operator<(int);
+    public extern bool operator<(ulong);
+    public extern bool operator<(long);
+    public extern bool operator<(float);
+    public extern bool operator<(double);
+
+    public extern float  operator+(byte);
+    public extern float  operator+(sbyte);
+    public extern float  operator+(ushort);
+    public extern float  operator+(short);
+    public extern float  operator+(uint);
+    public extern float  operator+(int);
+    public extern float  operator+(ulong);
+    public extern float  operator+(long);
+    public extern float  operator+(float);
+    public extern double operator+(double);
+
+    public extern float  operator-(byte);
+    public extern float  operator-(sbyte);
+    public extern float  operator-(ushort);
+    public extern float  operator-(short);
+    public extern float  operator-(uint);
+    public extern float  operator-(int);
+    public extern float  operator-(ulong);
+    public extern float  operator-(long);
+    public extern float  operator-(float);
+    public extern double operator-(double);
+
+    public extern float  operator*(byte);
+    public extern float  operator*(sbyte);
+    public extern float  operator*(ushort);
+    public extern float  operator*(short);
+    public extern float  operator*(uint);
+    public extern float  operator*(int);
+    public extern float  operator*(ulong);
+    public extern float  operator*(long);
+    public extern float  operator*(float);
+    public extern double operator*(double);
+
+    public extern float  operator/(byte);
+    public extern float  operator/(sbyte);
+    public extern float  operator/(ushort);
+    public extern float  operator/(short);
+    public extern float  operator/(uint);
+    public extern float  operator/(int);
+    public extern float  operator/(ulong);
+    public extern float  operator/(long);
+    public extern float  operator/(float);
+    public extern double operator/(double);
+
+    public extern float  operator%(byte);
+    public extern float  operator%(sbyte);
+    public extern float  operator%(ushort);
+    public extern float  operator%(short);
+    public extern float  operator%(uint);
+    public extern float  operator%(int);
+    public extern float  operator%(ulong);
+    public extern float  operator%(long);
+    public extern float  operator%(float);
+    public extern double operator%(double);
+
+    public extern float   operator<<(ulong);
+    public extern float   operator>>(ulong);
+    public extern float   operator&(ulong);
+    public extern float   operator|(ulong);
+    public extern float   operator^(ulong);
+    public extern float   operator~();
+    public bool operator!() { return this == 0; }
 }
 
 class double {
@@ -128,6 +1022,103 @@ class double {
     public extern constructor(long);
     public extern constructor(float);
     public extern constructor(bool);
+
+    public extern bool operator==(byte);
+    public extern bool operator==(sbyte);
+    public extern bool operator==(ushort);
+    public extern bool operator==(short);
+    public extern bool operator==(uint);
+    public extern bool operator==(int);
+    public extern bool operator==(ulong);
+    public extern bool operator==(long);
+    public extern bool operator==(float);
+    public extern bool operator==(double);
+    public extern bool operator==(bool);
+
+    public extern bool operator>(byte);
+    public extern bool operator>(sbyte);
+    public extern bool operator>(ushort);
+    public extern bool operator>(short);
+    public extern bool operator>(uint);
+    public extern bool operator>(int);
+    public extern bool operator>(ulong);
+    public extern bool operator>(long);
+    public extern bool operator>(float);
+    public extern bool operator>(double);
+
+    public extern bool operator<(byte);
+    public extern bool operator<(sbyte);
+    public extern bool operator<(ushort);
+    public extern bool operator<(short);
+    public extern bool operator<(uint);
+    public extern bool operator<(int);
+    public extern bool operator<(ulong);
+    public extern bool operator<(long);
+    public extern bool operator<(float);
+    public extern bool operator<(double);
+
+    public extern double operator+(byte);
+    public extern double operator+(sbyte);
+    public extern double operator+(ushort);
+    public extern double operator+(short);
+    public extern double operator+(uint);
+    public extern double operator+(int);
+    public extern double operator+(ulong);
+    public extern double operator+(long);
+    public extern double operator+(float);
+    public extern double operator+(double);
+
+    public extern double operator-(byte);
+    public extern double operator-(sbyte);
+    public extern double operator-(ushort);
+    public extern double operator-(short);
+    public extern double operator-(uint);
+    public extern double operator-(int);
+    public extern double operator-(ulong);
+    public extern double operator-(long);
+    public extern double operator-(float);
+    public extern double operator-(double);
+
+    public extern double operator*(byte);
+    public extern double operator*(sbyte);
+    public extern double operator*(ushort);
+    public extern double operator*(short);
+    public extern double operator*(uint);
+    public extern double operator*(int);
+    public extern double operator*(ulong);
+    public extern double operator*(long);
+    public extern double operator*(float);
+    public extern double operator*(double);
+
+    public extern double operator/(byte);
+    public extern double operator/(sbyte);
+    public extern double operator/(ushort);
+    public extern double operator/(short);
+    public extern double operator/(uint);
+    public extern double operator/(int);
+    public extern double operator/(ulong);
+    public extern double operator/(long);
+    public extern double operator/(float);
+    public extern double operator/(double);
+
+    public extern double operator%(byte);
+    public extern double operator%(sbyte);
+    public extern double operator%(ushort);
+    public extern double operator%(short);
+    public extern double operator%(uint);
+    public extern double operator%(int);
+    public extern double operator%(ulong);
+    public extern double operator%(long);
+    public extern double operator%(float);
+    public extern double operator%(double);
+
+    public extern double operator<<(ulong);
+    public extern double operator>>(ulong);
+    public extern double operator&(ulong);
+    public extern double operator|(ulong);
+    public extern double operator^(ulong);
+    public extern double operator~();
+    public bool operator!() { return this == 0; }
 }
 
 class bool {
@@ -141,6 +1132,19 @@ class bool {
     public extern constructor(long);
     public extern constructor(float);
     public extern constructor(double);
+
+    public extern bool operator==(bool);
+    public extern bool operator==(byte);
+    public extern bool operator==(sbyte);
+    public extern bool operator==(ushort);
+    public extern bool operator==(short);
+    public extern bool operator==(uint);
+    public extern bool operator==(int);
+    public extern bool operator==(ulong);
+    public extern bool operator==(long);
+    public extern bool operator==(float);
+    public extern bool operator==(double);
+    public extern bool operator!();
 }
 
 class string {

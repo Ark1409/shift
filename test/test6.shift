@@ -1,0 +1,25 @@
+module shift.io;
+
+class test {
+    public shift.long value = 3 + 9 & 2 * test.front[0][2] + &*this.runner.this*;
+    private shift.long value2 = 3;
+}
+
+int main() {
+    test t = new shift.long(5,2);
+    t.value = 7;
+    t.value2 = 2;
+
+    test[] a = new test[3][4];
+
+    a[t.value2].length = 9;
+
+    if(a.length) {print("Yes!");} else if(a[t.value2].length) {print("Test");} else if(a["t"]) {}
+    else {} else {true+10;}
+
+    if() {help *;}
+
+    imut imut const   public int i = 3;
+
+    return true;
+}

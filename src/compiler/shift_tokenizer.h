@@ -29,7 +29,6 @@ namespace shift::compiler {
 		constexpr inline bool operator>=(const file_indexer& other) const noexcept { return !this->operator<(other); }
 
 		constexpr inline bool operator<=(const file_indexer& other) const noexcept { return !this->operator>(other); }
-
 	};
 
 	struct token {
@@ -66,11 +65,14 @@ namespace shift::compiler {
 			XOR, // ^
 			FLIP_BITS, // ~
 			BIT_FLIP = FLIP_BITS,
+			TILDE = FLIP_BITS,
 			NOT, // !
 			EXCLAMATION_MARK = NOT, // !
 			PLUS, // +
 			MINUS, // -
 			MULTIPLY, // *
+			STAR = MULTIPLY,
+			ARROW, // ->
 			DIVIDE, // /
 			LEFT_BRACKET, // (
 			RIGHT_BRACKET, // )
@@ -153,6 +155,12 @@ namespace shift::compiler {
 
 		constexpr inline operator file_indexer(void) const noexcept { return this->m_index; }
 
+		constexpr inline bool is_cp(void) const noexcept { return ((this->is_identifier()) && (this->m_data == "cp")); }
+
+		constexpr inline bool is_mv(void) const noexcept { return ((this->is_identifier()) && (this->m_data == "mv")); }
+
+		constexpr inline bool is_var(void) const noexcept { return ((this->is_identifier()) && (this->m_data == "var")); }
+
 		constexpr inline bool is_null(void) const noexcept { return ((this->is_identifier()) && (this->m_data == "null")); }
 
 		constexpr inline bool is_module(void) const noexcept { return ((this->is_identifier()) && (this->m_data == "module")); }
@@ -182,7 +190,7 @@ namespace shift::compiler {
 
 		constexpr inline bool is_use(void) const noexcept { return ((this->is_identifier()) && (this->m_data == "use")); }
 
-		// currently unused
+
 		constexpr inline bool is_unsafe(void) const noexcept { return ((this->is_identifier()) && (this->m_data == "unsafe")); }
 
 		constexpr inline bool is_extern(void) const noexcept { return ((this->is_identifier()) && (this->m_data == "extern" || this->m_data == "ext")); }
@@ -190,6 +198,14 @@ namespace shift::compiler {
 		constexpr inline bool is_class(void) const noexcept { return (this->is_identifier()) && (this->m_data == "class"); }
 
 		constexpr inline bool is_init(void) const noexcept { return (this->is_identifier()) && (this->m_data == "init"); }
+
+		constexpr inline bool is_ref(void) const noexcept { return (this->is_identifier()) && (this->m_data == "ref"); }
+
+		constexpr inline bool is_tref(void) const noexcept { return (this->is_identifier()) && (this->m_data == "tref"); }
+
+		constexpr inline bool is_auto(void) const noexcept { return (this->is_identifier()) && (this->m_data == "auto"); }
+
+		constexpr inline bool is_imut(void) const noexcept { return (this->is_identifier()) && (this->m_data == "imut"); }
 
 		constexpr inline bool is_operator(void) const noexcept { return (this->is_identifier()) && (this->m_data == "operator"); }
 
@@ -221,6 +237,8 @@ namespace shift::compiler {
 
 		constexpr inline bool is_new(void) const noexcept { return (this->is_identifier()) && (this->m_data == "new"); }
 
+		constexpr inline bool is_del(void) const noexcept { return (this->is_identifier()) && (this->m_data == "del"); }
+
 		constexpr inline bool is_throw(void) const noexcept { return (this->is_identifier()) && (this->m_data == "throw"); }
 
 		constexpr inline bool is_explicit(void) const noexcept { return (this->is_identifier()) && (this->m_data == "explicit"); }
@@ -228,7 +246,7 @@ namespace shift::compiler {
 		constexpr inline bool is_access_specifier(void) const noexcept {
 			return (this->is_identifier())
 				&& (this->is_public() || this->is_protected() || this->is_private() || this->is_static() || this->is_const() || this->is_extern()
-					|| this->is_binary() || this->is_unsafe() || this->is_explicit());
+					|| this->is_binary() || this->is_unsafe() || this->is_explicit() || this->is_imut());
 		}
 
 		constexpr inline bool is_overload_operator(void) const noexcept { return this->is_prefix_overload_operator() || this->is_suffix_overload_operator() || this->is_binary_operator(); }
@@ -247,7 +265,8 @@ namespace shift::compiler {
 			return (!this->is_identifier())
 				&& ((this->m_type == token_type::BIT_FLIP) || (this->m_type == token_type::PLUS_PLUS)
 					|| (this->m_type == token_type::MINUS_MINUS) || (this->m_type == token_type::MINUS)
-					|| (this->m_type == token_type::NOT));
+					|| (this->m_type == token_type::NOT) || (this->m_type == token_type::STAR)
+					|| (this->m_type == token_type::AND));
 		}
 
 		constexpr inline bool is_binary_operator(void) const noexcept {
@@ -261,7 +280,8 @@ namespace shift::compiler {
 					|| (this->m_type == token_type::NOT_EQUAL) || (this->m_type == token_type::OR)
 					|| (this->m_type == token_type::OR_OR) || (this->m_type == token_type::OR_EQUALS)
 					|| (this->m_type == token_type::PLUS) || (this->m_type == token_type::XOR)
-					|| (this->m_type == token_type::SHIFT_LEFT) || (this->m_type == token_type::SHIFT_RIGHT));
+					|| (this->m_type == token_type::SHIFT_LEFT) || (this->m_type == token_type::SHIFT_RIGHT)
+					|| (this->m_type == token_type::ARROW));
 
 			// This way is more efficient, but should be removed if some how tertiary operators are introduced
 			//return !this->is_unary_operator(); // does not work 100%, cuz of things like CHAR_LITERAL; revert back to old method
@@ -283,7 +303,8 @@ namespace shift::compiler {
 					|| this->is_protected() || this->is_public() || this->is_req() || this->is_unsafe() || this->is_use() || this->is_void()
 					|| this->is_class() || this->is_init() || this->is_operator() || this->is_constructor() || this->is_destructor()
 					|| this->is_this() || this->is_base() || this->is_if() || this->is_else() || this->is_while() || this->is_do() || this->is_return()
-					|| this->is_continue() || this->is_break() || this->is_for() || this->is_true() || this->is_false() || this->is_access_specifier());
+					|| this->is_continue() || this->is_break() || this->is_for() || this->is_true() || this->is_false() || this->is_new()
+					|| this->is_del() || this->is_access_specifier() || this->is_ref() || this->is_tref() || this->is_auto() || this->is_imut());
 		}
 
 		constexpr inline bool is_alias(void) const noexcept { return (this->is_identifier()) && (this->m_data == "alias"); }
@@ -345,6 +366,10 @@ namespace shift::compiler {
 
 		constexpr inline bool is_dot(void) const noexcept { return (this->m_type == token_type::DOT); }
 
+		constexpr inline bool is_star(void) const noexcept { return (this->m_type == token_type::MULTIPLY); }
+
+		constexpr inline bool is_arrow(void) const noexcept { return (this->m_type == token_type::ARROW); }
+
 		constexpr inline bool is_period(void) const noexcept { return is_dot(); }
 
 		constexpr inline bool is_comma(void) const noexcept { return (this->m_type == token_type::COMMA); }
@@ -385,34 +410,50 @@ namespace shift::compiler {
 		inline void mark(void) noexcept { return this->m_token_marks.push(this->m_token_index); }
 		SHIFT_API void rollback(void) noexcept;
 		inline void pop_mark() noexcept { return pop_marks(1); }
-		inline void pop_marks(typename std::stack<typename std::vector<token>::const_iterator>::size_type count = -1) noexcept { utils::pop_stack(this->m_token_marks, count); }
+		inline void pop_marks(typename std::stack<std::vector<token>::const_iterator>::size_type count = -1) noexcept { utils::pop_stack(this->m_token_marks, count); }
 
-		inline typename std::vector<token>::iterator begin() noexcept { return this->m_tokens.begin(); }
-		inline typename std::vector<token>::iterator end() noexcept { return this->m_tokens.end(); }
+		inline std::vector<token>::iterator begin() noexcept { return this->m_tokens.begin(); }
+		inline std::vector<token>::iterator end() noexcept { return this->m_tokens.end(); }
 
-		inline typename std::vector<token>::const_iterator cbegin() const noexcept { return this->m_tokens.cbegin(); }
-		inline typename std::vector<token>::const_iterator cend() const noexcept { return this->m_tokens.cend(); }
+		inline std::vector<token>::const_iterator cbegin() const noexcept { return this->m_tokens.cbegin(); }
+		inline std::vector<token>::const_iterator cend() const noexcept { return this->m_tokens.cend(); }
 
-		inline const token& operator[](const typename std::vector<token>::size_type index) const { return this->m_tokens[index]; }
+		inline const token& operator[](const std::vector<token>::size_type index) const { return this->m_tokens[index]; }
 		inline const token& current_token(void) const noexcept { return this->token_at(this->m_token_index); }
-		SHIFT_API const token& next_token(typename std::vector<token>::size_type advance_count = 1) noexcept;
-		SHIFT_API const token& reverse_token(typename std::vector<token>::size_type count = 1) noexcept;
-		SHIFT_API const token& peek_token(typename std::vector<token>::size_type count = 1) const noexcept;
-		SHIFT_API const token& reverse_peek_token(typename std::vector<token>::size_type const count = 1) const noexcept;
+
+		SHIFT_API const token& next_token(std::vector<token>::size_type advance_count = 1) noexcept;
+		SHIFT_API const token& reverse_token(std::vector<token>::size_type count = 1) noexcept;
+		SHIFT_API const token& peek_token(std::vector<token>::size_type count = 1) const noexcept;
+		SHIFT_API const token& reverse_peek_token(std::vector<token>::size_type count = 1) const noexcept;
 		SHIFT_API const token& token_at(const file_indexer index) const noexcept;
 		SHIFT_API const token& token_before(const file_indexer index) const noexcept;
 		SHIFT_API const token& token_after(const file_indexer index) const noexcept;
-		SHIFT_API typename std::vector<token>::const_iterator set_index(const typename std::vector<token>::const_iterator index) noexcept;
-		inline typename std::vector<token>::const_iterator set_index(const typename std::vector<token>::size_type index) noexcept { return set_index(cbegin() + index); }
 
-		inline typename std::vector<token>::const_iterator get_index(void) const noexcept { return this->m_token_index; }
-		inline typename std::vector<token>::const_iterator& get_index(void) noexcept { return this->m_token_index; }
+		SHIFT_API std::vector<token>::const_iterator position_at(const file_indexer index) const noexcept;
+		SHIFT_API std::vector<token>::const_iterator position_before(const file_indexer index) const noexcept;
+		SHIFT_API std::vector<token>::const_iterator position_after(const file_indexer index) const noexcept;
 
-		inline const token& token_at(const typename std::vector<token>::const_iterator it) const noexcept { return it == this->m_tokens.cend() ? token::null : *it; }
+		inline std::vector<token>::const_iterator position_at(const token& tok) const noexcept { return position_at(tok.get_file_index()); }
+		inline std::vector<token>::const_iterator position_before(const token& tok) const noexcept { return position_before(tok.get_file_index()); }
+		inline std::vector<token>::const_iterator position_after(const token& tok) const noexcept { return position_after(tok.get_file_index()); }
 
-		inline const token& token_before(typename std::vector<token>::const_iterator it) const noexcept { return it == this->m_tokens.cbegin() ? token::null : token_at(--it); }
+		SHIFT_API std::vector<token>::const_iterator set_index(const std::vector<token>::const_iterator index) noexcept;
+		inline std::vector<token>::const_iterator set_index(const std::vector<token>::size_type index) noexcept { return set_index(cbegin() + index); }
 
-		inline const token& token_after(typename std::vector<token>::const_iterator it) const noexcept { return it == this->m_tokens.cend() ? token::null : token_at(++it); }
+		inline std::vector<token>::const_iterator set_position(const std::vector<token>::const_iterator index) noexcept { return set_index(index); }
+		inline std::vector<token>::const_iterator set_position(const std::vector<token>::size_type index) noexcept { return set_index(index); }
+
+		inline const std::vector<token>::const_iterator& get_index(void) const noexcept { return this->m_token_index; }
+		inline std::vector<token>::const_iterator& get_index(void) noexcept { return this->m_token_index; }
+
+		inline const std::vector<token>::const_iterator& get_position(void) const noexcept { return this->m_token_index; }
+		inline std::vector<token>::const_iterator& get_position(void) noexcept { return this->m_token_index; }
+
+		inline const token& token_at(const std::vector<token>::const_iterator it) const noexcept { return it == this->m_tokens.cend() ? token::null : *it; }
+
+		inline const token& token_before(std::vector<token>::const_iterator it) const noexcept { return it == this->m_tokens.cbegin() ? token::null : token_at(--it); }
+
+		inline const token& token_after(std::vector<token>::const_iterator it) const noexcept { return it == this->m_tokens.cend() ? token::null : token_at(++it); }
 
 		inline const token& token_before(const token& token) const noexcept { return this->token_before(token.get_file_index()); }
 
@@ -435,8 +476,8 @@ namespace shift::compiler {
 		std::string m_filedata;
 		std::vector<std::string_view> m_lines;
 		std::vector<token> m_tokens;
-		std::stack<typename std::vector<token>::const_iterator> m_token_marks;
-		typename std::vector<token>::const_iterator m_token_index;
+		std::stack<std::vector<token>::const_iterator> m_token_marks;
+		std::vector<token>::const_iterator m_token_index;
 	};
 
 	inline tokenizer::tokenizer(error_handler* const handler, const filesystem::file& file) : m_error_handler(handler),

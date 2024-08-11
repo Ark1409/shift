@@ -13,7 +13,7 @@
 namespace shift::compiler {
     class compiler {
     public:
-        inline compiler() noexcept;
+        compiler() noexcept = default;
         inline compiler(const int argc, const char* const* const argv) noexcept;
         inline compiler(const std::vector<std::string_view>& args) noexcept;
         inline compiler(std::vector<std::string_view>&& args) noexcept;
@@ -34,16 +34,15 @@ namespace shift::compiler {
         inline error_handler const& get_error_handler() const noexcept { return m_error_handler; }
     private:
         error_handler m_error_handler;
-        argument_parser m_args;
-        std::list<tokenizer> m_tokenizers;
-        std::list<parser> m_parsers;
-        analyzer m_analyzer;
+        argument_parser m_args{ &m_error_handler };
+        std::deque<tokenizer> m_tokenizers;
+        std::deque<parser> m_parsers;
+        analyzer m_analyzer{ &m_error_handler, m_parsers };
     };
 
-    inline compiler::compiler() noexcept : m_args(&m_error_handler), m_analyzer(&m_error_handler, m_parsers) {}
-    inline compiler::compiler(const int argc, const char* const* const argv) noexcept : m_args(&m_error_handler, argc, argv), m_analyzer(&m_error_handler, m_parsers) {}
-    inline compiler::compiler(const std::vector<std::string_view>& args) noexcept : m_args(&m_error_handler, args), m_analyzer(&m_error_handler, m_parsers) {}
-    inline compiler::compiler(std::vector<std::string_view>&& args) noexcept : m_args(&m_error_handler, std::move(args)), m_analyzer(&m_error_handler, m_parsers) {}
+    inline compiler::compiler(const int argc, const char* const* const argv) noexcept : m_args(&m_error_handler, argc, argv) {}
+    inline compiler::compiler(const std::vector<std::string_view>& args) noexcept : m_args(&m_error_handler, args) {}
+    inline compiler::compiler(std::vector<std::string_view>&& args) noexcept : m_args(&m_error_handler, std::move(args)) {}
 
 }
 #endif

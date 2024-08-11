@@ -6,7 +6,7 @@
 
 #include "utils/utils.h"
 
-#include <list>
+#include <deque>
 #include <stack>
 #include <string>
 #include <sstream>
@@ -92,15 +92,15 @@ namespace shift::compiler {
 
 		inline void pop_mark() { return pop_marks(1); }
 
-		inline void pop_marks(typename std::stack<typename std::list<_message_pair_type>::size_type>::size_type count = -1) noexcept { utils::pop_stack(this->m_marks, count); }
+		inline void pop_marks(std::stack<std::deque<_message_pair_type>::size_type>::size_type count = -1) noexcept { utils::pop_stack(this->m_marks, count); }
 
-		inline const std::stack<typename std::list<_message_pair_type>::size_type>& get_marks(void) const noexcept { return this->m_marks; }
-		inline std::list<_message_pair_type>& get_messages(void) noexcept { return this->m_messages; }
-		inline const std::list<_message_pair_type>& get_messages(void) const noexcept { return this->m_messages; }
+		inline const std::stack<std::deque<_message_pair_type>::size_type>& get_marks(void) const noexcept { return this->m_marks; }
+		inline std::deque<_message_pair_type>& get_messages(void) noexcept { return this->m_messages; }
+		inline const std::deque<_message_pair_type>& get_messages(void) const noexcept { return this->m_messages; }
 	private:
 		bool m_warnings = false, m_werror = false;
-		std::list<_message_pair_type> m_messages;
-		std::stack<typename std::list<_message_pair_type>::size_type> m_marks;
+		std::deque<_message_pair_type> m_messages;
+		std::stack<std::deque<_message_pair_type>::size_type> m_marks;
 		std::ostringstream m_message_stream;
 	};
 

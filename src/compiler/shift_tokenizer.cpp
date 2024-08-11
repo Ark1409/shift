@@ -16,7 +16,7 @@
 #define shift_tokenizer_advance_() i++, col++, current=this->m_filedata[i]
 #define shift_tokenizer_pre_advance(__count) shift_tokenizer_advance(__count)
 #define shift_tokenizer_pre_advance_() ++i, ++col, current=this->m_filedata[i]
-#define shift_tokenizer_next_line() this->m_lines.push_back(std::string_view(&this->m_filedata[last_line], i-(last_line))), last_line = i+1, line++, col = 0
+#define shift_tokenizer_next_line() this->m_lines.emplace_back(&this->m_filedata[last_line], i-(last_line)), last_line = i+1, line++, col = 0
 
 #define shift_tokenizer_char_equal(__char, __eq) ((__char) == char((__eq)))
 #define shift_tokenizer_current_equal(__eq) shift_tokenizer_char_equal(current, __eq)
@@ -84,36 +84,55 @@ namespace shift::compiler {
 	}
 
 	SHIFT_API const token& tokenizer::token_at(const file_indexer index) const noexcept {
-		for (const token& token_ : this->m_tokens) {
-			if (token_.get_file_index() == index)
-				return token_;
-		}
-		return token::null;
+		auto it = std::lower_bound(this->m_tokens.cbegin(), this->m_tokens.cend(), index, [](const token& token, const file_indexer index) {
+			return token.get_file_index() < index;
+			});
+		return (it == this->m_tokens.cend() || it->get_file_index() != index) ? token::null : *it;
 	}
 
 	SHIFT_API const token& tokenizer::token_before(const file_indexer index) const noexcept {
-		const token* last_token = &token::null;
+		auto it = std::lower_bound(this->m_tokens.cbegin(), this->m_tokens.cend(), index, [](const token& token, const file_indexer index) {
+			return token.get_file_index() < index;
+			});
 
-		for (const token& token : this->m_tokens) {
-			if (token.get_file_index() == index)
-				return *last_token;
-			last_token = &token;
-		}
-
-		return token::null;
+		if (it == this->m_tokens.cbegin() || it == this->m_tokens.cend() || it->get_file_index() != index) return token::null;
+		return *(--it);
 	}
 
 	SHIFT_API const token& tokenizer::token_after(const file_indexer index) const noexcept {
-		bool next = false;
+		auto it = std::lower_bound(this->m_tokens.cbegin(), this->m_tokens.cend(), index, [](const token& token, const file_indexer index) {
+			return token.get_file_index() < index;
+			});
 
-		for (const token& token : this->m_tokens) {
-			if (next)
-				return token;
-			if (token.get_file_index() == index)
-				next = true;
-		}
+		if (it == --this->m_tokens.cend() || it == this->m_tokens.cend() || it->get_file_index() != index) return token::null;
 
-		return token::null;
+		return *(++it);
+	}
+
+	SHIFT_API std::vector<token>::const_iterator tokenizer::position_at(const file_indexer index) const noexcept {
+		auto it = std::lower_bound(this->m_tokens.cbegin(), this->m_tokens.cend(), index, [](const token& token, const file_indexer index) {
+			return token.get_file_index() < index;
+			});
+		return (it == this->m_tokens.cend() || it->get_file_index() != index) ? this->m_tokens.cend() : it;
+	}
+
+	SHIFT_API std::vector<token>::const_iterator tokenizer::position_before(const file_indexer index) const noexcept {
+		auto it = std::lower_bound(this->m_tokens.cbegin(), this->m_tokens.cend(), index, [](const token& token, const file_indexer index) {
+			return token.get_file_index() < index;
+			});
+
+		if (it == this->m_tokens.cbegin() || it == this->m_tokens.cend() || it->get_file_index() != index) return this->m_tokens.cend();
+		return (--it);
+	}
+
+	SHIFT_API std::vector<token>::const_iterator tokenizer::position_after(const file_indexer index) const noexcept {
+		auto it = std::lower_bound(this->m_tokens.cbegin(), this->m_tokens.cend(), index, [](const token& token, const file_indexer index) {
+			return token.get_file_index() < index;
+			});
+
+		if (it == --this->m_tokens.cend() || it == this->m_tokens.cend() || it->get_file_index() != index) return this->m_tokens.cend();
+
+		return (++it);
 	}
 
 	SHIFT_API const token& tokenizer::peek_token(typename std::vector<token>::size_type count) const noexcept {
@@ -126,7 +145,7 @@ namespace shift::compiler {
 		return this->token_at(this->m_token_index -= count);
 	}
 
-	SHIFT_API const token& tokenizer::reverse_peek_token(typename std::vector<token>::size_type const count) const noexcept {
+	SHIFT_API const token& tokenizer::reverse_peek_token(typename std::vector<token>::size_type count) const noexcept {
 		if (count > typename std::vector<token>::size_type(this->m_token_index - this->cbegin())) return token::null;
 		return this->token_at(this->m_token_index - count);
 	}
@@ -137,6 +156,9 @@ namespace shift::compiler {
 	}
 
 	SHIFT_API void tokenizer::tokenize(void) {
+		using namespace std::string_view_literals;
+		using namespace std::string_literals;
+
 		// Clear all class data in case this function has been called more than once
 		this->m_tokens.clear();
 		this->m_filedata.clear();
@@ -152,10 +174,13 @@ namespace shift::compiler {
 		{ // read the file
 			std::ifstream input_file(this->m_file.raw_path(), std::ios_base::in);
 
+			if (!input_file.is_open()) // TODO should probably throw error here
+				return;
+
 			// reserve correct amount of bytes within file data string
 			this->m_filedata.resize(filesize);
 
-			input_file.read(this->m_filedata.data(), filesize); // read the file fully
+			input_file.read(this->m_filedata.data(), static_cast<std::streamsize>(filesize)); // read the file fully
 
 			filesize = std::uintmax_t(input_file.gcount()); // change file size to number of characters read
 			this->m_filedata.resize(filesize); // resize the string to the right size
@@ -164,10 +189,10 @@ namespace shift::compiler {
 
 		{ // tokenizing
 			size_t last_line = 0; // index of character after last \n
-			char current = this->m_filedata[0]; // Current character (i.e. cursor)
+			char current = this->m_filedata.empty() ? char(0x0) : this->m_filedata[0]; // Current character (i.e. cursor)
 			size_t i, line, col; // index (starts at 0), line # (starts at 1), column # (starts at 1)
 
-			this->m_lines.reserve(utils::count(this->m_filedata, std::string_view("\n")) + 1);
+			this->m_lines.reserve(utils::count((std::string_view)this->m_filedata, "\n"sv) + 1);
 
 			for (i = 0, line = 1, col = 1; i < filesize; shift_tokenizer_advance_()) {
 				if (shift_tokenizer_is_whitespace(current)) {
@@ -175,16 +200,16 @@ namespace shift::compiler {
 						shift_tokenizer_next_line();
 						// col++; // col will be incremented to 1 by shift_tokenizer_advance_() in the for loop
 					} else if (shift_tokenizer_current_equal('\t')) {
-						col += 3; // tabs are 4 spaces. col with be incremented the 4th time by shift_tokenizer_advance_() in the for loop
+						col += 3; // tabs are 4 spaces. col will be incremented the 4th time by shift_tokenizer_advance_() in the for loop
 					}
 					continue;
 				}
 
-				if (isalpha(current) || shift_tokenizer_current_equal('_')) {
+				if (std::isalpha(current) || shift_tokenizer_current_equal('_')) {
 					const size_t old_col = col;
 					const size_t old_i = i;
 
-					for (shift_tokenizer_pre_advance_(); (i < filesize) && (isalnum(current) || shift_tokenizer_current_equal('_'));
+					for (shift_tokenizer_pre_advance_(); (i < filesize) && (std::isalnum(current) || shift_tokenizer_current_equal('_'));
 						shift_tokenizer_advance_());
 
 					shift_tokenizer_reverse_();
@@ -193,7 +218,7 @@ namespace shift::compiler {
 					continue;
 				}
 
-				if (isdigit(current)) {
+				if (std::isdigit(current)) {
 					const size_t old_col = col;
 					const size_t old_i = i;
 

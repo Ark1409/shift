@@ -12,6 +12,9 @@
 #	error drive.h may only be included on Windows platforms
 #endif
 
+ // Remove macro definitions of min and max from windef.h
+#define NOMINMAX 1
+
 #include <list>
 #include <windows.h>
 #include <ostream>

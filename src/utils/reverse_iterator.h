@@ -30,7 +30,7 @@ namespace shift::utils {
         inline reverse_iterator_type& operator--() { ++m_it; return *this; }
         inline reverse_iterator_type operator--(int) { return reverse_iterator_type(m_it++); }
 
-        inline operator iterator_type () const { auto tmp = m_it; return (--tmp); }
+        inline explicit operator iterator_type () const { auto tmp = m_it; return (--tmp); }
     private:
         iterator_type m_it;
     };

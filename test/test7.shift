@@ -1,0 +1,89 @@
+module tester;
+
+use shift;
+
+void print(int hhh1) {
+
+}
+
+void print(ref int hhh1) {
+
+}
+
+void print(string hhh2) {
+    
+}
+
+class builder {
+    protected constructor() {}
+}
+
+class helper {}
+
+class helper2 : helper {}
+
+class helper3 : helper2 {}
+class helper4 : helper2 {}
+
+class helper5 {}
+
+
+
+class hope {
+    public void do_func(helper h1, helper h2) {
+
+    }
+
+    public void do_func(helper2 h3, helper3 h4) {
+
+    }
+
+    public void do_func(helper3 h5, helper2 h6) {
+
+    }
+
+    public void do_func2(ref helper3 h7, helper2 h8) {
+
+    }
+/*
+    public void do_func2(ref imut helper3 h9, helper2 h10) {
+
+    }
+*/
+    public void do_func2(helper3 h11, helper2 h12) {
+
+    }
+
+    public void func() {
+        imut helper3 h1;
+        helper3 h2;
+
+        do_func2(h1, mv h2);
+
+        use tester;
+        use shift;
+        string s = "";
+        int bn = mv s;
+        int bbb = "";
+        builder b;
+        builder b2 =  *(mv b);
+        int[][] vartest;
+        int i1 = "h";
+        int i2 = i1;
+        int i = long(3);
+        int iv = long("hello");
+
+        int iv2 = long(s);
+        int iv3 = long(i1);
+        if(i > true) {
+            tester.print("Hello");
+            tester.print(hope());
+        }
+    }
+
+    public long get(int v2) {
+        int v = 3;
+        ref imut int v3 = v2;
+        return 3;
+    }
+}

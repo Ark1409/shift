@@ -42,7 +42,7 @@ namespace shift::utils {
         inline ordered_set_iterator(iterator_type it) noexcept
             : m_order_it(it) {}
 
-        inline ordered_set_iterator() {}
+        inline ordered_set_iterator() = default;
 
         ordered_set_iterator(const ordered_set_iterator&) noexcept = default;
         ordered_set_iterator(ordered_set_iterator&&) noexcept = default;

@@ -1,10 +1,10 @@
-module shift.io;
+module sshift.io;
 use shift;
 use shift.io;
 use shift.lang;
 
 public class file {
-    use static shift.io._internal;
+     static use shift.io._internal;
     public constructor() {}
 
     public constructor(int) {}

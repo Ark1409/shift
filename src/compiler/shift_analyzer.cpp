@@ -7,8 +7,8 @@
 #include <cstring>
 #include <algorithm>
 
-#define SHIFT_ANALYZER_ERROR_PREFIX(__parser) 				"error: " << std::filesystem::relative((__parser).get_tokenizer()->get_file().raw_path()).string() << ": " // std::filesystem::relative call every time probably isn't that optimal
-#define SHIFT_ANALYZER_WARNING_PREFIX(__parser) 			"warning: " << std::filesystem::relative((__parser).get_tokenizer()->get_file().raw_path()).string() << ": " // std::filesystem::relative call every time probably isn't that optimal
+#define SHIFT_ANALYZER_ERROR_PREFIX(__parser)                "error: " << std::filesystem::relative((__parser).get_tokenizer()->get_file().raw_path()).string() << ": " // std::filesystem::relative call every time probably isn't that optimal
+#define SHIFT_ANALYZER_WARNING_PREFIX(__parser)            "warning: " << std::filesystem::relative((__parser).get_tokenizer()->get_file().raw_path()).string() << ": " // std::filesystem::relative call every time probably isn't that optimal
 
 #define SHIFT_ANALYZER_ERROR_PREFIX_EXT_(__parser, __line__, __col__) "error: " << std::filesystem::relative((__parser).get_tokenizer()->get_file().raw_path()).string() << ":" << __line__ << ":" << __col__ << ": " // std::filesystem::relative call every time probably isn't that optimal
 #define SHIFT_ANALYZER_WARNING_PREFIX_EXT_(__parser, __line__, __col__) "warning: " << std::filesystem::relative((__parser).get_tokenizer()->get_file().raw_path()).string() << ":" << __line__ << ":" << __col__ << ": " // std::filesystem::relative call every time probably isn't that optimal
@@ -18,28 +18,28 @@
 
 #define SHIFT_ANALYZER_PRINT() this->m_error_handler->print_exit_clear()
 
-#define SHIFT_ANALYZER_WARNING(__parser, __WARN__) 			this->m_error_handler->stream() << SHIFT_ANALYZER_WARNING_PREFIX(__parser) << __WARN__ << '\n'; this->m_error_handler->flush_stream(shift::compiler::error_handler::message_type::warning)
-#define SHIFT_ANALYZER_FATAL_WARNING(__parser, __WARN__) 		SHIFT_ANALYZER_WARNING(__parser, __WARN__); SHIFT_ANALYZER_PRINT()
+#define SHIFT_ANALYZER_WARNING(__parser, __WARN__)            this->m_error_handler->stream() << SHIFT_ANALYZER_WARNING_PREFIX(__parser) << __WARN__ << '\n'; this->m_error_handler->flush_stream(shift::compiler::error_handler::message_type::warning)
+#define SHIFT_ANALYZER_FATAL_WARNING(__parser, __WARN__)        SHIFT_ANALYZER_WARNING(__parser, __WARN__); SHIFT_ANALYZER_PRINT()
 
-#define SHIFT_ANALYZER_WARNING_LOG(__WARN__) 		this->m_error_handler->stream() << __WARN__ << '\n'; this->m_error_handler->flush_stream(shift::compiler::error_handler::message_type::warning)
+#define SHIFT_ANALYZER_WARNING_LOG(__WARN__)        this->m_error_handler->stream() << __WARN__ << '\n'; this->m_error_handler->flush_stream(shift::compiler::error_handler::message_type::warning)
 #define SHIFT_ANALYZER_FATAL_WARNING_LOG(__WARN__)  SHIFT_ANALYZER_WARNING_LOG(__WARN__); SHIFT_ANALYZER_PRINT()
 
-#define SHIFT_ANALYZER_ERROR(__parser, __ERR__) 			this->m_error_handler->stream() << SHIFT_ANALYZER_ERROR_PREFIX(__parser) << __ERR__ << '\n'; this->m_error_handler->flush_stream(shift::compiler::error_handler::message_type::error)
-#define SHIFT_ANALYZER_FATAL_ERROR(__parser, __ERR__) 		SHIFT_ANALYZER_ERROR(__parser, __ERR__); SHIFT_ANALYZER_PRINT()
+#define SHIFT_ANALYZER_ERROR(__parser, __ERR__)            this->m_error_handler->stream() << SHIFT_ANALYZER_ERROR_PREFIX(__parser) << __ERR__ << '\n'; this->m_error_handler->flush_stream(shift::compiler::error_handler::message_type::error)
+#define SHIFT_ANALYZER_FATAL_ERROR(__parser, __ERR__)        SHIFT_ANALYZER_ERROR(__parser, __ERR__); SHIFT_ANALYZER_PRINT()
 
-#define SHIFT_ANALYZER_ERROR_LOG(__ERR__) 		this->m_error_handler->stream() << __ERR__ << '\n'; this->m_error_handler->flush_stream(shift::compiler::error_handler::message_type::error)
+#define SHIFT_ANALYZER_ERROR_LOG(__ERR__)        this->m_error_handler->stream() << __ERR__ << '\n'; this->m_error_handler->flush_stream(shift::compiler::error_handler::message_type::error)
 #define SHIFT_ANALYZER_FATAL_ERROR_LOG(__ERR__)  SHIFT_ANALYZER_ERROR_LOG(__ERR__); SHIFT_ANALYZER_PRINT()
 
-#define SHIFT_ANALYZER_WARNING_(__parser, __token, __WARN__) 	this->m_error_handler->stream() << SHIFT_ANALYZER_WARNING_PREFIX_EXT(__parser, __token) << __WARN__ << '\n'; this->m_error_handler->flush_stream(shift::compiler::error_handler::message_type::warning)
-#define SHIFT_ANALYZER_FATAL_WARNING_(__parser, __token, __WARN__) 		SHIFT_ANALYZER_WARNING(__parser, __token, __WARN__); SHIFT_ANALYZER_PRINT()
+#define SHIFT_ANALYZER_WARNING_(__parser, __token, __WARN__)    this->m_error_handler->stream() << SHIFT_ANALYZER_WARNING_PREFIX_EXT(__parser, __token) << __WARN__ << '\n'; this->m_error_handler->flush_stream(shift::compiler::error_handler::message_type::warning)
+#define SHIFT_ANALYZER_FATAL_WARNING_(__parser, __token, __WARN__)        SHIFT_ANALYZER_WARNING(__parser, __token, __WARN__); SHIFT_ANALYZER_PRINT()
 
-#define SHIFT_ANALYZER_WARNING_LOG_(__WARN__) 		this->m_error_handler->stream() << __WARN__ << '\n'; this->m_error_handler->flush_stream(shift::compiler::error_handler::message_type::warning)
+#define SHIFT_ANALYZER_WARNING_LOG_(__WARN__)        this->m_error_handler->stream() << __WARN__ << '\n'; this->m_error_handler->flush_stream(shift::compiler::error_handler::message_type::warning)
 #define SHIFT_ANALYZER_FATAL_WARNING_LOG_(__WARN__)  SHIFT_ANALYZER_WARNING_LOG_( __WARN__); SHIFT_ANALYZER_PRINT()
 
-#define SHIFT_ANALYZER_ERROR_(__parser, __token, __ERR__) 			this->m_error_handler->stream() << SHIFT_ANALYZER_ERROR_PREFIX_EXT(__parser, __token) << __ERR__ << '\n'; this->m_error_handler->flush_stream(shift::compiler::error_handler::message_type::error)
-#define SHIFT_ANALYZER_FATAL_ERROR_(__parser, __token, __ERR__) 		SHIFT_ANALYZER_ERROR_(__parser,__token,__ERR__); SHIFT_ANALYZER_PRINT()
+#define SHIFT_ANALYZER_ERROR_(__parser, __token, __ERR__)            this->m_error_handler->stream() << SHIFT_ANALYZER_ERROR_PREFIX_EXT(__parser, __token) << __ERR__ << '\n'; this->m_error_handler->flush_stream(shift::compiler::error_handler::message_type::error)
+#define SHIFT_ANALYZER_FATAL_ERROR_(__parser, __token, __ERR__)        SHIFT_ANALYZER_ERROR_(__parser,__token,__ERR__); SHIFT_ANALYZER_PRINT()
 
-#define SHIFT_ANALYZER_ERROR_LOG_(__ERR__) 		this->m_error_handler->stream() << __ERR__ << '\n'; this->m_error_handler->flush_stream(shift::compiler::error_handler::message_type::error)
+#define SHIFT_ANALYZER_ERROR_LOG_(__ERR__)        this->m_error_handler->stream() << __ERR__ << '\n'; this->m_error_handler->flush_stream(shift::compiler::error_handler::message_type::error)
 #define SHIFT_ANALYZER_FATAL_ERROR_LOG_(__ERR__)  SHIFT_ANALYZER_ERROR_LOG_(__ERR__); SHIFT_ANALYZER_PRINT()
 
 #define SHIFT_ANALYZER_OBJECT_CLASS "shift.object"
@@ -89,2256 +89,2658 @@
 #define SHIFT_ANALYZER_BOOLEAN_CLASS "shift.bool"
 #define SHIFT_ANALYZER_BOOL_CLASS SHIFT_ANALYZER_BOOLEAN_CLASS
 
-namespace shift {
-    namespace compiler {
-        using token_type = token::token_type;
+namespace shift::compiler {
+    using token_type = token::token_type;
 
-        static constexpr inline bool is_overload_operator(const token_type type) noexcept { return token(std::string_view(), type, file_indexer()).is_overload_operator(); }
-        static constexpr inline bool is_binary_operator(const token_type type) noexcept { return token(std::string_view(), type, file_indexer()).is_binary_operator(); }
-        static constexpr inline bool is_unary_operator(const token_type type) noexcept { return token(std::string_view(), type, file_indexer()).is_unary_operator(); }
-        static constexpr inline bool is_prefix_operator(const token_type type) noexcept { return token(std::string_view(), type, file_indexer()).is_prefix_overload_operator(); }
-        static constexpr inline bool is_suffix_operator(const token_type type) noexcept { return token(std::string_view(), type, file_indexer()).is_suffix_overload_operator(); }
-        static constexpr inline bool is_strictly_prefix_operator(const token_type type) noexcept { return token(std::string_view(), type, file_indexer()).is_strictly_prefix_overload_operator(); }
-        static constexpr inline bool is_strictly_suffix_operator(const token_type type) noexcept { return token(std::string_view(), type, file_indexer()).is_strictly_suffix_overload_operator(); }
+    static constexpr inline bool is_overload_operator(const token_type type) noexcept {
+        return token(std::string_view(), type, file_indexer()).is_overload_operator();
+    }
 
-        static shift_module m_shift_module;
-        static shift_class m_void_class, m_null_class;
+    static constexpr inline bool is_binary_operator(const token_type type) noexcept {
+        return token(std::string_view(), type, file_indexer()).is_binary_operator();
+    }
 
-        // Storage for tokens needed for implementation
-        static std::vector<token> m_token_storage;
-        static std::vector<token>::iterator m_void_token;
-        static std::vector<token>::iterator m_null_token;
-        static std::vector<token>::iterator m_new_token;
-        static std::vector<token>::iterator m_array_token;
-        static std::vector<token>::iterator m_length_token;
-        static std::vector<token>::iterator m_operator_token;
-        static std::vector<token>::iterator m_left_square_bracket_token;
-        static std::vector<token>::iterator m_right_square_bracket_token;
-        static std::vector<token>::iterator m_true_token;
-        static std::vector<token>::iterator m_equals_token;
-        static std::vector<token>::iterator m_equals_equals_token;
-        static std::vector<token>::iterator m_not_equal_token;
+    static constexpr inline bool is_unary_operator(const token_type type) noexcept {
+        return token(std::string_view(), type, file_indexer()).is_unary_operator();
+    }
 
-        SHIFT_API void analyzer::analyze() {
-            // TODO add default classes (shift.int, shift.string, shift.long) before starting to analyze
-            m_init_defaults();
+    static constexpr inline bool is_prefix_operator(const token_type type) noexcept {
+        return token(std::string_view(), type, file_indexer()).is_prefix_overload_operator();
+    }
 
-            // Add in all modules first
-            for (parser& _parser : *m_parsers) {
-                if (!_parser.m_is_module_defined()) {
-                    this->m_error(_parser, "module not defined for file");
+    static constexpr inline bool is_suffix_operator(const token_type type) noexcept {
+        return token(std::string_view(), type, file_indexer()).is_suffix_overload_operator();
+    }
+
+    static constexpr inline bool is_strictly_prefix_operator(const token_type type) noexcept {
+        return token(std::string_view(), type, file_indexer()).is_strictly_prefix_overload_operator();
+    }
+
+    static constexpr inline bool is_strictly_suffix_operator(const token_type type) noexcept {
+        return token(std::string_view(), type, file_indexer()).is_strictly_suffix_overload_operator();
+    }
+
+    static shift_module m_shift_module;
+    static shift_class m_void_class, m_null_class;
+
+    // Storage for tokens needed for implementation
+    static std::deque<token> m_token_storage;
+    static std::vector<token> m_name_storage;
+    static token* m_void_token{};
+    static std::vector<token>::iterator m_null_token{};
+    static token* m_new_token{};
+    static token* m_array_token{};
+    static token* m_length_token{};
+    static token* m_operator_token{};
+    static std::vector<token>::iterator m_operator_array_function_token_begin{};
+    static std::vector<token>::iterator m_operator_array_function_token_end{};
+    static std::vector<token>::iterator m_operator_star_function_token_begin{};
+    static std::vector<token>::iterator m_operator_star_function_token_end{};
+    static std::vector<token>::iterator m_operator_arrow_function_token_begin{};
+    static std::vector<token>::iterator m_operator_arrow_function_token_end{};
+    static token* m_left_square_bracket_token{};
+    static token* m_right_square_bracket_token{};
+    static std::vector<token>::iterator m_true_token_begin{};
+    static std::vector<token>::iterator m_true_token_end{};
+    static token* m_equals_token{};
+    static token* m_equals_equals_token{};
+    static token* m_not_equal_token{};
+
+    SHIFT_API void analyzer::analyze() {
+        // TODO add default classes (shift.int, shift.string, shift.long) before starting to analyze
+        m_init_defaults();
+
+        // Add in all modules first
+        for (parser& _parser : *m_parsers) {
+            if (_parser.m_is_module_defined()) {
+                m_modules.emplace(_parser.m_module->to_string(), _parser.m_module.get());
+            } else {
+                this->m_error(_parser, "module not defined for file");
+            }
+        }
+
+        for (parser& _parser : *m_parsers) {
+            for (shift_variable& var : _parser.m_variables) {
+                var.parser_ = &_parser;
+                std::string fqn = var.get_fqn();
+
+                if (m_modules.find(fqn) != m_modules.end()) {
+                    this->m_token_error(_parser, *var.name,
+                        "variable '" + fqn + "' would override module with same name");
+                }
+
+                if (m_variables.find(fqn) == m_variables.end()) {
+                    m_variables[std::move(fqn)] = &var;
                 } else {
-                    m_modules.emplace(_parser.m_module.to_string());
+                    this->m_token_error(_parser, *var.name,
+                        "variable '" + fqn + "' has already been defined inside current module");
                 }
             }
 
-            for (parser& _parser : *m_parsers) {
-                for (shift_variable& var : _parser.m_variables) {
-                    var.parser_ = &_parser;
-                    std::string fqn = var.get_fqn();
-                    if (m_variables.find(fqn) == m_variables.end()) {
-                        m_variables[std::move(fqn)] = &var;
-                    } else {
-                        this->m_token_error(_parser, *var.name, "variable '" + fqn + "' has already been defined inside current module");
-                    }
+            for (shift_function& func : _parser.m_functions) {
+                func.parser_ = &_parser;
+                m_function_overloads[func.get_fqn()].push_back({ &func });
+            }
+
+            for (shift_class& clazz : _parser.m_classes) {
+                clazz.parser_ = &_parser;
+                std::string fqn = clazz.get_fqn();
+
+                // error if class conflicts with module
+                if (m_modules.find(fqn) != m_modules.end()) {
+                    this->m_token_error(_parser, *clazz.name,
+                        "class '" + fqn + "' would override module with same name");
                 }
 
-                for (shift_function& func : _parser.m_functions) {
-                    func.parser_ = &_parser;
-                    m_functions[func.get_fqn(m_func_dupe_count[func.get_fqn()]++)] = &func;
-                }
+                if (m_classes.find(fqn) == m_classes.end()) {
+                    m_classes[std::move(fqn)] = &clazz;
 
-                for (shift_class& clazz : _parser.m_classes) {
-                    clazz.parser_ = &_parser;
-                    std::string fqn = clazz.get_fqn();
-
-                    // error if class conflicts with module
-                    if (m_modules.find(fqn) != m_modules.end()) {
-                        this->m_token_error(_parser, *clazz.name, "class '" + fqn + "' would override module with same name");
+                    for (shift_function& func : clazz.functions) {
+                        func.parser_ = &_parser;
+                        // size_t& index = m_func_dupe_count[func.get_fqn()];
+                        // std::string function_fqn = ;
+                        // m_functions[std::move(function_fqn)] = &func;
+                        m_function_overloads[func.get_fqn()].push_back({ &func });
+                        // for (; m_functions.find(function_fqn) != m_functions.end(); function_fqn = func.get_fqn(++index));
+                        // if (m_functions.find(function_fqn) == m_functions.end()) {
+                        //     m_functions[std::move(function_fqn)] = &func;
+                        //     index++;
+                        // } else {
+                        //     this->m_token_error(_parser, *clazz.name, "function '" + function_fqn + "' has already been defined");
+                        // }
                     }
 
-                    if (m_classes.find(fqn) == m_classes.end()) {
-                        m_classes[std::move(fqn)] = &clazz;
-
-                        for (shift_function& func : clazz.functions) {
-                            func.parser_ = &_parser;
-                            // size_t& index = m_func_dupe_count[func.get_fqn()];
-                            // std::string function_fqn = ;
-                            // m_functions[std::move(function_fqn)] = &func;
-                            m_functions[func.get_fqn(m_func_dupe_count[func.get_fqn()]++)] = &func;
-                            // for (; m_functions.find(function_fqn) != m_functions.end(); function_fqn = func.get_fqn(++index));
-                            // if (m_functions.find(function_fqn) == m_functions.end()) {
-                            //     m_functions[std::move(function_fqn)] = &func;
-                            //     index++;
-                            // } else {
-                            //     this->m_token_error(_parser, *clazz.name, "function '" + function_fqn + "' has already been defined");
-                            // }
+                    for (shift_variable& var_ : clazz.variables) {
+                        var_.parser_ = &_parser;
+                        std::string var_fqn = var_.get_fqn();
+                        if (m_variables.find(var_fqn) == m_variables.end()) {
+                            m_variables[std::move(var_fqn)] = &var_;
+                        } else {
+                            this->m_token_error(_parser, *clazz.name,
+                                "variable '" + var_fqn + "' has already been defined inside class '" + clazz.get_fqn() + "'");
                         }
-                    } else {
-                        this->m_token_error(_parser, *clazz.name, "class '" + fqn + "' has already been defined");
                     }
+                } else {
+                    this->m_token_error(_parser, *clazz.name, "class '" + fqn + "' has already been defined");
+                }
+            }
+        }
+
+        scope _scope;
+        _scope.base = this;
+
+        for (parser& _parser : *m_parsers) {
+            _scope.parser_ = &_parser;
+            _scope.module_ = _parser.m_module.get();
+
+            for (shift_module const& use : _parser.m_global_uses) {
+                if (this->m_modules.find(use) == this->m_modules.end()) {
+                    this->m_name_error(_parser, use.name, "module '" + use.to_string() + "' does not exist");
+                } else if (this->m_error_handler && this->m_error_handler->is_print_warnings() &&
+                    use == *_parser.m_module) {
+                    this->m_name_warning(_parser, use.name, "redundant 'use' statement");
                 }
             }
 
-            scope _scope;
-            _scope.base = this;
+            for (shift_variable& _var : _parser.m_variables) {
+                m_analyze_variable(_var, _scope);
+            }
 
-            for (parser& _parser : *m_parsers) {
-                _scope.parser_ = &_parser;
+            _scope.var = nullptr;
 
-                for (shift_module const& use : _parser.m_global_uses) {
-                    if (this->m_modules.find(use) == this->m_modules.end()) {
-                        this->m_name_error(_parser, use, "module '" + use.to_string() + "' does not exist");
-                    } else if (this->m_error_handler && this->m_error_handler->is_print_warnings() && use == _parser.m_module) {
-                        this->m_name_warning(_parser, use, "redundant 'use' statement");
-                    }
-                }
+            for (shift_function& func : _parser.m_functions) {
+                m_analyze_function(func, _scope);
+            }
 
-                for (shift_variable& _var : _parser.m_variables) {
-                    _scope.var = &_var;
-                    _var.parser_ = &_parser;
+            _scope.func = nullptr;
 
-                    std::string type_class_name = _var.type.name.to_string();
+            for (shift_class& clazz : _parser.m_classes) {
+                _scope.clazz = &clazz;
 
-                    auto type_class_candidates = _scope.find_classes(type_class_name);
-
-                    if (type_class_candidates.size() > 1) {
-                        this->m_name_error(_parser, _var.type.name, "ambiguous reference to class '" + type_class_name + "'");
-                    } else if (type_class_candidates.size() == 0) {
-                        this->m_name_error(_parser, _var.type.name, "unable to resolve class '" + type_class_name + "'");
-                    } else {
-                        _var.type.name_class = type_class_candidates.front();
-                    }
-
-                    if (_var.value.type == token::token_type::NULL_TOKEN) {
-                        m_set_null(_var.value);
-                    } else {
-                        m_resolve_expression(&_var.value, &_scope);
-                    }
-
-                    if (_var.value.expr_type.name_class != _var.type.name_class) {
-                        if (_var.value.expr_type.name_class && _var.type.name_class && _var.value.expr_type.name_class != &m_null_class) {
-                            // find function that will implicitly convert type
-                            auto conversions = m_get_implicit_conversions(_var.value.expr_type.name_class, _var.type.name_class);
-                            if (conversions.size() == 1) {
-                                _var.value = m_create_convert_expr(std::move(_var.value), *conversions.front());
-                            } else if (conversions.size() > 1) {
-                                this->m_token_error(_parser, *(_var.value.begin - 1), "ambiguous type conversion from '"
-                                    + _var.value.expr_type.name_class->get_fqn() + "' to '" + _var.type.name_class->get_fqn() + "'");
-                            } else {
-                                this->m_token_error(_parser, *(_var.value.begin - 1), "unable convert type '"
-                                    + _var.value.expr_type.name_class->get_fqn() + "' into class type '" + _var.type.name_class->get_fqn() + "'");
+                for (auto use = clazz.use_statements.begin(); use != clazz.use_statements.end(); ++use) {
+                    if (this->m_modules.find(*use) == this->m_modules.end()) {
+                        this->m_name_error(_parser, use->name, "module '" + use->to_string() + "' does not exist");
+                    } else if (this->m_error_handler && this->m_error_handler->is_print_warnings()) {
+                        if (*use == *_parser.m_module) {
+                            this->m_name_warning(_parser, use->name, "redundant 'use' statement");
+                        } else {
+                            size_t dis = std::distance(_parser.m_global_uses.begin(), _parser.m_global_uses.find(*use));
+                            if (dis < clazz.implicit_use_statements) {
+                                this->m_name_warning(_parser, use->name, "redundant 'use' statement");
                             }
                         }
                     }
+                }
 
-                    if (_var.value.expr_type.name_class && _var.value.expr_type.name_class != &m_void_class && _var.value.expr_type.name_class != &m_null_class
-                        && (_var.value.is_function_call() || _var.value.is_array() || _var.value.type == token::token_type::IDENTIFIER)) {
-                        m_check_access(&_scope, &_var.value);
+                if (!clazz.base.clazz && &clazz != m_classes[SHIFT_ANALYZER_OBJECT_CLASS]) {
+                    if (clazz.base.name.size() > 0) {
+                        auto base_class_candidates = _scope.find_classes(clazz.base.name);
+                        if (base_class_candidates.size() > 1) {
+                            this->m_name_error(_parser, clazz.base.name,
+                                "ambiguous reference to class '" + clazz.base.name.to_string() + "'");
+                        } else if (base_class_candidates.empty()) {
+                            this->m_name_error(_parser, clazz.base.name,
+                                "unable to resolve class '" + clazz.base.name.to_string() + "'");
+                        } else {
+                            clazz.base.clazz = base_class_candidates.front();
+                        }
+                    } else {
+                        clazz.base.clazz = m_classes[SHIFT_ANALYZER_OBJECT_CLASS];
                     }
+                }
+
+                for (shift_variable& _var : clazz.variables) {
+                    m_analyze_variable(_var, _scope);
                 }
 
                 _scope.var = nullptr;
 
-                for (shift_function& func : _parser.m_functions) {
-                    if (!func.return_type.name.begin->is_void()) {
-                        std::string return_type_class_name = func.return_type.name.to_string();
-
-                        auto return_type_class_candidates = _scope.find_classes(return_type_class_name);
-
-                        if (return_type_class_candidates.size() > 1) {
-                            this->m_name_error(_parser, func.return_type.name, "ambiguous reference to class '" + return_type_class_name + "'");
-                        } else if (return_type_class_candidates.size() == 0) {
-                            this->m_name_error(_parser, func.return_type.name, "unable to resolve class '" + return_type_class_name + "'");
-                        } else {
-                            func.return_type.name_class = return_type_class_candidates.front();
-                        }
-                    }
-
-                    for (auto& [param_name, param_var] : func.parameters) {
-                        std::string param_type_class_name = param_var.type.name.to_string();
-
-                        auto param_type_class_candidates = _scope.find_classes(param_type_class_name);
-
-                        if (param_type_class_candidates.size() > 1) {
-                            // TODO list candidates
-                            this->m_name_error(_parser, param_var.type.name, "ambiguous reference to class '" + param_type_class_name + "' in current scope");
-                        } else if (param_type_class_candidates.size() == 0) {
-                            this->m_name_error(_parser, param_var.type.name, "unable to resolve class '" + param_type_class_name + "' in current scope");
-                        } else {
-                            param_var.type.name_class = param_type_class_candidates.front();
-                        }
-                    }
-
-                    for (size_t i = 0; i < this->m_func_dupe_count[func.get_fqn()]; i++) {
-                        shift_function* func_ = this->m_functions[func.get_fqn(i)];
-                        if (func_ == &func) continue;
-                        if (func_->parameters.size() == func.parameters.size()) {
-                            auto func_param = func.parameters.begin();
-                            auto other_func_param = func_->parameters.begin();
-                            for (;func_param != func.parameters.end() && other_func_param != func_->parameters.end(); other_func_param++, func_param++) {
-                                if (func_param->second.type.name_class != other_func_param->second.type.name_class)break;
-                            }
-
-                            if (func_param == func.parameters.end() || other_func_param == func_->parameters.end()) {
-                                this->m_name_error(_parser, func.name, "duplicate function declaration");
-                            }
-                        }
-                    }
-
-                    m_analyze_function(func, &_scope);
+                for (shift_function& func : clazz.functions) {
+                    m_analyze_function(func, _scope);
                 }
 
                 _scope.func = nullptr;
-
-                for (shift_class& clazz : _parser.m_classes) {
-                    _scope.clazz = &clazz;
-
-                    for (auto use = clazz.use_statements.begin(); use != clazz.use_statements.end(); use++) {
-                        if (this->m_modules.find(*use) == this->m_modules.end()) {
-                            this->m_name_error(_parser, *use, "module '" + use->to_string() + "' does not exist");
-                            auto next = clazz.use_statements.erase(use);
-                            use = --next;
-                        } else if (this->m_error_handler && this->m_error_handler->is_print_warnings()) {
-                            if (*use == _parser.m_module) {
-                                this->m_name_warning(_parser, *use, "redundant 'use' statement");
-                                auto next = clazz.use_statements.erase(use);
-                                use = --next;
-                            } else {
-                                size_t dis = std::distance(_parser.m_global_uses.begin(), _parser.m_global_uses.find(*use));
-                                if (dis < clazz.implicit_use_statements) {
-                                    this->m_name_warning(_parser, *use, "redundant 'use' statement");
-                                    auto next = clazz.use_statements.erase(use);
-                                    use = --next;
-                                }
-                            }
-                        }
-                    }
-
-                    for (shift_variable& _var : clazz.variables) {
-                        _scope.var = &_var;
-                        _var.parser_ = &_parser;
-                        auto _vars = _scope.find_variables(_var.name);
-                        if (_vars.size() > 1) {
-                            // TODO fix prompt to account for variable being defined in base class
-                            this->m_token_error(_parser, *_var.name, "variable with name '" + std::string(_var.name->get_data()) + "' has already been defined inside class '" + clazz.get_fqn() + "'");
-                        }
-
-                        std::string type_class_name = _var.type.name.to_string();
-
-                        auto type_class_candidates = _scope.find_classes(type_class_name);
-
-                        if (type_class_candidates.size() > 1) {
-                            this->m_name_error(_parser, _var.type.name, "ambiguous reference to class '" + type_class_name + "'");
-                        } else if (type_class_candidates.size() == 0) {
-                            this->m_name_error(_parser, _var.type.name, "unable to resolve class '" + type_class_name + "'");
-                        } else {
-                            _var.type.name_class = type_class_candidates.front();
-                        }
-                        // TODO set to null automatically if no value was specified
-                        if (_var.value.type == token::token_type::NULL_TOKEN) {
-                            m_set_null(_var.value);
-                        } else {
-                            m_resolve_expression(&_var.value, &_scope);
-                        }
-
-                        if (_var.value.expr_type.name_class != _var.type.name_class) {
-                            if (_var.value.expr_type.name_class && _var.type.name_class && _var.value.expr_type.name_class != &m_null_class) {
-                                // find function that will implicitly convert type
-                                auto conversions = m_get_implicit_conversions(_var.value.expr_type.name_class, _var.type.name_class);
-                                if (conversions.size() == 1) {
-                                    _var.value = m_create_convert_expr(std::move(_var.value), *conversions.front());
-                                } else if (conversions.size() > 1) {
-                                    this->m_token_error(_parser, *(_var.value.begin - 1), "ambiguous type conversion from '"
-                                        + _var.value.expr_type.name_class->get_fqn() + "' to '" + _var.type.name_class->get_fqn() + "'");
-                                } else {
-                                    this->m_token_error(_parser, *(_var.value.begin - 1), "unable convert type '"
-                                        + _var.value.expr_type.name_class->get_fqn() + "' into class type '" + _var.type.name_class->get_fqn() + "'");
-                                }
-                            }
-                        }
-
-                        if (_var.value.expr_type.name_class && _var.value.expr_type.name_class != &m_void_class && _var.value.expr_type.name_class != &m_null_class
-                            && (_var.value.is_function_call() || _var.value.is_array() || _var.value.type == token::token_type::IDENTIFIER)) {
-                            m_check_access(&_scope, &_var.value);
-                        }
-                    }
-
-                    _scope.var = nullptr;
-
-                    for (shift_function& func : clazz.functions) {
-                        if (!func.name.begin->is_constructor()) {
-                            if (!func.return_type.name.begin->is_void()) {
-                                std::string return_type_class_name = func.return_type.name.to_string();
-
-                                auto return_type_class_candidates = _scope.find_classes(return_type_class_name);
-
-                                if (return_type_class_candidates.size() > 1) {
-                                    this->m_name_error(_parser, func.return_type.name, "ambiguous reference to class '" + return_type_class_name + "'");
-                                } else if (return_type_class_candidates.size() == 0) {
-                                    this->m_name_error(_parser, func.return_type.name, "unable to resolve class '" + return_type_class_name + "'");
-                                } else {
-                                    func.return_type.name_class = return_type_class_candidates.front();
-                                }
-                            }
-                        }
-
-                        for (auto& [param_name, param_var] : func.parameters) {
-                            std::string param_type_class_name = param_var.type.name.to_string();
-
-                            auto param_type_class_candidates = _scope.find_classes(param_type_class_name);
-
-                            if (param_type_class_candidates.size() > 1) {
-                                // TODO list candidates
-                                this->m_name_error(_parser, param_var.type.name, "ambiguous reference to class '" + param_type_class_name + "' in current scope");
-                            } else if (param_type_class_candidates.size() == 0) {
-                                this->m_name_error(_parser, param_var.type.name, "unable to resolve class '" + param_type_class_name + "' in current scope");
-                            } else {
-                                param_var.type.name_class = param_type_class_candidates.front();
-                            }
-                        }
-
-                        for (size_t i = 0; i < this->m_func_dupe_count[func.get_fqn()]; i++) {
-                            shift_function* func_ = this->m_functions[func.get_fqn(i)];
-                            if (func_ == &func) continue;
-                            if (func_->parameters.size() == func.parameters.size()) {
-                                auto func_param = func.parameters.begin();
-                                auto other_func_param = func_->parameters.begin();
-                                for (;func_param != func.parameters.end() && other_func_param != func_->parameters.end(); other_func_param++, func_param++) {
-                                    if (func_param->second.type.name_class != other_func_param->second.type.name_class)break;
-                                }
-
-                                if (func_param == func.parameters.end() || other_func_param == func_->parameters.end()) {
-                                    this->m_name_error(_parser, func.name, "duplicate function declaration");
-                                }
-                            }
-                        }
-
-                        m_analyze_function(func, &_scope);
-                    }
-                }
-                _scope.clazz = nullptr;
             }
-            // for (parser& _parser : *m_parsers) {
-            //     _scope.parser = &_parser;
-            //     for (shift_class& clazz : _parser.m_classes) {
-            //         _scope.clazz = &clazz;
-            //         for (shift_variable& _var : clazz.variables) {
-            //             m_resolve_expression(&_var.value, &_scope);
-
-            //             // if (_var.value.class_type != _var.type.name_class) {
-            //             //     auto conversions = m_get_conversions(_var.value.class_type, _var.type.name_class);
-            //             //     if (conversions.size() == 0) {
-            //             //         shift_name expr_name;
-            //             //         expr_name.begin = _var.value.begin;
-            //             //         expr_name.end = _var.value.end;
-            //             //         this->m_name_error(*_scope.parser, expr_name, "cannot implicitly convert type '" + _var.value.class_type->get_fqn() + "' to '" + _var.type.name_class->get_fqn() + "'");
-            //             //     } else if (conversions.size() > 1) {
-            //             //         shift_name expr_name;
-            //             //         expr_name.begin = _var.value.begin;
-            //             //         expr_name.end = _var.value.end;
-            //             //         this->m_name_error(*_scope.parser, expr_name, "ambiguous implicit type conversion '" + _var.value.class_type->get_fqn() + "' to '" + _var.type.name_class->get_fqn() + "'");
-            //             //     } else {
-            //             //         shift_expression expr;
-            //             //         expr.class_type = _var.type.name_class;
-            //             //         expr.function = conversions.front();
-            //             //         expr.set_function_call();
-            //             //         expr.sub.push_back(std::move(_var.value));
-            //             //         _var.value = std::move(expr);
-            //             //     }
-            //             // }
-            //         }
-
-            //         // for (shift_function& func : clazz.functions) {
-
-            //         // }
-            //     }
-            // }
+            _scope.clazz = nullptr;
         }
 
-        void analyzer::m_set_null(shift_expression& value) const noexcept {
-            value.type = token::token_type::IDENTIFIER;
-            value.begin = m_null_token;
-            value.end = value.begin + 1;
-            value.expr_type.array_dimensions = 0;
-            value.expr_type.name.begin = value.begin;
-            value.expr_type.name.end = value.end;
-            value.expr_type.name_class = &m_null_class;
-            value.clazz = &m_null_class;
-            value.function = nullptr;
-            value.variable = nullptr;
-            value.sub.clear();
-        }
+        debug_log("Analyzer finished");
+    }
 
-        void analyzer::m_resolve_params(shift_function& func, bool silent) {
-            scope _scope;
-            _scope.base = this;
-            _scope.clazz = func.clazz;
-            _scope.func = &func;
-            for (auto& [param_name, param_var] : func.parameters) {
-                if (param_var.type.name_class) continue;
-                std::string param_type_class_name = param_var.type.name.to_string();
+    std::string analyzer::m_mangle_name(const shift_function& func) {
+        using namespace std::string_view_literals;
+        const std::string regular_fqn = func.get_fqn();
 
-                auto param_type_class_candidates = _scope.find_classes(param_type_class_name);
+        std::string mangled_fqn = "_sf" + utils::replace_all(regular_fqn, "."sv, "!"sv);
 
-                if (param_type_class_candidates.size() > 1) {
-                    // TODO list candidates
-                    if (!silent)
-                        this->m_name_error(*_scope.get_parser(), param_var.type.name, "ambiguous reference to class '" + param_type_class_name + "' in current scope");
-                } else if (param_type_class_candidates.size() == 0) {
-                    if (!silent)
-                        this->m_name_error(*_scope.get_parser(), param_var.type.name, "unable to resolve class '" + param_type_class_name + "' in current scope");
-                } else {
-                    param_var.type.name_class = param_type_class_candidates.front();
-                }
+        bool all_params_resolved = true;
+        for (auto& [name, param] : func.parameters) {
+            if (!param.type.is_resolved()) {
+                all_params_resolved = false;
+                break;
             }
         }
 
-        void analyzer::m_resolve_return_type(shift_function& func, bool silent) {
-            scope _scope;
-            _scope.base = this;
-            _scope.clazz = func.clazz;
-            _scope.func = &func;
+        if (all_params_resolved) {
+            mangled_fqn += "$";
+            for (bool past_first = false; auto & [name, param] : func.parameters) {
+                if (past_first) { mangled_fqn += "$"; }
 
-            if (!func.return_type.name_class && func.return_type.name.size() > 0) {
-                auto class_candidates = _scope.find_classes(func.return_type.name);
-                if (class_candidates.size() == 1) {
-                    func.return_type.name_class = class_candidates.front();
-                } else if (class_candidates.size() > 1) {
-                    if (!silent)
-                        this->m_name_error(*_scope.get_parser(), func.return_type.name, "ambiguous reference to class '" + func.return_type.name.to_string() + "' in current scope");
-                } else {
-                    if (!silent)
-                        this->m_name_error(*_scope.get_parser(), func.return_type.name, "unable to resolve class '" + func.return_type.name.to_string() + "' in current scope");
+                std::string param_fqn;
+
+                const bool is_ref = param.type.ref_type == shift_type::reference_type::ref, is_imut = param.type.mods & shift_mods::IMUT;
+
+                if (is_ref || is_imut) {
+                    if (is_imut) { param_fqn += "i"; }
+                    if (is_ref) { param_fqn += "r"; }
+                    param_fqn += "!!";
                 }
+
+                shift_type temp_type = param.type;
+                temp_type.ref_type = shift_type::reference_type::none;
+                temp_type.mods = shift_mods(0x0);
+
+                param_fqn += temp_type.get_fqn();
+                utils::replace_all(param_fqn, "."sv, "!"sv);
+
+                mangled_fqn += param_fqn;
+                past_first = true;
             }
+
         }
 
-        shift_expression analyzer::m_create_convert_expr(shift_expression&& value, shift_function& convert_func) const {
-            if (convert_func.name.size() == 1 && convert_func.name.begin->is_constructor()) {
-                shift_expression convert_new_expr;
-                convert_new_expr.type = token_type::IDENTIFIER;
-                convert_new_expr.begin = m_new_token;
-                convert_new_expr.end = convert_new_expr.begin + 1;
-                convert_new_expr.function = &convert_func;
-                convert_new_expr.expr_type.name_class = convert_func.clazz;
+        return mangled_fqn;
+    }
 
-                // TODO remake convert_new_expr to support new 'new' model; maybe make a single function that does this too
-                shift_expression convert_func_expr;
-                convert_func_expr.set_function_call();
-                convert_func_expr.function = &convert_func;
+    void analyzer::m_analyze_variable(shift_variable& _var, scope& parent_scope) {
+        scope sub_scope;
+        sub_scope.parent = &parent_scope;
+        sub_scope.base = parent_scope.base;
+        sub_scope.parser_ = parent_scope.parser_;
+        sub_scope.clazz = parent_scope.clazz;
+        sub_scope.func = parent_scope.func;
+        sub_scope.var = &_var;
+        sub_scope.module_ = parent_scope.module_;
 
-                // TODO fix function call begin and end
-                convert_func_expr.begin = is_overload_operator(value.type) ? value.begin : value.begin - 1;
-                convert_func_expr.end = convert_func_expr.begin + 1;
-                convert_func_expr.sub.push_back(std::move(value));
+        parser* parser_ = sub_scope.get_parser();
 
-                convert_new_expr.sub.push_back(std::move(convert_func_expr));
-
-                return convert_new_expr;
+        auto _vars = sub_scope.find_variables(_var.name);
+        if (_vars.size() > 1) {
+            if (sub_scope.clazz) {
+                for (auto it = _vars.begin(); it != _vars.end(); ++it) {
+                    shift_variable& found_var = **it;
+                    if (!found_var.clazz) {
+                        auto next = _vars.erase(it);
+                        it = --next;
+                    }
+                }
+                if (_vars.size() > 1) {
+                    // TODO fix prompt to account for variable being defined in base class
+                    this->m_token_error(*parser_, *_var.name,
+                        "multiple definitions of variable '" + std::string(_var.name->get_data()) +
+                        "' inside scope of class '" + sub_scope.clazz->get_fqn() + "'");
+                }
             } else {
-                return shift_expression();
+                this->m_token_error(*parser_, *_var.name,
+                    "multiple definitions of variable '" + std::string(_var.name->get_data()) +
+                    "' inside module '" +
+                    parser_->get_module().to_string() + "'");
             }
         }
 
-        void analyzer::m_init_defaults() {
-            if (m_token_storage.size() == 0) {
-                m_token_storage.reserve(10); // Change each time new token is added
+        m_analyze_variable_type(_var, &sub_scope);
+        m_analyze_variable_value(_var, sub_scope);
+    }
 
-                m_token_storage.emplace_back(std::string_view("void"), token::token_type::IDENTIFIER, file_indexer{ 0,0 });
-                m_void_token = --m_token_storage.end();
+    void analyzer::m_analyze_variable_type(shift_variable& variable, const scope* current_scope, bool silent) {
+        if (variable.type.tried_resolve) return;
 
-                m_token_storage.emplace_back(std::string_view("null"), token::token_type::IDENTIFIER, file_indexer{ 0,0 });
-                m_null_token = --m_token_storage.end();
+        variable.type.tried_resolve = true;
 
-                m_token_storage.emplace_back(std::string_view("new"), token::token_type::IDENTIFIER, file_indexer{ 0,0 });
-                m_new_token = --m_token_storage.end();
+        scope s;
+        s.base = this;
+        s.parser_ = variable.parser_;
+        s.clazz = variable.clazz;
+        s.func = variable.function;
+        s.var = &variable;
+        s.module_ = variable.module_ ? variable.module_ : variable.clazz->module_;
+        if (!current_scope) current_scope = &s;
 
-                m_token_storage.emplace_back(std::string_view("array"), token::token_type::IDENTIFIER, file_indexer{ 0,0 });
-                m_array_token = --m_token_storage.end();
+        std::string type_class_name = variable.type.name.name.to_string();
 
-                m_token_storage.emplace_back(std::string_view("length"), token::token_type::IDENTIFIER, file_indexer{ 0,0 });
-                m_length_token = --m_token_storage.end();
+        auto type_class_candidates = current_scope->find_classes(type_class_name);
 
-                m_token_storage.emplace_back(std::string_view("operator"), token::token_type::IDENTIFIER, file_indexer{ 0,0 });
-                m_operator_token = --m_token_storage.end();
+        if (type_class_candidates.size() > 1) {
+            if (!silent)
+                this->m_name_error(*current_scope->get_parser(), variable.type.name.name,
+                    "ambiguous reference to class '" + type_class_name + "'");
+        } else if (type_class_candidates.empty()) {
+            if (!silent)
+                this->m_name_error(*current_scope->get_parser(), variable.type.name.name,
+                    "unable to resolve class '" + type_class_name + "'");
+        } else {
+            variable.type.name.name_clazz = type_class_candidates.front();
+            variable.type.name.clazz = variable.type.name.name_clazz;
+            m_finalize_type(variable.type);
+            if (!silent)
+                m_verify_class_access(current_scope, variable.type.name.clazz, &variable.type.name.name);
+        }
 
-                m_token_storage.emplace_back(std::string_view("["), token::token_type::LEFT_SQUARE_BRACKET, file_indexer{ 0,0 });
-                m_left_square_bracket_token = --m_token_storage.end();
+    }
 
-                m_token_storage.emplace_back(std::string_view("]"), token::token_type::RIGHT_SQUARE_BRACKET, file_indexer{ 0,0 });
-                m_right_square_bracket_token = --m_token_storage.end();
+    void analyzer::m_analyze_variable_value(shift_variable& variable, scope& current_scope) {
+        if (variable.value.resolved.type.tried_resolve) return;
+        variable.value.resolved.type.tried_resolve = true;
 
-                m_token_storage.emplace_back(std::string_view("true"), token::token_type::RIGHT_SQUARE_BRACKET, file_indexer{ 0,0 });
-                m_true_token = --m_token_storage.end();
+        if (variable.value.type == token::token_type::NULL_TOKEN) {
+            m_set_default_value(variable);
+        } else {
+            m_resolve_expression(&variable.value, &current_scope);
+        }
 
-                m_token_storage.emplace_back(std::string_view("="), token::token_type::EQUALS, file_indexer{ 0,0 });
-                m_equals_token = --m_token_storage.end();
+        if (variable.value.is_type_resolved()) {
+            m_finalize_type(variable.value.resolved.type);
 
-                m_token_storage.emplace_back(std::string_view("=="), token::token_type::EQUALS_EQUALS, file_indexer{ 0,0 });
-                m_equals_equals_token = --m_token_storage.end();
-
-                m_token_storage.emplace_back(std::string_view("!="), token::token_type::NOT_EQUAL, file_indexer{ 0,0 });
-                m_not_equal_token = --m_token_storage.end();
-
-                {
-                    m_token_storage.emplace_back(std::string_view("shift"), token::token_type::IDENTIFIER, file_indexer{ 0,0 });
-                    m_token_storage.emplace_back(std::string_view(";"), token::token_type::IDENTIFIER, file_indexer{ 0,0 });
-                    m_shift_module.begin = m_token_storage.end() - 2;
-                    m_shift_module.end = m_shift_module.begin + 1;
+            if (variable.value.resolved.type.name.clazz == &m_null_class) {
+                auto& dims = variable.value.resolved.type.dimensions;
+                if (dims.empty() || (dims.back().second != shift_type::dimension_type::pointer)) {
+                    this->m_token_error(*current_scope.get_parser(), *variable.value.begin, "cannot convert from 'null' to non-pointer type");
                 }
-
-                {
-                    m_void_class.name = m_void_token.operator->();
-                    m_null_class.name = m_null_token.operator->();
+            } else {
+                if (variable.type.is_conversion_needed(variable.value.resolved.type)) {
+                    // find function that will implicitly convert type
+                    const auto& conversions = m_get_implicit_conversions(variable.value.resolved.type, variable.type);
+                    if (conversions.size() == 1) {
+                        m_apply_implicit_conversion(variable.value, conversions.front(), current_scope);
+                    } else if (conversions.size() > 1) {
+                        this->m_token_error(*current_scope.get_parser(), *(variable.value.begin - 1),
+                            "ambiguous type conversion from '"
+                            + variable.value.resolved.type.name.clazz->get_fqn() + "' to '" +
+                            variable.type.name.clazz->get_fqn() + "'");
+                        m_error_candidates(conversions);
+                    } else {
+                        this->m_token_error(*current_scope.get_parser(), *(variable.value.begin - 1), "unable to convert type '"
+                            +
+                            variable.value.resolved.type.name.clazz->get_fqn() +
+                            "' into class type '" +
+                            variable.type.name.clazz->get_fqn() +
+                            "'");
+                    }
                 }
             }
         }
 
-        utils::ordered_set<shift_function*> analyzer::m_get_implicit_conversions(shift_class* const from, shift_class* const to, std::unordered_set<shift_class*>& history) const noexcept {
-            if (!from || !to || from == &m_void_class || to == &m_void_class || from == &m_null_class
-                || to == &m_null_class || from == to)
-                return utils::ordered_set<shift_function*>();
+        if (variable.value.resolved.type.name.clazz && variable.value.resolved.type.name.clazz != &m_void_class &&
+            variable.value.resolved.type.name.clazz != &m_null_class
+            && (variable.value.is_function_call() || variable.value.is_array() ||
+                variable.value.type == token::token_type::IDENTIFIER)) {
+            m_verify_access(&current_scope, &variable.value);
+        }
+    }
 
-            static std::unordered_map<std::pair<shift_class*, shift_class*>, utils::ordered_set<shift_function*>> m_implicit_conversion_cache;
+    void analyzer::m_analyze_function(shift_function& func, scope& _scope) {
+        scope sub_scope;
+        sub_scope.parent = &_scope;
+        sub_scope.base = _scope.base;
+        sub_scope.parser_ = _scope.parser_;
+        sub_scope.clazz = _scope.clazz;
+        sub_scope.func = &func;
+        sub_scope.var = _scope.var;
+        sub_scope.module_ = _scope.module_;
 
+        m_analyze_function_return_type(func);
+        m_analyze_function_params(func);
+
+        m_functions[m_mangle_name(func)] = &func;
+
+        for (auto& other_overload : m_function_overloads[func.get_fqn()]) {
+            if (other_overload.func == &func) continue;
+            if (other_overload.func->parameters.size() == func.parameters.size()) {
+                auto func_param = func.parameters.begin(), other_func_param = other_overload.func->parameters.begin();
+                for (; func_param != func.parameters.end() &&
+                    other_func_param != other_overload.func->parameters.end(); ++other_func_param, ++func_param) {
+                    if (func_param->second.type != other_func_param->second.type) break;
+                }
+
+                if (func_param == func.parameters.end() || other_func_param == other_overload.func->parameters.end()) {
+                    this->m_name_error(*_scope.get_parser(), func.name, "duplicate function declaration for function '" + func.get_fqn() + "'");
+                }
+            }
+        }
+
+        m_analyze_function_body(func, &_scope);
+    }
+
+    void analyzer::m_set_default_value(shift_variable& var, bool silent) noexcept {
+        if (!var.type.is_resolved() && !var.type.tried_resolve) {
+            m_analyze_variable_type(var, silent);
+        }
+
+        if (!var.type.is_resolved()) return;
+
+        shift_expression value;
+        value.set_function_call();
+        value.begin = var.value.begin;
+        value.end = var.value.end;
+
+        if (value.begin == value.end || value.begin == std::vector<token>::const_iterator()) {
+            if (var.parser_) {
+                value.begin = var.parser_->get_tokenizer()->position_after(*var.name);
+                value.end = value.begin + 1;
+            }
+        }
+
+        shift_function* func = nullptr;
+        {
+            auto overload_it = m_function_overloads.find(var.type.name.clazz->get_fqn() + ".constructor");
+            if (overload_it != m_function_overloads.end()) {
+                for (auto& overload : overload_it->second) {
+                    // TODO allow for default parameters
+                    if (overload.func->parameters.size() == 0) {
+                        func = overload.func;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (!func) {
+            if (!silent) {
+                shift_type temp_type = var.type;
+                temp_type.ref_type = shift_type::reference_type::none;
+                this->m_token_error(*var.parser_, *var.name, "no default constructor found for class '" + temp_type.get_printable_fqn() + "'");
+            }
+        }
+
+        {
+            shift_expression function_call_object;
+            function_call_object.type = token::token_type::IDENTIFIER;
+            function_call_object.begin = value.begin;
+            function_call_object.end = value.end;
+            function_call_object.resolved.type = var.type;
+            function_call_object.resolved.type.ref_type = shift_type::reference_type::tref;
+            function_call_object.resolved.clazz = var.type.name.clazz;
+            function_call_object.resolved.function = func;
+
+            value.set_function_call_object(std::move(function_call_object));
+        }
+        value.resolved.function = func;
+        value.resolved.type = var.type;
+        value.resolved.type.ref_type = shift_type::reference_type::tref;
+        shift_expression* const old_parent = var.value.parent;
+        var.value = std::move(value);
+        var.value.update_parents(old_parent);
+    }
+
+    void analyzer::m_init_defaults() {
+        if (m_token_storage.empty()) {
+            m_token_storage.emplace_back(std::string_view("void"), token::token_type::IDENTIFIER, file_indexer{ 0, 0 });
+            m_void_token = &m_token_storage.back();
+
+            m_token_storage.emplace_back(std::string_view("new"), token::token_type::IDENTIFIER, file_indexer{ 0, 0 });
+            m_new_token = &m_token_storage.back();
+
+            m_token_storage.emplace_back(std::string_view("array"), token::token_type::IDENTIFIER, file_indexer{ 0, 0 });
+            m_array_token = &m_token_storage.back();
+
+            m_token_storage.emplace_back(std::string_view("length"), token::token_type::IDENTIFIER, file_indexer{ 0, 0 });
+            m_length_token = &m_token_storage.back();
+
+            m_token_storage.emplace_back(std::string_view("="), token::token_type::EQUALS, file_indexer{ 0, 0 });
+            m_equals_token = &m_token_storage.back();
+
+            m_token_storage.emplace_back(std::string_view("=="), token::token_type::EQUALS_EQUALS, file_indexer{ 0, 0 });
+            m_equals_equals_token = &m_token_storage.back();
+
+            m_token_storage.emplace_back(std::string_view("!="), token::token_type::NOT_EQUAL, file_indexer{ 0, 0 });
+            m_not_equal_token = &m_token_storage.back();
+        }
+
+        if (m_name_storage.empty()) {
+            m_name_storage.reserve(17 + 1);
             {
-                auto f = m_implicit_conversion_cache.find({ from, to });
-                if (f != m_implicit_conversion_cache.end()) {
-                    return f->second;
-                }
+                m_name_storage.emplace_back(std::string_view("null"), token::token_type::IDENTIFIER, file_indexer{ 0, 0 });
+                m_null_token = --m_name_storage.end();
+                m_name_storage.push_back(token::null);
             }
+            {
+                m_name_storage.emplace_back(std::string_view("operator"), token::token_type::IDENTIFIER,
+                    file_indexer{ 0, 0 });
+                m_operator_token = &m_name_storage.back();
 
-            utils::ordered_set<shift_function*> funcs;
-            auto [to_it, inserted] = history.emplace(to);
-            for (shift_function& func : to->functions) {
-                if (func.name.begin->is_constructor()) {
-                    // TODO check if function has explicit keyword
-                    // TODO allow default parameters, and then the length will not necessarily have to be 1
-                    if (func.parameters.size() == 1) {
-                        auto& [param_name, param] = func.parameters.front();
-                        if (!param.type.name_class) {
-                            scope find_scope;
-                            find_scope.base = const_cast<analyzer*>(this);
-                            find_scope.clazz = to;
-                            find_scope.parser_ = to->parser_;
+                m_operator_array_function_token_begin = --m_name_storage.end();
 
-                            // error handling for ambigiuous class or unresolved class will be taken care of by other functions (e.g. loop in ::analyze())
-                            param.type.name_class = find_scope.find_class(param.type.name);
-                        }
+                m_name_storage.emplace_back(std::string_view("["), token::token_type::LEFT_SQUARE_BRACKET,
+                    file_indexer{ 0, 0 });
+                m_left_square_bracket_token = &m_name_storage.back();
 
-                        if (param.type.name_class) {
-                            if (param.type.name_class == from) {
-                                // exact match
-                                funcs.clear();
-                                funcs.push(&func);
-                                break;
-                            } else if (from->has_base(param.type.name_class)) {
-                                // base class match
-                                funcs.push(&func);
-                            } else if (param.type.name_class != to) {
-                                if (history.find(param.type.name_class) == history.end()) {
-                                    auto [it, unused] = history.emplace(param.type.name_class);
-                                    auto sub_conversions = m_get_implicit_conversions(from, param.type.name_class, history);
-                                    if (sub_conversions.size() == 1) {
-                                        funcs.push(&func);
-                                    } else if (sub_conversions.size() > 1) {
-                                        for (auto& sub_conversion : sub_conversions) {
-                                            funcs.push(std::move(sub_conversion));
-                                        }
-                                    }
+                m_name_storage.emplace_back(std::string_view("]"), token::token_type::RIGHT_SQUARE_BRACKET,
+                    file_indexer{ 0, 0 });
+                m_right_square_bracket_token = &m_name_storage.back();
 
-                                    history.erase(it);
-                                }
-                            }
-                        }
-                    }
-                }
+                m_name_storage.push_back(token::null);
+
+                m_operator_array_function_token_end = --m_name_storage.end(); // from operator[]
             }
-            if (inserted)
-                history.erase(to_it);
+            {
+                m_name_storage.emplace_back(std::string_view("operator"), token::token_type::IDENTIFIER,
+                    file_indexer{ 0, 0 });
+                m_operator_token = &m_name_storage.back();
 
-            auto [cache_it, unused] = m_implicit_conversion_cache.insert(std::make_pair(std::pair<shift_class*, shift_class*>{from, to}, std::move(funcs)));
-            return cache_it->second;
-        }
+                m_operator_star_function_token_begin = --m_name_storage.end();
 
-        bool analyzer::m_check_access(scope const* const parent_scope, shift_expression const* expr) {
-            if (expr->type == token::token_type::IDENTIFIER || expr->is_function_call() || expr->is_array()) {
-                if (expr->size() > 0 && expr->begin->is_new()) {
-                    // shift_function const* const constructor = expr->function;
-                    // if (!constructor) return true;
-                    // if ((constructor->mods & shift_mods::PRIVATE) && parent_scope->clazz != constructor->clazz) {
-                    //     // error
+                m_name_storage.emplace_back(std::string_view("["), token::token_type::LEFT_SQUARE_BRACKET,
+                    file_indexer{ 0, 0 });
+                m_name_storage.emplace_back(std::string_view("]"), token::token_type::RIGHT_SQUARE_BRACKET,
+                    file_indexer{ 0, 0 });
 
-                    // } else if ((constructor->mods & shift_mods::PROTECTED) && parent_scope->clazz != constructor->clazz && !parent_scope->clazz->has_base(constructor->clazz)) return &expr->sub.front();
-                    // // must be public
-                    // expr = &expr->sub.front().sub.front();
-                }
+                m_name_storage.push_back(token::null);
 
-                for (shift_expression const& sub_expr : expr->sub) {
-                    if (sub_expr.type == token_type::IDENTIFIER) {
-                        if (sub_expr.variable) {
-                            shift_variable const* const var_ = sub_expr.variable;
-                            if (var_->function == parent_scope->func) continue;
-                            if ((var_->type.mods & shift_mods::PRIVATE) && parent_scope->clazz != var_->clazz) {
-                                this->m_token_error(*parent_scope->get_parser(), *sub_expr.begin, "field '" + var_->get_fqn() + "' cannot be accessed within current scope");
-                                return false;
-                            } else if ((var_->type.mods & shift_mods::PROTECTED) && parent_scope->clazz != var_->clazz && !parent_scope->clazz->has_base(var_->clazz)) {
-                                this->m_token_error(*parent_scope->get_parser(), *sub_expr.begin, "field '" + var_->get_fqn() + "' cannot be accessed within current scope");
-                                return false;
-                            } else if ((var_->type.mods & shift_mods::STATIC) == 0x0) {
-                                if (parent_scope->var) {
-                                    if ((parent_scope->var->type.mods & shift_mods::STATIC) || !parent_scope->var->clazz) {
-                                        this->m_token_error(*parent_scope->get_parser(), *sub_expr.begin, "non-static field '" + var_->get_fqn() + "' cannot be accessed within current scope");
-                                        return false;
-                                    }
-                                } else if (parent_scope->func) {
-                                    if ((parent_scope->func->mods & shift_mods::STATIC) || !parent_scope->func->clazz) {
-                                        this->m_token_error(*parent_scope->get_parser(), *sub_expr.begin, "non-static field '" + var_->get_fqn() + "' cannot be accessed within current scope");
-                                        return false;
-                                    }
-                                }
-                            }
-                        } else if (sub_expr.clazz) {
-                            // TODO do class modifiers do anything currently?
-                        } else {
-                            if (expr->size() && expr->begin->is_new()) {
-                                if (!m_check_access(parent_scope, &sub_expr)) return false;
-                            }
-                        }
-                    } else if (sub_expr.is_function_call()) {
-                        // TODO don't forget to check for static functions
-                        shift_function* const func = sub_expr.function;
-                        if (!func) continue;
-                        if ((func->mods & shift_mods::PRIVATE) && parent_scope->clazz != func->clazz) {
-                            m_resolve_params(*func, true);
-                            this->m_token_error(*parent_scope->get_parser(), *sub_expr.begin, "function '" + func->get_signature() + "' cannot be accessed within current scope");
-                            return false;
-                        } else if ((func->mods & shift_mods::PROTECTED) && parent_scope->clazz != func->clazz && !parent_scope->clazz->has_base(func->clazz)) {
-                            m_resolve_params(*func, true);
-                            this->m_token_error(*parent_scope->get_parser(), *sub_expr.begin, "function '" + func->get_signature() + "' cannot be accessed within current scope");
-                            return false;
-                        } else if ((func->mods & shift_mods::STATIC) == 0x0) {
-                            if (parent_scope->var) {
-                                if ((parent_scope->var->type.mods & shift_mods::STATIC) || !parent_scope->var) {
-                                    m_resolve_params(*func, true);
-                                    this->m_token_error(*parent_scope->get_parser(), *sub_expr.begin, "non-static function '" + func->get_signature() + "' cannot be accessed within current scope");
-                                    return false;
-                                }
-                            } else if (parent_scope->func) {
-                                if ((parent_scope->func->mods & shift_mods::STATIC) || !parent_scope->func) {
-                                    m_resolve_params(*func, true);
-                                    this->m_token_error(*parent_scope->get_parser(), *sub_expr.begin, "non-static function '" + func->get_signature() + "' cannot be accessed within current scope");
-                                    return false;
-                                }
-                            }
-                        }
-
-                        auto const& func_params = sub_expr.sub.front();
-
-                        if (!m_check_access(parent_scope, &func_params)) return false;
-                    } else if (sub_expr.is_array()) {
-                        if (!m_check_access(parent_scope, &sub_expr)) return false;
-                        // {
-                        //     shift_expression const& index_expr = sub_expr.sub.front();
-                        //     if (index_expr.is_function_call()) {
-                        //         shift_function const* const func = index_expr.function;
-                        //         if ((func->mods & shift_mods::PRIVATE) && parent_scope->clazz != func->clazz) {
-                        //             this->m_token_error(*parent_scope->get_parser(), *index_expr.begin, "function cannot be accessed within current scope");
-                        //             return false;
-                        //         } else if ((func->mods & shift_mods::PROTECTED) && parent_scope->clazz != func->clazz && !parent_scope->clazz->has_base(func->clazz)) {
-                        //             this->m_token_error(*parent_scope->get_parser(), *index_expr.begin, "function cannot be accessed within current scope");
-                        //             return false;
-                        //         } else if ((func->mods & shift_mods::STATIC) == 0x0) {
-                        //             if (parent_scope->var) {
-                        //                 if ((parent_scope->var->type.mods & shift_mods::STATIC) || !parent_scope->var) {
-                        //                     this->m_token_error(*parent_scope->get_parser(), *sub_expr.begin, "static function '" + func->get_signature() + "' cannot be accessed within current scope");
-                        //                     return false;
-                        //                 }
-                        //             } else if (parent_scope->func) {
-                        //                 if ((parent_scope->func->mods & shift_mods::STATIC) || !parent_scope->func) {
-                        //                     this->m_token_error(*parent_scope->get_parser(), *sub_expr.begin, "static function '" + func->get_signature() + "' cannot be accessed within current scope");
-                        //                     return false;
-                        //                 }
-                        //             }
-                        //         }
-
-                        //         auto const& func_params = sub_expr.sub.front();
-
-                        //         if (!m_check_access(parent_scope, &func_params)) return false;
-                        //     } else if (index_expr.type == token_type::IDENTIFIER) {
-                        //         shift_variable const* const var_ = sub_expr.variable;
-                        //         if ((var_->type.mods & shift_mods::PRIVATE) && parent_scope->clazz != var_->clazz) {
-                        //             this->m_token_error(*parent_scope->get_parser(), *sub_expr.begin, "field '" + var_->get_fqn() + "' cannot be accessed within current scope");
-                        //             return false;
-                        //         } else if ((var_->type.mods & shift_mods::PROTECTED) && parent_scope->clazz != var_->clazz && !parent_scope->clazz->has_base(var_->clazz)) {
-                        //             this->m_token_error(*parent_scope->get_parser(), *sub_expr.begin, "field '" + var_->get_fqn() + "' cannot be accessed within current scope");
-                        //             return false;
-                        //         } else if ((var_->type.mods & shift_mods::STATIC) == 0x0) {
-                        //             if (parent_scope->var) {
-                        //                 if ((parent_scope->var->type.mods & shift_mods::STATIC) || !parent_scope->var->clazz) {
-                        //                     this->m_token_error(*parent_scope->get_parser(), *sub_expr.begin, "static field '" + var_->get_fqn() + "' cannot be accessed within current scope");
-                        //                     return false;
-                        //                 }
-                        //             } else if (parent_scope->func) {
-                        //                 if ((parent_scope->func->mods & shift_mods::STATIC) || !parent_scope->func->clazz) {
-                        //                     this->m_token_error(*parent_scope->get_parser(), *sub_expr.begin, "static field '" + var_->get_fqn() + "' cannot be accessed within current scope");
-                        //                     return false;
-                        //                 }
-                        //             }
-                        //         }
-                        //     }
-                        // }
-
-                        // if (sub_expr.function) {
-                        //     // Accessing operator overload []
-                        //     shift_function const* const func = sub_expr.function;
-                        //     if ((func->mods & shift_mods::PRIVATE) && parent_scope->clazz != func->clazz) {
-                        //         this->m_token_error(*parent_scope->parser, *sub_expr.begin, "function cannot be accessed within current scope");
-                        //         return false;
-                        //     } else if ((func->mods & shift_mods::PROTECTED) && parent_scope->clazz != func->clazz && !parent_scope->clazz->has_base(func->clazz)) {
-                        //         this->m_token_error(*parent_scope->parser, *sub_expr.begin, "function cannot be accessed within current scope");
-                        //         return false;
-                        //     }
-                        //     //find_scope.clazz = func->return_type.name_class;
-                        // } else {
-                        //     // returns a basic array
-                        //     // TODO make array return type
-                        // }
-                    }
-                }
-            } else if (expr->type == token::token_type::COMMA) {
-                for (shift_expression const& sub_expr : expr->sub) {
-                    if (!m_check_access(parent_scope, &sub_expr)) return false;
-                }
-            } else if (is_overload_operator(expr->type)) {
-                if (expr->function) {
-                    shift_function* const func = expr->function;
-
-                    if ((func->mods & shift_mods::PRIVATE) && parent_scope->clazz != func->clazz) {
-                        m_resolve_params(*func, true);
-                        this->m_token_error(*parent_scope->get_parser(), *expr->begin, "function '" + func->get_signature() + "' cannot be accessed within current scope");
-                        return false;
-                    } else if ((func->mods & shift_mods::PROTECTED) && parent_scope->clazz != func->clazz && !parent_scope->clazz->has_base(func->clazz)) {
-                        m_resolve_params(*func, true);
-                        this->m_token_error(*parent_scope->get_parser(), *expr->begin, "function '" + func->get_signature() + "' cannot be accessed within current scope");
-                        return false;
-                    } else if ((func->mods & shift_mods::STATIC) == 0x0) {
-                        if (parent_scope->var) {
-                            if ((parent_scope->var->type.mods & shift_mods::STATIC) || !parent_scope->var) {
-                                m_resolve_params(*func, true);
-                                this->m_token_error(*parent_scope->get_parser(), *expr->begin, "non-static function '" + func->get_signature() + "' cannot be accessed within current scope");
-                                return false;
-                            }
-                        } else if (parent_scope->func) {
-                            if ((parent_scope->func->mods & shift_mods::STATIC) || !parent_scope->func) {
-                                m_resolve_params(*func, true);
-                                this->m_token_error(*parent_scope->get_parser(), *expr->begin, "non-static function '" + func->get_signature() + "' cannot be accessed within current scope");
-                                return false;
-                            }
-                        }
-                    }
-                }
-
-                const bool has_left = expr->has_left() && expr->get_left()->type != token::token_type::NULL_TOKEN;
-                const bool has_right = expr->has_right() && expr->get_right()->type != token::token_type::NULL_TOKEN;
-
-                if (has_left && has_right) {
-                    if (!m_check_access(parent_scope, expr->get_left()) || !m_check_access(parent_scope, expr->get_right())) return false;
-                } else if (has_left && !has_right) {
-                    if (!m_check_access(parent_scope, expr->get_left())) return false;
-                } else if (!has_left && has_right) {
-                    if (!m_check_access(parent_scope, expr->get_right())) return false;
-                }
+                m_operator_star_function_token_end = --m_name_storage.end();
             }
-            return true;
-        }
+            {
+                m_name_storage.emplace_back(std::string_view("operator"), token::token_type::IDENTIFIER,
+                    file_indexer{ 0, 0 });
+                m_operator_token = &m_name_storage.back();
 
-        void analyzer::m_analyze_function(shift_function& func, scope* parent_scope) {
-            // shift_function* old_func = nullptr;
+                m_operator_arrow_function_token_begin = --m_name_storage.end();
 
-            // if (parent_scope) {
-            //     old_func = parent_scope->func;
-            //     parent_scope->func = &func;
-            // }
+                m_name_storage.emplace_back(std::string_view("->"), token::token_type::ARROW,
+                    file_indexer{ 0, 0 });
 
-            // m_analyze_scope(func.statements, parent_scope);
+                m_name_storage.push_back(token::null);
 
-            // if (parent_scope) {
-            //     parent_scope->func = old_func;
-            // }
-            scope func_scope;
-            func_scope.base = this;
-            func_scope.parser_ = parent_scope->parser_;
-            func_scope.clazz = parent_scope->clazz;
-            func_scope.func = &func;
-            func_scope.parent = parent_scope;
-            m_analyze_scope(func.statements, &func_scope);
-        }
-
-        void analyzer::m_analyze_scope(typename std::list<shift_statement>::iterator statements_begin, typename std::list<shift_statement>::iterator statements_end,
-            scope* parent_scope) {
-            scope _scope;
-            if (parent_scope) {
-                _scope.parent = parent_scope;
-                _scope.base = parent_scope->base;
-                _scope.parser_ = parent_scope->parser_;
-                _scope.clazz = parent_scope->clazz;
-                _scope.func = parent_scope->func;
-                _scope.var = parent_scope->var;
-            } else {
-                _scope.base = this;
+                m_operator_arrow_function_token_end = --m_name_storage.end();
             }
-
-            for (;statements_begin != statements_end;statements_begin++) {
-                shift_statement& statement = *statements_begin;
-
-                switch (statement.type) {
-                    case shift_statement::statement_type::variable_alloc:
-                    {
-                        shift_variable& statement_var = statement.get_variable();
-
-                        if (_scope.variables.find(statement_var.name->get_data()) != _scope.variables.end() || _scope.func->parameters.contains(statement_var.name->get_data())) {
-                            this->m_token_error(*_scope.get_parser(), *statement_var.name, "variable with name '" + std::string(statement_var.name->get_data()) + "' has already been defined in current scope");
-                        } else if (this->m_error_handler && this->m_error_handler->is_print_warnings()) {
-                            auto found_vars = _scope.find_variables(statement_var.name->get_data());
-                            if (found_vars.size() >= 1) {
-                                shift_variable& found_var = *found_vars.front();
-                                if (found_var.function) {
-                                    this->m_token_warning(*_scope.get_parser(), *statement_var.name, "variable masks variable with identical name in upper scope");
-                                } else if (found_var.clazz) {
-                                    this->m_token_warning(*_scope.get_parser(), *statement_var.name, "variable masks variable with identical name in class '" + found_var.clazz->get_fqn() + "'");
-                                }
-                            }
-                        }
-
-                        _scope.variables[statement_var.name->get_data()] = &statement_var;
-
-                        auto statement_var_classes = _scope.find_classes(statement_var.type.name);
-                        if (statement_var_classes.size() > 1) {
-                            this->m_name_error(*_scope.get_parser(), statement_var.type.name, "ambiguous reference to class '" + statement_var.type.name.to_string() + "'");
-                        } else if (statement_var_classes.size() == 0) {
-                            this->m_name_error(*_scope.get_parser(), statement_var.type.name, "unable to resolve class '" + statement_var.type.name.to_string() + "'");
-                        } else {
-                            statement_var.type.name_class = statement_var_classes.front();
-                        }
-
-                        if (statement_var.value.type != token::token_type::NULL_TOKEN) {
-                            m_resolve_expression(&statement_var.value, &_scope);
-                        } else {
-                            m_set_null(statement_var.value);
-                        }
-
-                        if (statement_var.value.expr_type.name_class != statement_var.type.name_class) {
-                            if (statement_var.value.expr_type.name_class && statement_var.type.name_class && statement_var.value.expr_type.name_class != &m_null_class) {
-                                // find function that will implicitly convert type
-                                auto conversions = m_get_implicit_conversions(statement_var.value.expr_type.name_class, statement_var.type.name_class);
-                                if (conversions.size() == 1) {
-                                    statement_var.value = m_create_convert_expr(std::move(statement_var.value), *conversions.front());
-                                } else if (conversions.size() > 1) {
-                                    this->m_token_error(*_scope.get_parser(), *(statement_var.value.begin - 1), "ambiguous type conversion from '"
-                                        + statement_var.value.expr_type.name_class->get_fqn() + "' to '" + statement_var.type.name_class->get_fqn() + "'");
-                                } else {
-                                    this->m_token_error(*_scope.get_parser(), *(statement_var.value.begin - 1), "unable convert type '"
-                                        + statement_var.value.expr_type.name_class->get_fqn() + "' into class type '" + statement_var.type.name_class->get_fqn() + "'");
-                                }
-                            }
-                        }
-                    }
-                    break;
-                    case shift_statement::statement_type::expression:
-                    {
-                        if (statement.get_expression().type != token::token_type::NULL_TOKEN) {
-                            m_resolve_expression(&statement.get_expression(), &_scope);
-                            if (statement.get_expression().expr_type.name_class) {
-                                m_check_access(&_scope, &statement.get_expression());
-                            }
-                        }
-
-                        // TODO remove from list otherwise
-                    }
-                    break;
-                    case shift_statement::statement_type::scope_begin:
-                    {
-                        m_analyze_scope(statement.get_block_statements(), &_scope);
-                    }
-                    break;
-                    case shift_statement::statement_type::if_:
-                    {
-                        shift_expression& if_condition = statement.get_if_condition();
-                        m_resolve_expression(&if_condition, &_scope);
-
-                        if (if_condition.expr_type.name_class) {
-                            m_check_access(&_scope, &if_condition);
-                            if (if_condition.expr_type.name_class != m_classes[SHIFT_ANALYZER_BOOLEAN_CLASS]) {
-                                auto conversions = m_get_implicit_conversions(if_condition.expr_type.name_class, m_classes[SHIFT_ANALYZER_BOOLEAN_CLASS]);
-                                if (conversions.size() == 1) {
-                                    if_condition = m_create_convert_expr(std::move(if_condition), *conversions.front());
-                                } else if (conversions.size() > 1) {
-                                    this->m_token_error(*_scope.get_parser(), *statement.get_if(), "ambiguous conversion of conditional value of type '" + if_condition.expr_type.name_class->get_fqn() + "' to type '" SHIFT_ANALYZER_BOOLEAN_CLASS "'");
-                                } else if (conversions.size() == 0) {
-                                    this->m_token_error(*_scope.get_parser(), *statement.get_if(), "cannot convert conditional value of type '" + if_condition.expr_type.name_class->get_fqn() + "' into type '" SHIFT_ANALYZER_BOOLEAN_CLASS "'");
-                                }
-                            }
-                        }
-
-                        m_analyze_scope(statement.get_if_statements(), &_scope);
-
-                        if (statement.get_attached_else()) {
-                            m_analyze_scope(statement.get_attached_else()->get_else_statements(), &_scope);
-                        }
-                    }
-                    break;
-                    case shift_statement::statement_type::else_:
-                    {
-                        // Skipping past else statement storage, located as the last statement inside an if statement
-                        break;
-                    }
-                    break;
-                    case shift_statement::statement_type::while_:
-                    {
-                        shift_expression& while_condition = statement.get_while_condition();
-                        m_resolve_expression(&while_condition, &_scope);
-
-                        if (while_condition.expr_type.name_class) {
-                            m_check_access(&_scope, &while_condition);
-                            if (while_condition.expr_type.name_class != m_classes[SHIFT_ANALYZER_BOOLEAN_CLASS]) {
-                                auto conversions = m_get_implicit_conversions(while_condition.expr_type.name_class, m_classes[SHIFT_ANALYZER_BOOLEAN_CLASS]);
-                                if (conversions.size() == 1) {
-                                    while_condition = m_create_convert_expr(std::move(while_condition), *conversions.front());
-                                } else if (conversions.size() > 1) {
-                                    this->m_token_error(*_scope.get_parser(), *statement.get_while(), "ambiguous conversion of conditional value of type '" + while_condition.expr_type.name_class->get_fqn() + "' to type '" SHIFT_ANALYZER_BOOLEAN_CLASS "'");
-                                } else if (conversions.size() == 0) {
-                                    this->m_token_error(*_scope.get_parser(), *statement.get_while(), "cannot convert conditional value of type '" + while_condition.expr_type.name_class->get_fqn() + "' into type '" SHIFT_ANALYZER_BOOLEAN_CLASS "'");
-                                }
-                            }
-                        }
-
-                        m_analyze_scope(statement.get_while_statements(), &_scope);
-                    }
-                    break;
-                    case shift_statement::statement_type::for_:
-                    {
-                        {
-                            m_analyze_scope(statement.sub.begin(), ++statement.sub.begin(), &_scope);
-                        }
-                        {
-                            shift_expression& for_condition = statement.get_for_condition();
-                            if (for_condition.type == token::token_type::NULL_TOKEN) {
-                                // set to true
-                                for_condition.expr_type.name_class = m_classes[SHIFT_ANALYZER_BOOLEAN_CLASS];
-                                for_condition.begin = m_true_token;
-                                for_condition.end = for_condition.begin + 1;
-                                for_condition.type = token::token_type::IDENTIFIER;
-                            } else {
-                                m_resolve_expression(&for_condition, &_scope);
-                                if (for_condition.expr_type.name_class) {
-                                    m_check_access(&_scope, &for_condition);
-
-                                    if (for_condition.expr_type.name_class != m_classes[SHIFT_ANALYZER_BOOLEAN_CLASS]) {
-                                        auto conversions = m_get_implicit_conversions(for_condition.expr_type.name_class, m_classes[SHIFT_ANALYZER_BOOLEAN_CLASS]);
-                                        if (conversions.size() == 1) {
-                                            for_condition = m_create_convert_expr(std::move(for_condition), *conversions.front());
-                                        } else if (conversions.size() > 1) {
-                                            this->m_token_error(*_scope.get_parser(), *statement.get_for(), "ambiguous conversion of conditional value of type '" + for_condition.expr_type.name_class->get_fqn() + "' to type '" SHIFT_ANALYZER_BOOLEAN_CLASS "'");
-                                        } else if (conversions.size() == 0) {
-                                            this->m_token_error(*_scope.get_parser(), *statement.get_for(), "cannot convert conditional value of type '" + for_condition.expr_type.name_class->get_fqn() + "' into type '" SHIFT_ANALYZER_BOOLEAN_CLASS "'");
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
-                        {
-                            m_analyze_scope(++statement.sub.begin(), statement.sub.end(), &_scope);
-                        }
-                    }
-                    break;
-                    case shift_statement::statement_type::break_:
-                    {
-                        shift_statement* temp_parent = statement.parent;
-                        for (;temp_parent;temp_parent = temp_parent->parent) {
-                            if (temp_parent->type == shift_statement::statement_type::while_ || temp_parent->type == shift_statement::statement_type::for_) {
-                                statement.set_break_link(temp_parent);
-                                break;
-                            }
-                        }
-
-                        if (temp_parent == nullptr) {
-                            this->m_token_error(*_scope.get_parser(), *statement.get_break(), "unexpected 'break' inside current scope");
-                        }
-                    }
-                    break;
-                    case shift_statement::statement_type::continue_:
-                    {
-                        shift_statement* temp_parent = statement.parent;
-                        for (;temp_parent;temp_parent = temp_parent->parent) {
-                            if (temp_parent->type == shift_statement::statement_type::while_ || temp_parent->type == shift_statement::statement_type::for_) {
-                                statement.set_continue_link(temp_parent);
-                                break;
-                            }
-                        }
-
-                        if (temp_parent == nullptr) {
-                            this->m_token_error(*_scope.get_parser(), *statement.get_continue(), "unexpected 'continue' inside current scope");
-                        }
-                    }
-                    break;
-                    case shift_statement::statement_type::return_:
-                    {
-                        shift_expression& return_statement = statement.get_return_statement();
-                        if (return_statement.type != token::token_type::NULL_TOKEN) {
-                            m_resolve_expression(&return_statement, &_scope);
-
-                            if (return_statement.expr_type.name_class) {
-                                m_check_access(&_scope, &return_statement);
-                            }
-                        }
-
-                        if (_scope.func->name.begin->is_constructor() || _scope.func->return_type.name.begin->is_void()) {
-                            if (return_statement.type != token::token_type::NULL_TOKEN) {
-                                if (return_statement.expr_type.name_class != &m_void_class) {
-                                    this->m_token_error(*_scope.get_parser(), *statement.get_return(), "unexpected return value in function with return type 'void'");
-                                }
-                            }
-                        } else {
-                            if (return_statement.type == token::token_type::NULL_TOKEN || !return_statement.expr_type.name_class) {
-                                if (_scope.func->return_type.name_class) {
-                                    this->m_token_error(*_scope.get_parser(), *statement.get_return(), "expected return value of type '" + _scope.func->return_type.name_class->get_fqn() + "'");
-                                } else {
-                                    this->m_token_error(*_scope.get_parser(), *statement.get_return(), "expected return value of type '" + _scope.func->return_type.name.to_string() + "'");
-                                }
-                            } else {
-                                if (_scope.func->return_type.name_class && return_statement.expr_type.name_class && return_statement.expr_type != _scope.func->return_type && !return_statement.expr_type.name_class->has_base(_scope.func->return_type.name_class) && return_statement.expr_type.name_class != &m_null_class) {
-                                    auto conversions = m_get_implicit_conversions(return_statement.expr_type.name_class, _scope.func->return_type.name_class);
-                                    if (conversions.size() == 1) {
-                                        return_statement = m_create_convert_expr(std::move(return_statement), *conversions.front());
-                                    } else if (conversions.size() > 1) {
-                                        this->m_token_error(*_scope.get_parser(), *statement.get_return(), "ambiguous conversion of return value of type '" + return_statement.expr_type.name_class->get_fqn() + "' to type '" + _scope.func->return_type.name_class->get_fqn() + "'");
-                                    } else if (conversions.size() == 0) {
-                                        this->m_token_error(*_scope.get_parser(), *statement.get_return(), "cannot convert return value of type '" + return_statement.expr_type.name_class->get_fqn() + "' into type '" + _scope.func->return_type.name_class->get_fqn() + "'");
-                                    }
-                                }
-
-                            }
-                        }
-                    }
-                    break;
-                    case shift_statement::statement_type::use:
-                    {
-                        shift_module const& use_module = statement.get_use_module();
-                        if (!contains_module(use_module)) {
-                            this->m_name_error(*_scope.get_parser(), use_module, "module '" + use_module.to_string() + "' does not exist");
-                        } else if (_scope.using_module(use_module)) {
-                            this->m_name_warning(*_scope.get_parser(), use_module, "redundant 'use' statement");
-                        } else {
-                            _scope.use_modules.emplace(statement.get_use_module());
-                        }
-                    }
-                    break;
-
-                    default:
-                        // error?
-                        break;
-                }
+            {
+                m_name_storage.emplace_back(std::string_view("shift"), token::token_type::IDENTIFIER,
+                    file_indexer{ 0, 0 });
+                m_shift_module.name.begin = --m_name_storage.end();
+                m_name_storage.push_back(token::null);
+                m_shift_module.name.end = --m_name_storage.end();
+            }
+            {
+                m_name_storage.emplace_back(std::string_view("true"), token::token_type::IDENTIFIER,
+                    file_indexer{ 0, 0 });
+                m_true_token_begin = --m_name_storage.end();
+                m_name_storage.push_back(token::null);
+                m_true_token_end = --m_name_storage.end();
             }
         }
 
-        void analyzer::m_resolve_expression(shift_expression* expr, scope* const parent_scope) {
-            if (expr->type == token::token_type::IDENTIFIER) {
-                if (expr->size() == 1) {
-                    if (expr->begin->is_true() || expr->begin->is_false()) {
-                        expr->expr_type.name_class = parent_scope->base->m_classes[SHIFT_ANALYZER_BOOLEAN_CLASS];
-                        return;
-                    } else if (expr->begin->is_null()) {
-                        expr->expr_type.name_class = &m_null_class;
-                        return;
-                    } else if (expr->begin->is_new()) {
-                        shift_name new_class_name;
-                        if (expr->sub.front().is_function_call()) {
-                            // expr->sub.front() -> express the entire expression ends in a func call
-                            // expr->sub.front().sub.back() -> the actual func call expression
-                            // (see parser for more information)
-
-                            new_class_name.begin = expr->sub.front().sub.front().begin;
-                            new_class_name.end = expr->sub.front().sub.back().end;
-                        } else if (expr->sub.front().is_array()) {
-                            // expr->sub.front() -> express the entire expression ends in an array indexing expression
-                            // expr->sub.front().sub.back() -> the actual array indexing expression
-                            // (see parser for more information)
-
-                            new_class_name.begin = expr->sub.front().sub.front().begin;
-                            new_class_name.end = expr->sub.front().sub.back().end;
-
-                            // This should also be valid for new_class_name.end
-                            // new_class_name.end = expr->sub.front().sub.back().sub.front().end;
-                        }
-
-                        auto classes = parent_scope->find_classes(new_class_name);
-
-                        if (classes.size() == 1) {
-                            expr->expr_type.name = new_class_name;
-                            expr->expr_type.name_class = classes.front();
-                            if (expr->sub.front().is_array()) {
-                                // look at shift_parser.cpp for reference on how array indexing is stored
-                                // - 1 is because the first item in sub holds what we are actaually indexing
-                                expr->expr_type.array_dimensions = expr->sub.front().sub.back().sub.size() - 1;
-
-                                // TODO make sure array indexers are valid integers (or longs?)
-                                for (auto b = ++expr->sub.front().sub.back().sub.begin(); b != expr->sub.front().sub.back().sub.end(); b++) {
-                                    m_resolve_expression(&*b, parent_scope);
-                                    if (b->expr_type.name_class && ((b->expr_type.name_class != m_classes[SHIFT_ANALYZER_UINT64_CLASS] && b->expr_type.name_class != m_classes[SHIFT_ANALYZER_UINT32_CLASS]) || b->expr_type.array_dimensions > 0)) {
-                                        // auto conversions = m_get_implicit_conversions(b->expr_type.name_class, b->expr_type.name_class != m_classes[SHIFT_ANALYZER_UINT64_CLASS]);
-                                        // if (conversions.size() == 1) {
-
-                                        // }
-                                        this->m_token_error(*parent_scope->get_parser(), *(b->begin - 1), "cannot convert integral value of type '" + b->expr_type.get_fqn() + "' into type '" SHIFT_ANALYZER_UINT64_CLASS "'");
-                                    }
-                                }
-                            } else {
-                                shift_expression& param_exprs = expr->sub.front().sub.back().sub.front();
-                                size_t const param_count = param_exprs.sub.front().type == token::token_type::NULL_TOKEN ? 0 : param_exprs.sub.size();
-
-                                if (param_count > 0) {
-                                    for (shift_expression& param_expr : param_exprs.sub) {
-                                        m_resolve_expression(&param_expr, parent_scope);
-                                    }
-                                }
-
-                                scope find_scope;
-                                find_scope.base = parent_scope->base;
-                                find_scope.clazz = classes.front();
-
-                                // TODO maybe either make a separate list for constructors and the single destructor or make an unordered_map which maps function names to shift_function*'s
-                                auto constructors = find_scope.find_functions("constructor");
-
-                                for (auto b = constructors.begin(); b != constructors.end(); ++b) {
-                                    shift_function& func = **b;
-                                    // TODO allow default parameters so that the sizes dont have to be to the same (change to >=)
-                                    if (func.parameters.size() == param_count) {
-                                        auto func_param_it = func.parameters.begin();
-                                        auto expr_param_it = param_exprs.sub.begin();
-
-                                        for (; func_param_it != func.parameters.end() && expr_param_it != param_exprs.sub.end(); ++expr_param_it, ++func_param_it) {
-                                            auto& [_name, param] = *func_param_it;
-                                            if (!param.type.name_class) {
-                                                auto param_classes = find_scope.find_classes(param.type.name);
-                                                if (param_classes.size() == 1) {
-                                                    param.type.name_class = param_classes.front();
-                                                } else if (param_classes.size() > 1) {
-                                                    this->m_name_error(*find_scope.get_parser(), param.type.name, "ambiguous reference to class '" + param.type.name.to_string() + "' in scope");
-                                                } else {
-                                                    this->m_name_error(*find_scope.get_parser(), param.type.name, "unable to resolve class '" + param.type.name.to_string() + "' in scope");
-                                                }
-                                            }
-
-                                            // TODO change simple parameter type deduction implementation
-                                            if (param.type.name_class && param.type.name_class != expr_param_it->expr_type.name_class) {
-                                                auto next = constructors.erase(b);
-                                                b = --next;
-                                                break;
-                                            }
-                                        }
-                                    } else {
-                                        // TODO allow default parameters
-                                        auto next = constructors.erase(b);
-                                        b = --next;
-                                    }
-                                }
-
-                                if (constructors.size() == 1) {
-                                    expr->function = constructors.front();
-                                    expr->sub.front().function = constructors.front();
-                                } else {
-                                    std::string function_signature = find_scope.clazz->get_fqn() + ".constructor";
-                                    function_signature += '(';
-                                    {
-                                        size_t param_count = param_exprs.sub.size() == 1 && param_exprs.sub.front().type == token::token_type::NULL_TOKEN ? 0 : param_exprs.sub.size();
-                                        size_t param_index = 1;
-                                        if (param_count > 0) {
-                                            for (shift_expression& expr_param : param_exprs.sub) {
-                                                if (expr_param.expr_type.name_class) {
-                                                    function_signature += expr_param.expr_type.name_class->get_fqn();
-                                                } else {
-                                                    function_signature += "<unknown>";
-                                                }
-                                                if (param_index < param_count)
-                                                    function_signature += ", ";
-                                                param_index++;
-                                            }
-                                        }
-                                    }
-                                    function_signature += ')';
-
-                                    if (constructors.size() > 1) {
-                                        // this->m_name_error(*find_scope.parser, sub_expr.function->return_type.name, "ambiguous reference to function '" + function_signature + "' in scope");
-                                        this->m_name_error(*parent_scope->get_parser(), new_class_name, "ambiguous reference to function '" + function_signature + "' in scope");
-                                    } else {
-                                        this->m_name_error(*parent_scope->get_parser(), new_class_name, "unable to resolve function '" + function_signature + "' in class '" + find_scope.clazz->get_fqn() + "' in current scope");
-                                    }
-                                }
-                            }
-                        } else if (classes.size() > 1) {
-                            this->m_name_error(*parent_scope->get_parser(), new_class_name, "ambiguous reference to class '" + new_class_name.to_string() + "' in scope");
-                        } else {
-                            this->m_name_error(*parent_scope->get_parser(), new_class_name, "unable to resolve class '" + new_class_name.to_string() + "' in scope");
-                        }
-                        return;
-                    }
-                }
-            }
-
-            if (expr->type == token::token_type::IDENTIFIER || expr->is_function_call() || expr->is_array()) {
-                scope find_scope;
-                find_scope.parent = parent_scope;
-                find_scope.base = parent_scope->base;
-                //find_scope.parser_ = parent_scope->parser_;
-                find_scope.clazz = parent_scope->clazz;
-                find_scope.func = parent_scope->func;
-                find_scope.var = parent_scope->var;
-
-                // TODO fix copy of variables
-                //find_scope.variables = parent_scope->variables;
-
-                bool can_fqn = true;
-                for (auto expr_it = expr->sub.begin(); expr_it != expr->sub.end(); expr_it++) {
-                    shift_expression& sub_expr = *expr_it;
-                    if (sub_expr.type == token::token_type::IDENTIFIER) {
-                        // variable
-                        if (find_scope.clazz == &m_void_class) {
-                            this->m_token_error(*parent_scope->get_parser(), *sub_expr.begin, "cannot access field on void type");
-                            return;
-                        }
-
-                        shift_name var_name;
-
-                        if (can_fqn) {
-                            var_name.begin = expr->sub.front().begin;
-                            var_name.end = sub_expr.end;
-                        } else {
-                            var_name.begin = sub_expr.begin;
-                            var_name.end = sub_expr.end;
-                        }
-
-                        auto vars = find_scope.find_variables(var_name);
-                        if (vars.size() == 1) {
-                            shift_variable* found_var = vars.front();
-                            find_scope.clazz = found_var->clazz;
-                            find_scope.func = nullptr;
-                            find_scope.var = found_var;
-                            find_scope.parser_ = found_var->parser_;
-
-                            if (!found_var->type.name_class) {
-                                auto found_var_classes = find_scope.find_classes(found_var->type.name);
-
-                                if (found_var_classes.size() == 1) {
-                                    found_var->type.name_class = found_var_classes.front();
-                                } else if (found_var_classes.size() > 1) {
-                                    this->m_name_error(*find_scope.get_parser(), found_var->type.name, "ambiguous reference to class '" + found_var->type.name.to_string() + "' in scope");
-                                    return;
-                                } else {
-                                    this->m_name_error(*find_scope.get_parser(), found_var->type.name, "unable to resolve class '" + found_var->type.name.to_string() + "' in scope");
-                                    return;
-                                }
-                            }
-
-                            find_scope.clazz = found_var->type.name_class;
-                            find_scope.parser_ = find_scope.clazz ? find_scope.clazz->parser_ : nullptr;
-                            find_scope.func = nullptr;
-                            find_scope.var = nullptr;
-                            sub_expr.expr_type.name_class = find_scope.clazz;
-                            sub_expr.expr_type.array_dimensions = found_var->type.array_dimensions;
-                            sub_expr.variable = found_var;
-                            can_fqn = false;
-                        } else if (vars.size() > 1) {
-                            // TODO list candidates
-                            this->m_name_error(*parent_scope->get_parser(), var_name, "ambiguous variable reference to '" + var_name.to_string() + "' in current scope");
-                            return;
-                        } else {
-                            // TODO check for class
-                            if (can_fqn) {
-                                shift_name class_name;
-                                class_name.begin = expr->sub.front().begin;
-                                class_name.end = expr_it->end;
-                                auto classes = parent_scope->find_classes(class_name);
-
-                                if (classes.size() == 1) {
-                                    find_scope.clazz = classes.front();
-                                    find_scope.parser_ = classes.front()->parser_;
-                                    find_scope.func = nullptr;
-                                    find_scope.var = nullptr;
-
-                                    auto cur = expr_it;
-                                    auto next = ++expr_it;
-                                    if (next == expr->sub.end()) {
-                                        this->m_token_error(*parent_scope->get_parser(), *cur->begin, "unexpected reference to class '" + class_name.to_string() + "'");
-                                        return;
-                                    }
-                                    expr_it = cur;
-                                } else if (classes.size() > 1) {
-                                    this->m_token_error(*parent_scope->get_parser(), *expr_it->begin, "ambiguous reference to class '" + class_name.to_string() + "'");
-                                    return;
-                                } else {
-                                    auto cur = expr_it;
-                                    auto next = ++expr_it;
-                                    if (next == expr->sub.end()) {
-                                        this->m_token_error(*parent_scope->get_parser(), *cur->begin, "unable to resolve class or variable reference to '" + class_name.to_string() + "'");
-                                        return;
-                                    }
-                                    expr_it = cur;
-                                }
-                            } else {
-                                this->m_token_error(*parent_scope->get_parser(), *sub_expr.begin, "unable to resolve variable '" + std::string(sub_expr.begin->get_data()) + "' in class '" + find_scope.clazz->get_fqn() + "' in current scope");
-                                return;
-                            }
-                        }
-                    } else if (sub_expr.is_function_call()) {
-                        // function call
-
-                        shift_name func_name;
-
-                        if (can_fqn) {
-                            func_name.begin = expr->sub.front().begin;
-                            func_name.end = sub_expr.end;
-                        } else {
-                            func_name.begin = sub_expr.begin;
-                            func_name.end = sub_expr.end;
-                        }
-
-                        auto functions = find_scope.find_functions(func_name.to_string());
-                        shift_expression& param_expr = sub_expr.sub.front();
-                        size_t const param_count = param_expr.type == token::token_type::COMMA ? param_expr.sub.size() : bool(param_expr.size());
-
-                        if (param_count > 0) {
-                            for (shift_expression& expr_param : param_expr.sub) {
-                                m_resolve_expression(&expr_param, parent_scope);
-                                if (expr_param.expr_type.name_class == nullptr) {
-                                    return;
-                                }
-                            }
-                        }
-
-                        for (auto b = functions.begin(); b != functions.end(); ++b) {
-                            shift_function& func = **b;
-                            find_scope.func = &func;
-                            if (func.parameters.size() == param_count) {
-                                // TODO parameter type deduction
-                                auto func_param_it = func.parameters.begin();
-                                auto expr_param_it = param_expr.sub.begin();
-                                for (; func_param_it != func.parameters.end() && expr_param_it != param_expr.sub.end(); ++func_param_it, ++expr_param_it) {
-                                    auto& [_name, param] = *func_param_it;
-                                    if (!param.type.name_class) {
-                                        auto param_classes = find_scope.find_classes(param.type.name);
-
-                                        if (param_classes.size() == 1) {
-                                            param.type.name_class = param_classes.front();
-                                        } else if (param_classes.size() > 1) {
-                                            this->m_name_error(*find_scope.get_parser(), param.type.name, "ambiguous reference to class '" + param.type.name.to_string() + "' in scope");
-                                        } else {
-                                            this->m_name_error(*find_scope.get_parser(), param.type.name, "unable to resolve class '" + param.type.name.to_string() + "' in scope");
-                                        }
-                                    }
-
-                                    // simple parameter type deduction implementation, TODO change
-                                    if (param.type.name_class && param.type.name_class != expr_param_it->expr_type.name_class) {
-                                        auto conversions = m_get_implicit_conversions(expr_param_it->expr_type.name_class, param.type.name_class);
-                                        if (conversions.size() != 1) {
-                                            auto next = functions.erase(b);
-                                            b = --next;
-                                            break;
-                                        }
-                                    }
-                                }
-                            } else {
-                                auto next = functions.erase(b);
-                                b = --next;
-                            }
-                        }
-
-                        if (functions.size() == 1) {
-                            sub_expr.function = functions.front();
-
-                            find_scope.func = functions.front();
-                            find_scope.clazz = find_scope.func->clazz;
-                            find_scope.parser_ = find_scope.func->parser_;
-
-
-                            if (sub_expr.function->name.begin->is_constructor()) {
-                                // do nothing, keep same class as constructor itself
-                            } else if (sub_expr.function->name.begin->is_destructor() || sub_expr.function->return_type.name.begin->is_void()) {
-                                find_scope.clazz = &m_void_class;
-                                find_scope.parser_ = nullptr;
-                            } else if (!sub_expr.function->return_type.name_class) {
-                                auto found_func_classes = find_scope.find_classes(sub_expr.function->return_type.name);
-
-                                if (found_func_classes.size() == 1) {
-                                    sub_expr.function->return_type.name_class = found_func_classes.front();
-                                } else if (found_func_classes.size() > 1) {
-                                    this->m_name_error(*find_scope.get_parser(), sub_expr.function->return_type.name, "ambiguous reference to class '" + sub_expr.function->return_type.name.to_string() + "' in current scope");
-                                    return;
-                                } else {
-                                    this->m_name_error(*find_scope.get_parser(), sub_expr.function->return_type.name, "unable to resolve class '" + sub_expr.function->return_type.name.to_string() + "' in current scope");
-                                    return;
-                                }
-                                find_scope.clazz = sub_expr.function->return_type.name_class;
-                                find_scope.parser_ = sub_expr.function->return_type.name_class->parser_;
-                            }
-
-                            sub_expr.expr_type.name_class = find_scope.clazz;
-                            sub_expr.expr_type.array_dimensions = sub_expr.function->return_type.array_dimensions;
-                            find_scope.func = nullptr;
-                            find_scope.var = nullptr;
-                            can_fqn = false;
-                        } else {
-                            if (find_scope.clazz != &m_void_class) {
-                                std::string function_signature = find_scope.clazz ? find_scope.clazz->get_fqn() : "";
-                                if (function_signature.size() > 0)function_signature += '.';
-                                function_signature += func_name.to_string();
-                                function_signature += '(';
-                                {
-                                    size_t param_index = 1;
-                                    for (shift_expression& expr_param : param_expr.sub) {
-                                        if (expr_param.expr_type.name_class) {
-                                            function_signature += expr_param.expr_type.name_class->get_fqn();
-                                        } else {
-                                            if (!(param_count == 0 && expr_param.type == token::token_type::NULL_TOKEN))
-                                                function_signature += "<unknown>";
-                                        }
-                                        if (param_index < param_count)
-                                            function_signature += ", ";
-                                        param_index++;
-                                    }
-                                }
-                                function_signature += ')';
-
-                                if (functions.size() > 1) {
-                                    // this->m_name_error(*find_scope.parser, sub_expr.function->return_type.name, "ambiguous reference to function '" + function_signature + "' in scope");
-                                    this->m_token_error(*parent_scope->get_parser(), !sub_expr.begin->is_operator() ? *sub_expr.begin : *(sub_expr.begin + 1), "ambiguous reference to function '" + function_signature + "' in scope");
-                                    return;
-                                } else {
-                                    this->m_token_error(*parent_scope->get_parser(), !sub_expr.begin->is_operator() ? *sub_expr.begin : *(sub_expr.begin + 1), "unable to resolve function '" + function_signature + "' in current scope");
-                                    return;
-                                }
-                            } else {
-                                this->m_token_error(*parent_scope->get_parser(), !sub_expr.begin->is_operator() ? *sub_expr.begin : *(sub_expr.begin + 1), "cannot call function on 'void' type");
-                                return;
-                            }
-                        }
-                    } else if (sub_expr.is_array()) {
-                        // array indexing
-                        if (find_scope.clazz == &m_void_class) {
-                            if (sub_expr.sub.front().is_function_call()) {
-                                this->m_token_error(*parent_scope->get_parser(), !sub_expr.sub.front().begin->is_operator() ? *sub_expr.sub.front().begin : *(sub_expr.sub.front().begin + 1), "cannot call function on 'void' type");
-                            } else if (sub_expr.sub.front().type == token::token_type::IDENTIFIER) {
-                                this->m_token_error(*parent_scope->get_parser(), *sub_expr.sub.front().begin, "cannot access field on void type");
-                            } else {
-                                this->m_token_error(*parent_scope->get_parser(), *((++sub_expr.sub.begin())->begin - 1), "cannot access void type as an array");
-                            }
-
-                            return;
-                        }
-
-                        {
-                            {
-                                shift_expression index_expr;
-                                index_expr.type = sub_expr.sub.front().type;
-                                index_expr.begin = sub_expr.sub.front().begin;
-                                index_expr.end = sub_expr.sub.front().end;
-                                index_expr.sub.push_back(std::move(sub_expr.sub.front()));
-                                m_resolve_expression(&index_expr, &find_scope);
-                                sub_expr.sub.front() = std::move(index_expr.sub.front());
-                            }
-
-
-                            for (auto b = ++sub_expr.sub.begin(); b != sub_expr.sub.end();b++) {
-                                m_resolve_expression(&*b, &find_scope);
-                                if (b->expr_type.name_class && ((b->expr_type.name_class != m_classes[SHIFT_ANALYZER_UINT64_CLASS] && b->expr_type.name_class != m_classes[SHIFT_ANALYZER_UINT32_CLASS]) || b->expr_type.array_dimensions > 0)) {
-                                    // auto conversions = m_get_implicit_conversions(b->expr_type.name_class, b->expr_type.name_class != m_classes[SHIFT_ANALYZER_UINT64_CLASS]);
-                                    // if (conversions.size() == 1) {
-
-                                    // }
-                                    this->m_token_error(*parent_scope->get_parser(), *(b->begin - 1), "cannot convert integral value of type '" + b->expr_type.get_fqn() + "' into type '" SHIFT_ANALYZER_UINT64_CLASS "'");
-                                }
-                            }
-                        }
-
-                        // sub_expr.sub.front().sub.push_back(sub_expr.sub.front()); // Should this be removed after the call?
-                        // m_resolve_expression(&sub_expr.sub.front(), &find_scope);
-
-                        if (sub_expr.sub.front().expr_type.name_class) {
-                            {
-                                sub_expr.expr_type = sub_expr.sub.front().expr_type;
-                                sub_expr.expr_type.array_dimensions = sub_expr.sub.front().expr_type.array_dimensions - std::min(sub_expr.sub.size() - 1, sub_expr.sub.front().expr_type.array_dimensions);
-                                find_scope.func = nullptr;
-                                if (sub_expr.expr_type.array_dimensions) {
-                                    // "shift.array<int>"
-                                    // TODO make array class
-                                    // find_scope.clazz = nullptr;
-                                    // find_scope.parser = nullptr;
-                                    // sub_expr.expr_type.name_class = nullptr;
-                                    find_scope.clazz = m_make_array_class(sub_expr.expr_type);
-                                    find_scope.parser_ = nullptr;
-                                    sub_expr.expr_type.name_class = find_scope.clazz;
-                                } else if (sub_expr.sub.size() - 1 == sub_expr.sub.front().expr_type.array_dimensions) {
-                                    find_scope.clazz = sub_expr.expr_type.name_class;
-                                    find_scope.parser_ = find_scope.clazz->parser_;
-                                } else {
-                                    find_scope.clazz = sub_expr.expr_type.name_class;
-                                    //find_scope.parser = find_scope.clazz->parser;
-                                    find_scope.parser_ = parent_scope->parser_;
-
-                                    auto b = ++sub_expr.sub.begin();
-                                    for (size_t i = 0; i < sub_expr.sub.front().expr_type.array_dimensions; i++, ++b);
-
-                                    for (size_t i = 0; i < sub_expr.sub.size() - 1 - sub_expr.sub.front().expr_type.array_dimensions; i++, ++b) {
-                                        shift_expression func_expr;
-                                        func_expr.set_function_call();
-
-                                        std::vector<token> temp_tokens;
-                                        temp_tokens.push_back(token(std::string_view("operator"), token_type::IDENTIFIER, (b->begin - 1)->get_file_index()));
-                                        temp_tokens.push_back(token(std::string_view("["), token_type::LEFT_SQUARE_BRACKET, (b->begin - 1)->get_file_index()));
-                                        temp_tokens.push_back(token(std::string_view("]"), token_type::RIGHT_SQUARE_BRACKET, (b->begin - 1)->get_file_index()));
-                                        func_expr.begin = temp_tokens.begin();
-
-                                        func_expr.end = temp_tokens.end();
-                                        // func_expr.sub.push_back(func_expr);
-                                        func_expr.sub.push_back(*b);
-                                        func_expr.sub.back().sub.push_back(*b);
-                                        shift_expression parent_func_expr;
-                                        parent_func_expr.type = func_expr.type;
-                                        parent_func_expr.sub.push_back(std::move(func_expr));
-                                        parent_func_expr.begin = temp_tokens.begin();
-                                        parent_func_expr.end = temp_tokens.end();
-                                        m_resolve_expression(&parent_func_expr, &find_scope);
-
-                                        if (!parent_func_expr.expr_type.name_class) {
-                                            // m_resolve_expression call will do error reporting for me?
-                                            return;
-                                        }
-                                        find_scope.clazz = parent_func_expr.expr_type.name_class;
-                                        // find_scope.parser = parent_scope->parser;
-                                        b->function = parent_func_expr.function;
-                                        b->expr_type = parent_func_expr.expr_type;
-                                    }
-
-                                    find_scope.parser_ = find_scope.clazz->parser_;
-                                    sub_expr.expr_type = sub_expr.sub.back().expr_type;
-                                }
-                            }
-                            find_scope.func = nullptr;
-                            find_scope.var = nullptr;
-                            can_fqn = false;
-                        } else {
-                            // TODO better error message; is `sub_expr.to_string()` safe?
-                            this->m_name_error(*parent_scope->get_parser(), sub_expr.sub.front().to_name(), "unable to resolve type of '" + sub_expr.to_string() + "' in current scope");
-                            return;
-                        }
-                    }
-                }
-                expr->expr_type = expr->sub.back().expr_type;
-                expr->function = expr->sub.back().function;
-                expr->variable = expr->sub.back().variable;
-            } else if (expr->is_bracket()) {
-                const bool is_cast = expr->get_right()->type != token::token_type::NULL_TOKEN;
-
-                if (is_cast) {
-                    shift_name cast_class_name;
-                    cast_class_name.begin = expr->get_left()->begin;
-                    cast_class_name.end = expr->get_left()->end;
-
-                    {
-                        auto cast_classes = parent_scope->find_classes(cast_class_name);
-                        if (cast_classes.size() == 1) {
-                            // TODO think about allowing casting to array types
-                            expr->expr_type.name_class = cast_classes.front();
-                        } else if (cast_classes.size() > 1) {
-                            this->m_name_error(*parent_scope->get_parser(), cast_class_name, "ambiguous reference to class '" + cast_class_name.to_string() + "' in current scope");
-                        } else {
-                            this->m_name_error(*parent_scope->get_parser(), cast_class_name, "unable to resolve class '" + cast_class_name.to_string() + "' in current scope");
-                        }
-                    }
-
-                    m_resolve_expression(expr->get_right(), parent_scope);
-
-                    if ((expr->get_left()->expr_type.name_class && expr->get_right()->expr_type.name_class) && (expr->get_left()->expr_type.name_class != expr->get_right()->expr_type.name_class)) {
-                        auto casting_conversions = m_get_implicit_conversions(expr->get_right()->expr_type.name_class, expr->get_left()->expr_type.name_class);
-                        if (casting_conversions.size() == 1) {
-                            expr->function = casting_conversions.front();
-                            *expr->get_right() = m_create_convert_expr(std::move(*expr->get_right()), *casting_conversions.front());
-                        } else if (casting_conversions.size() > 1) {
-                            this->m_name_error(*parent_scope->get_parser(), cast_class_name, "ambiguous cast from type '"
-                                + expr->get_left()->expr_type.get_fqn() + "' to type '" + expr->get_right()->expr_type.get_fqn() + "' in current scope");
-                        } else {
-                            this->m_name_error(*parent_scope->get_parser(), cast_class_name, "cannot cast from type '"
-                                + expr->get_left()->expr_type.get_fqn() + "' to type '" + expr->get_right()->expr_type.get_fqn() + "' in current scope");
-                        }
-                    }
-
-                } else {
-                    m_resolve_expression(expr->get_left(), parent_scope);
-                    expr->expr_type = expr->get_left()->expr_type;
-                }
-            } else if (is_overload_operator(expr->type)) {
-                // Look for the operator function between the two types
-                // const bool is_prefix = (is_strictly_prefix_operator(expr->type) && !is_binary_operator(expr->type)) || (is_prefix_operator(expr->type) && expr->get_left()->type == token::token_type::NULL_TOKEN);
-                // const bool is_suffix = (is_strictly_suffix_operator(expr->type) && !is_binary_operator(expr->type)) || (is_suffix_operator(expr->type) && expr->get_right()->type == token::token_type::NULL_TOKEN);
-
-                const bool has_left = expr->has_left() && expr->get_left()->type != token::token_type::NULL_TOKEN;
-                const bool has_right = expr->has_right() && expr->get_right()->type != token::token_type::NULL_TOKEN;
-
-                if (has_left) {
-                    m_resolve_expression(expr->get_left(), parent_scope);
-                }
-
-                if (has_right) {
-                    m_resolve_expression(expr->get_right(), parent_scope);
-                }
-
-                // if (!is_prefix)
-                //     m_resolve_expression(expr->get_left(), parent_scope);
-
-                // if (!is_suffix)
-                //     m_resolve_expression(expr->get_right(), parent_scope);
-
-                shift_expression func_expr;
-                func_expr.set_function_call();
-
-                std::vector<token> temp_tokens;
-                temp_tokens.emplace_back(std::string_view("operator"), token_type::IDENTIFIER, expr->begin->get_file_index());
-                temp_tokens.push_back(*expr->begin);
-                func_expr.begin = temp_tokens.begin();
-                func_expr.end = temp_tokens.end();
-
-                shift_expression parent_func_expr;
-                parent_func_expr.type = func_expr.type;
-                parent_func_expr.begin = temp_tokens.begin();
-                parent_func_expr.end = temp_tokens.end();
-
-                scope find_scope;
-                find_scope.base = parent_scope->base;
-                find_scope.clazz = parent_scope->clazz;
-                find_scope.func = parent_scope->func;
-                find_scope.var = parent_scope->var;
-                find_scope.parser_ = parent_scope->parser_;
-                if (has_left && !has_right) {
-                    // stricly prefix operator
-                    if (expr->get_left()->expr_type.name_class) {
-                        find_scope.func = nullptr;
-                        find_scope.var = nullptr;
-                        find_scope.parser_ = nullptr;
-                        find_scope.clazz = expr->get_left()->expr_type.name_class;
-
-                        {
-                            shift_name func_name;
-                            func_name.begin = parent_func_expr.begin;
-                            func_name.end = parent_func_expr.end;
-                            auto funcs = find_scope.find_functions(func_name.to_string());
-
-                            m_filter_functions(funcs, nullptr);
-
-                            if (funcs.size() == 1) {
-                                expr->function = funcs.front();
-                                if (!funcs.front()->return_type.name_class) {
-                                    scope _scope;
-                                    _scope.base = this;
-                                    _scope.clazz = funcs.front()->clazz;
-                                    _scope.func = funcs.front();
-                                    funcs.front()->return_type.name_class = _scope.find_class(funcs.front()->return_type.name);
-                                }
-                                expr->expr_type = funcs.front()->return_type;
-                            } else {
-                                std::string func_fqn = expr->get_left()->expr_type.name_class->get_fqn() + ".operator" + std::string(expr->begin->get_data()) + "()";
-                                if (funcs.size() > 1) {
-                                    this->m_token_error(*parent_scope->get_parser(), *expr->begin, "ambiguous reference to function '" + func_fqn + "' in current scope");
-                                } else {
-                                    this->m_token_error(*parent_scope->get_parser(), *expr->begin, "unable to resolve reference to function '" + func_fqn + "' in current scope");
-                                }
-                            }
-                        }
-                    }
-                } else if (!has_left && has_right) {
-                    // strictly suffix operator
-                    if (expr->get_right()->expr_type.name_class) {
-                        find_scope.func = nullptr;
-                        find_scope.var = nullptr;
-                        find_scope.parser_ = nullptr;
-                        find_scope.clazz = expr->get_right()->expr_type.name_class;
-
-                        {
-                            shift_name func_name;
-                            func_name.begin = parent_func_expr.begin;
-                            func_name.end = parent_func_expr.end;
-                            auto funcs = find_scope.find_functions(func_name.to_string());
-
-                            m_filter_functions(funcs, nullptr);
-
-                            if (funcs.size() == 1) {
-                                expr->function = funcs.front();
-                                if (!funcs.front()->return_type.name_class) {
-                                    scope _scope;
-                                    _scope.base = this;
-                                    _scope.clazz = funcs.front()->clazz;
-                                    _scope.func = funcs.front();
-                                    funcs.front()->return_type.name_class = _scope.find_class(funcs.front()->return_type.name);
-                                }
-                                expr->expr_type = funcs.front()->return_type;
-                            } else {
-                                std::string func_fqn = expr->get_right()->expr_type.name_class->get_fqn() + ".operator" + std::string(expr->begin->get_data()) + "()";
-                                if (funcs.size() > 1) {
-                                    this->m_token_error(*parent_scope->get_parser(), *expr->begin, "ambiguous reference to function '" + func_fqn + "' in current scope");
-                                } else {
-                                    this->m_token_error(*parent_scope->get_parser(), *expr->begin, "unable to resolve reference to function '" + func_fqn + "' in current scope");
-                                }
-                            }
-                        }
-                    }
-                } else if (has_left && has_right) {
-                    // binary operator
-                    if (expr->get_left()->expr_type.name_class) {
-                        find_scope.func = nullptr;
-                        find_scope.var = nullptr;
-                        find_scope.parser_ = nullptr;
-                        find_scope.clazz = expr->get_left()->expr_type.name_class;
-
-                        {
-                            shift_name func_name;
-                            func_name.begin = parent_func_expr.begin;
-                            func_name.end = parent_func_expr.end;
-                            auto funcs = find_scope.find_functions(func_name.to_string());
-
-                            if (expr->get_right()->expr_type.name_class) {
-                                m_filter_functions(funcs, *expr->get_right());
-                            }
-
-                            if (funcs.size() == 0) {
-                                if (expr->get_right()->expr_type.name_class) {
-                                    if (expr->type == token::token_type::EQUALS) {
-                                        auto conversions = m_get_implicit_conversions(expr->get_right()->expr_type.name_class, expr->get_left()->expr_type.name_class);
-                                        if (conversions.size() == 1) {
-                                            // if (!conversions.front()->return_type.name_class) {
-                                            //     scope _scope;
-                                            //     _scope.base = this;
-                                            //     _scope.clazz = conversions.front()->clazz;
-                                            //     _scope.func = conversions.front();
-                                            //     conversions.front()->return_type.name_class = _scope.find_class(funcs.front()->return_type.name);
-                                            // }
-                                            *expr->get_right() = m_create_convert_expr(std::move(*expr->get_right()), *conversions.front());
-                                            //expr->expr_type = conversions.front()->return_type;
-                                            expr->expr_type.name_class = expr->get_left()->expr_type.name_class;
-                                            expr->function = nullptr;
-                                            return;
-                                        } else if (conversions.size() > 1) {
-                                            this->m_token_error(*parent_scope->get_parser(), *expr->get_right()->begin, "ambiguous implicit type conversion from '" + expr->get_right()->expr_type.name_class->get_fqn() + "' to '" + expr->get_left()->expr_type.name_class->get_fqn() + "'");
-                                            return;
-                                        } else {
-                                            this->m_token_error(*parent_scope->get_parser(), *expr->get_right()->begin, "unable to resolve implicit type conversion from '" + expr->get_right()->expr_type.name_class->get_fqn() + "' to '" + expr->get_left()->expr_type.name_class->get_fqn() + "'");
-                                            return;
-                                        }
-                                    } else if (expr->type == token::token_type::EQUALS_EQUALS) {
-                                        std::string_view new_data = "!=";
-                                        temp_tokens.back() = token(new_data, token::token_type::NOT_EQUAL, expr->begin->get_file_index());
-                                        auto new_funcs = find_scope.find_functions(func_name.to_string());
-                                        if (expr->get_right()->expr_type.name_class) {
-                                            m_filter_functions(new_funcs, *expr->get_right());
-                                        }
-
-                                        if (new_funcs.size() == 1) {
-                                            if (!new_funcs.front()->return_type.name_class) {
-                                                scope _scope;
-                                                _scope.base = this;
-                                                _scope.clazz = new_funcs.front()->clazz;
-                                                _scope.func = new_funcs.front();
-                                                new_funcs.front()->return_type.name_class = _scope.find_class(new_funcs.front()->return_type.name);
-                                                //expr->expr_type = new_funcs.front()->return_type;
-                                            }
-
-                                            if (new_funcs.front()->return_type.name_class) {
-                                                std::string_view new_data_2 = "!";
-                                                temp_tokens.back() = token(new_data_2, token::token_type::NOT, expr->begin->get_file_index());
-                                                auto negate_funcs = find_scope.find_functions(func_name.to_string());
-                                                m_filter_functions(negate_funcs, nullptr);
-                                                if (negate_funcs.size() == 1) {
-                                                    if (!negate_funcs.front()->return_type.name_class) {
-                                                        scope _scope;
-                                                        _scope.base = this;
-                                                        _scope.clazz = negate_funcs.front()->clazz;
-                                                        _scope.func = negate_funcs.front();
-                                                        negate_funcs.front()->return_type.name_class = _scope.find_class(negate_funcs.front()->return_type.name);
-                                                        expr->expr_type = new_funcs.front()->return_type;
-                                                    }
-                                                    if (negate_funcs.front()->return_type.name_class) {
-                                                        shift_expression negate_expr;
-                                                        negate_expr.type = token::token_type::NOT;
-                                                        negate_expr.function = negate_funcs.front();
-                                                        negate_expr.expr_type = negate_funcs.front()->return_type;
-
-                                                        expr->type = token::token_type::NOT_EQUAL;
-                                                        expr->begin = m_not_equal_token;
-                                                        expr->end = expr->begin + 1;
-                                                        expr->function = new_funcs.front();
-                                                        expr->expr_type = new_funcs.front()->return_type;
-                                                        negate_expr.set_right(std::move(*expr));
-                                                        *expr = std::move(negate_expr);
-                                                        return;
-                                                    } else {
-                                                        this->m_token_error(*parent_scope->get_parser(), *expr->begin, "unable to resolve return type of '" + negate_funcs.front()->get_signature() + "'");
-                                                    }
-                                                    return;
-                                                } else if (negate_funcs.size() > 1) {
-                                                    this->m_token_error(*parent_scope->get_parser(), *expr->begin, "ambiguous reference to function '" + new_funcs.front()->return_type.name_class->get_fqn() + ".operator!()'");
-                                                    return;
-                                                } else {
-                                                    this->m_token_error(*parent_scope->get_parser(), *expr->begin, "unable to resolve function '" + new_funcs.front()->return_type.name_class->get_fqn() + ".operator!()'");
-                                                    return;
-                                                }
-                                            } else {
-                                                this->m_token_error(*parent_scope->get_parser(), *expr->begin, "unable to resolve return type of '" + new_funcs.front()->get_signature() + "'");
-                                            }
-                                            return;
-                                        }
-                                    } else if (expr->type == token::token_type::NOT_EQUAL) {
-                                        temp_tokens.back() = token(m_equals_equals_token->get_data(), token::token_type::EQUALS_EQUALS, expr->begin->get_file_index());
-                                        auto new_funcs = find_scope.find_functions(func_name.to_string());
-                                        if (expr->get_right()->expr_type.name_class) {
-                                            m_filter_functions(new_funcs, *expr->get_right());
-                                        }
-                                        if (new_funcs.size() == 1) {
-                                            if (!new_funcs.front()->return_type.name_class) {
-                                                scope _scope;
-                                                _scope.base = this;
-                                                _scope.clazz = new_funcs.front()->clazz;
-                                                _scope.func = new_funcs.front();
-                                                new_funcs.front()->return_type.name_class = _scope.find_class(new_funcs.front()->return_type.name);
-                                                //expr->expr_type = new_funcs.front()->return_type;
-                                            }
-
-                                            if (new_funcs.front()->return_type.name_class) {
-                                                std::string_view new_data_2 = "!";
-                                                temp_tokens.back() = token(new_data_2, token::token_type::NOT, expr->begin->get_file_index());
-                                                auto negate_funcs = find_scope.find_functions(func_name.to_string());
-                                                m_filter_functions(negate_funcs, nullptr);
-                                                if (negate_funcs.size() == 1) {
-                                                    if (!negate_funcs.front()->return_type.name_class) {
-                                                        scope _scope;
-                                                        _scope.base = this;
-                                                        _scope.clazz = negate_funcs.front()->clazz;
-                                                        _scope.func = negate_funcs.front();
-                                                        negate_funcs.front()->return_type.name_class = _scope.find_class(negate_funcs.front()->return_type.name);
-                                                        expr->expr_type = new_funcs.front()->return_type;
-                                                    }
-                                                    if (negate_funcs.front()->return_type.name_class) {
-                                                        shift_expression negate_expr;
-                                                        negate_expr.type = token::token_type::NOT;
-                                                        negate_expr.function = negate_funcs.front();
-                                                        negate_expr.expr_type = negate_funcs.front()->return_type;
-
-                                                        expr->type = token::token_type::EQUALS_EQUALS;
-                                                        expr->begin = m_equals_equals_token;
-                                                        expr->end = expr->begin + 1;
-                                                        expr->function = new_funcs.front();
-                                                        expr->expr_type = new_funcs.front()->return_type;
-                                                        negate_expr.set_right(std::move(*expr));
-                                                        *expr = std::move(negate_expr);
-                                                        return;
-                                                    } else {
-                                                        this->m_token_error(*parent_scope->get_parser(), *expr->begin, "unable to resolve return type of '" + negate_funcs.front()->get_signature() + "'");
-                                                    }
-                                                    return;
-                                                } else if (negate_funcs.size() > 1) {
-                                                    this->m_token_error(*parent_scope->get_parser(), *expr->begin, "ambiguous reference to function '" + new_funcs.front()->return_type.name_class->get_fqn() + ".operator!()'");
-                                                    return;
-                                                } else {
-                                                    this->m_token_error(*parent_scope->get_parser(), *expr->begin, "unable to resolve function '" + new_funcs.front()->return_type.name_class->get_fqn() + ".operator!()'");
-                                                    return;
-                                                }
-                                            } else {
-                                                this->m_token_error(*parent_scope->get_parser(), *expr->begin, "unable to resolve return type of '" + new_funcs.front()->get_signature() + "'");
-                                            }
-                                            return;
-                                        }
-                                    } else if (expr->type & token::token_type::EQUALS) {
-                                        std::string_view new_data = expr->begin->get_data();
-                                        auto equals_index = new_data.find('=');
-                                        new_data = equals_index == 0 ? new_data.substr(1) : new_data.substr(0, equals_index);
-
-                                        if (new_data != expr->begin->get_data()) {
-                                            temp_tokens.back() = token(new_data, expr->type & ~token::token_type::EQUALS, expr->begin->get_file_index());
-                                            auto new_funcs = find_scope.find_functions(func_name.to_string());
-                                            if (expr->get_right()->expr_type.name_class) {
-                                                m_filter_functions(new_funcs, *expr->get_right());
-                                            }
-                                            if (new_funcs.size() == 1) {
-                                                expr->function = new_funcs.front();
-                                                expr->type = expr->type & ~token::token_type::EQUALS;
-
-                                                if (!new_funcs.front()->return_type.name_class) {
-                                                    scope _scope;
-                                                    _scope.base = this;
-                                                    _scope.clazz = new_funcs.front()->clazz;
-                                                    _scope.func = new_funcs.front();
-                                                    new_funcs.front()->return_type.name_class = _scope.find_class(new_funcs.front()->return_type.name);
-                                                    expr->expr_type = new_funcs.front()->return_type;
-                                                }
-                                                if (new_funcs.front()->return_type.name_class) {
-                                                    shift_expression temp_current_expr = std::move(*expr);
-                                                    *expr = shift_expression();
-                                                    expr->type = token::token_type::EQUALS;
-                                                    expr->begin = m_equals_token;
-                                                    expr->end = expr->begin + 1;
-                                                    expr->set_left(*temp_current_expr.get_left());
-                                                    expr->set_right(std::move(temp_current_expr));
-
-                                                    if (expr->get_left()->expr_type.name_class && expr->get_right()->expr_type.name_class) {
-                                                        if (expr->get_left()->expr_type.name_class != expr->get_right()->expr_type.name_class && expr->get_right()->expr_type.name_class != &m_null_class && expr->get_right()->expr_type.name_class != &m_void_class) {
-                                                            auto conversions = m_get_implicit_conversions(expr->get_right()->expr_type.name_class, expr->get_left()->expr_type.name_class);
-                                                            if (conversions.size() == 1) {
-                                                                if (!conversions.front()->return_type.name_class) {
-                                                                    scope _scope;
-                                                                    _scope.base = this;
-                                                                    _scope.clazz = conversions.front()->clazz;
-                                                                    _scope.func = conversions.front();
-                                                                    conversions.front()->return_type.name_class = _scope.find_class(conversions.front()->return_type.name);
-                                                                }
-                                                                *expr->get_right() = m_create_convert_expr(std::move(*expr->get_right()), *conversions.front());
-                                                                expr->expr_type = expr->get_left()->expr_type;
-                                                                //expr->function = conversions.front();
-                                                                return;
-                                                            } else if (conversions.size() > 1) {
-                                                                this->m_token_error(*parent_scope->get_parser(), *expr->get_right()->begin, "ambiguous implicit type conversion from '" + expr->get_right()->expr_type.name_class->get_fqn() + "' to '" + expr->get_left()->expr_type.name_class->get_fqn() + "'");
-                                                                return;
-                                                            } else {
-                                                                this->m_token_error(*parent_scope->get_parser(), *expr->get_right()->begin, "unable to resolve implicit type conversion from '" + expr->get_right()->expr_type.name_class->get_fqn() + "' to '" + expr->get_left()->expr_type.name_class->get_fqn() + "'");
-                                                                return;
-                                                            }
-                                                        } else {
-                                                            expr->expr_type = expr->get_left()->expr_type;
-                                                        }
-                                                    }
-                                                } else {
-                                                    this->m_token_error(*parent_scope->get_parser(), *expr->begin, "unable to resolve return type of '" + expr->function->get_signature() + "'");
-                                                }
-                                                return;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-
-                            if (funcs.size() == 1) {
-                                expr->function = funcs.front();
-                                if (!funcs.front()->return_type.name_class) {
-                                    scope _scope;
-                                    _scope.base = this;
-                                    _scope.clazz = funcs.front()->clazz;
-                                    _scope.func = funcs.front();
-                                    funcs.front()->return_type.name_class = _scope.find_class(funcs.front()->return_type.name);
-                                }
-                                expr->expr_type = funcs.front()->return_type;
-                            } else {
-                                if (!expr->expr_type.name_class) {
-                                    std::string func_fqn = expr->get_left()->expr_type.name_class->get_fqn() + ".operator" + std::string(expr->begin->get_data()) + "(";
-                                    if (expr->get_right()->expr_type.name_class) {
-                                        func_fqn += expr->get_right()->expr_type.get_fqn();
-                                    } else {
-                                        func_fqn += "<unknown>";
-                                    }
-                                    func_fqn += ')';
-                                    if (funcs.size() > 1) {
-                                        this->m_token_error(*parent_scope->get_parser(), *expr->begin, "ambiguous reference to function '" + func_fqn + "' in current scope");
-                                    } else {
-                                        this->m_token_error(*parent_scope->get_parser(), *expr->begin, "unable to resolve reference to function '" + func_fqn + "' in current scope");
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-
-                // if (is_prefix) {
-                //     if (!expr->get_right()->expr_type.name_class) {
-                //         // error
-                //         return;
-                //     } else {
-                //         find_scope.clazz = expr->get_right()->expr_type.name_class;
-                //         find_scope.parser_ = parent_scope->parser_;
-
-                //         func_expr.sub.push_back(shift_expression());
-                //         // func_expr.sub.back().sub.push_back(shift_expression());
-                //         parent_func_expr.sub.push_back(std::move(func_expr));
-                //         m_resolve_expression(&parent_func_expr, &find_scope);
-                //     }
-                // } else if (is_suffix) {
-
-                // } else {
-                //     if (!expr->get_left()->expr_type.name_class) {
-                //         // error
-                //         return;
-                //     } else if (!expr->get_right()->expr_type.name_class) {
-                //         // error
-                //         return;
-                //     } else {
-                //         find_scope.clazz = expr->get_left()->expr_type.name_class;
-                //         //find_scope.parser = find_scope.clazz->parser;
-                //         find_scope.parser_ = parent_scope->parser_;
-                //         func_expr.sub.push_back(*expr->get_right());
-                //         func_expr.sub.back().sub.push_back(*expr->get_right());
-
-                //         parent_func_expr.sub.push_back(std::move(func_expr));
-                //         m_resolve_expression(&parent_func_expr, &find_scope);
-                //     }
-                // }
-
-                // if (!parent_func_expr.expr_type.name_class) {
-                //     // m_resolve_expression call will do error reporting for us?
-                //     return;
-                // }
-                // expr->expr_type = parent_func_expr.expr_type;
-                // expr->function = parent_func_expr.function;
-                // expr->variable = parent_func_expr.variable;
-            } else if (expr->type == token::token_type::COMMA) {
-                for (shift_expression& sub_expr : expr->sub) {
-                    m_resolve_expression(&sub_expr, parent_scope);
-                }
-            } else {
-                switch (expr->type) {
-                    case token_type::STRING_LITERAL:
-                        expr->expr_type.name_class = parent_scope->base->m_classes[SHIFT_ANALYZER_STRING_CLASS];
-                        break;
-                    case token_type::CHAR_LITERAL:
-                        expr->expr_type.name_class = parent_scope->base->m_classes[SHIFT_ANALYZER_CHAR_CLASS];
-                        break;
-                    case token_type::INTEGER_LITERAL:
-                    case token_type::BINARY_NUMBER:
-                    case token_type::HEX_NUMBER:
-                        expr->expr_type.name_class = parent_scope->base->m_classes[SHIFT_ANALYZER_INT_CLASS];
-                        break;
-                    case token_type::FLOAT:
-                        expr->expr_type.name_class = parent_scope->base->m_classes[SHIFT_ANALYZER_FLOAT_CLASS];
-                        break;
-                    case token_type::DOUBLE:
-                        expr->expr_type.name_class = parent_scope->base->m_classes[SHIFT_ANALYZER_DOUBLE_CLASS];
-                        break;
-                    default:
-                        this->m_name_error(*parent_scope->get_parser(), expr->to_name(), "unable to resolve type of expression");
-                        break;
-                }
+        {
+            m_void_class.name = m_void_token;
+            m_null_class.name = &*m_null_token;
+        }
+    }
+
+    const std::list<analyzer::type_conversion_info>&
+        analyzer::m_get_implicit_conversions(const shift_type* from, const shift_type* to,
+            std::unordered_set<shift_class*>& history) noexcept {
+        static const std::list<analyzer::type_conversion_info> empty_conversions;
+        std::list<analyzer::type_conversion_info> funcs;
+
+        if (!from || !to || from->name.clazz == &m_void_class || to->name.clazz == &m_void_class || from->name.clazz == &m_null_class
+            || to->name.clazz == &m_null_class || from == to
+            || (from->ref_type == shift_type::reference_type::tref && to->ref_type == shift_type::reference_type::ref && ((to->mods & shift_mods::IMUT) == 0x0))
+            || (from->ref_type == shift_type::reference_type::ref && to->ref_type == shift_type::reference_type::none)
+            || (from->ref_type == shift_type::reference_type::ref && to->ref_type == shift_type::reference_type::ref && (from->mods & shift_mods::IMUT) && ((to->mods & shift_mods::IMUT) == 0x0))
+            || *from == *to || !from->is_resolved() || !to->is_resolved() || !from->is_conversion_needed(*to))
+        {
+            return empty_conversions;
+        }
+
+        static std::unordered_map<std::pair<shift_type, shift_type>, std::list<analyzer::type_conversion_info>> m_implicit_conversion_cache;
+
+        {
+            auto f = m_implicit_conversion_cache.find({ *from, *to });
+            if (f != m_implicit_conversion_cache.end()) {
+                return f->second;
             }
         }
 
-        utils::ordered_set<shift_function*>& analyzer::m_filter_functions(utils::ordered_set<shift_function*>& funcs, std::list<shift_expression>& params) {
-            for (auto it = funcs.begin(); it != funcs.end(); ++it) {
-                shift_function& func = **it;
+        {
+            auto const constructor_overloads_it = m_function_overloads.find(to->get_fqn() + ".constructor");
+            if (constructor_overloads_it == m_function_overloads.end()) { goto cache_result; }
 
-                // TODO allow default parameters
-                if (func.parameters.size() != params.size()) {
-                    auto next = funcs.erase(it);
-                    it = --next;
-                    continue;
+            for (auto& constructor_overload : constructor_overloads_it->second) {
+                if (constructor_overload.func->mods & shift_mods::EXPLICIT) continue;
+                if (constructor_overload.func->parameters.size() != 1) continue;
+
+                auto& [param_name, param] = constructor_overload.func->parameters.front();
+
+                if (!param.type.tried_resolve && !param.type.is_resolved()) {
+                    m_analyze_function_params(*constructor_overload.func);
                 }
 
-                auto func_param_it = func.parameters.begin();
-                auto expr_param_it = params.begin();
-                bool exact_match = true;
-                for (;expr_param_it != params.end(); ++expr_param_it, ++func_param_it) {
-                    if (!expr_param_it->expr_type.name_class) {
-                        // no chance at name resolution if one of the expression hasn't even been resolved yet
+                if (!param.type.is_resolved()) continue;
+
+                if (((param.type.ref_type == shift_type::reference_type::ref && from->ref_type == shift_type::reference_type::ref) || (param.type.mods & shift_mods::IMUT))
+                    || (param.type.ref_type != shift_type::reference_type::ref && from->ref_type == shift_type::reference_type::tref && ((param.type.mods & shift_mods::IMUT) || ((from->mods & shift_mods::IMUT) == 0x0)))) {
+                    if (param.type.name.clazz == from->name.clazz) {
+                        // exact match
                         funcs.clear();
-                        return funcs;
-                    }
+                        funcs.push_back({ *from, to, {constructor_overload.func} });
+                        goto cache_result;
+                    } else if (from->name.clazz->has_base(param.type.name.clazz)) {
+                        // base class match
 
-                    if (!func_param_it->second.type.name_class) {
-                        scope _scope;
-                        _scope.base = this;
-                        _scope.clazz = func.clazz;
-                        _scope.func = &func;
-                        func_param_it->second.type.name_class = _scope.find_class(func_param_it->second.type.name);
-                    }
-
-                    if (func_param_it->second.type.name_class) {
-                        if (func_param_it->second.type != expr_param_it->expr_type) {
-                            exact_match = false;
-                            if (func_param_it->second.type.array_dimensions == 0 && expr_param_it->expr_type.array_dimensions == 0) {
-                                auto conversions = m_get_implicit_conversions(expr_param_it->expr_type.name_class, func_param_it->second.type.name_class);
-                                if (conversions.size() == 1) {
-                                    // TODO complete conversion
-                                    *expr_param_it = m_create_convert_expr(std::move(*expr_param_it), *conversions.front());
-                                    continue;
-                                }
+                        // Remove base class matches that would be worse than this current one
+                        bool should_add = true;
+                        for (auto it = funcs.begin(); it != funcs.end(); ++it) {
+                            auto* first_func = it->funcs.front();
+                            auto& [first_func_param_name, first_func_param] = first_func->parameters.front();
+                            if (param.type.name.clazz->has_base(first_func_param.type.name.clazz)) {
+                                it = funcs.erase(it);
+                                --it;
+                            } else if (first_func_param.type.name.clazz->has_base(param.type.name.clazz)) {
+                                should_add = false;
+                                break;
                             }
+                        }
+                        // Only add if it's not a worse match than whats already in funcs (if a base class is even in funcs)
+                        if (should_add) { funcs.push_back({ *from, to, {constructor_overload.func} }); }
+                    } else {
+                        // have to check if this type converts
+                        if (history.find(from->name.clazz) == history.end()) {
+                            history.insert(from->name.clazz);
+                            shift_type new_from = *from;
+                            new_from.ref_type = shift_type::reference_type::tref;
+
+                            const auto& sub_conversions = m_get_implicit_conversions(&new_from, &param.type, history);
+
+                            for (const auto& sub_conversion : sub_conversions) {
+                                funcs.push_back({ *from, to, sub_conversion.funcs });
+                                funcs.back().funcs.push_back(constructor_overload.func);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+    cache_result:
+        auto cache_it = m_implicit_conversion_cache.insert({ { *from, *to }, std::move(funcs) });
+
+        return cache_it.first->second;
+    }
+
+    void analyzer::m_apply_implicit_conversion(shift_expression& expr, const type_conversion_info& conversion, const scope& current_scope, bool silent) {
+        if (expr.is_type_resolved()) {
+            if (expr.resolved.type == *conversion.to) return;
+            if (expr.resolved.type.name.clazz != conversion.from.name.clazz) {
+                if (!silent) {
+                    this->m_token_error(*current_scope.get_parser(), *expr.begin, "cannot convert type '" + expr.resolved.type.get_printable_fqn() +
+                        "' to type '" + conversion.to->get_printable_fqn() + "'");
+                }
+            }
+        }
+
+        shift_expression* const old_parent = expr.parent;
+
+        for (shift_function* conversion_func : conversion.funcs) {
+            shift_expression constructor_call_expr;
+            constructor_call_expr.set_function_call();
+            constructor_call_expr.begin = expr.begin;
+            constructor_call_expr.end = expr.end;
+            {
+                shift_expression function_call_object;
+                function_call_object.type = expr.type;
+                function_call_object.begin = expr.begin;
+                function_call_object.end = expr.end;
+                // m_analyze_function_return_type(*conversion_func, silent);
+                // TODO If we have conversion functions outside of classes, this must be fixed
+                function_call_object.resolved.type.name.clazz = conversion_func->clazz;
+                function_call_object.resolved.type.ref_type = shift_type::reference_type::tref;
+                function_call_object.resolved.clazz = conversion_func->clazz;
+                function_call_object.resolved.function = conversion_func;
+
+                constructor_call_expr.set_function_call_object(std::move(function_call_object));
+            }
+            constructor_call_expr.resolved.type.name.clazz = conversion_func->clazz;
+            constructor_call_expr.resolved.type.ref_type = shift_type::reference_type::tref;
+            constructor_call_expr.resolved.clazz = conversion_func->clazz;
+            constructor_call_expr.resolved.function = conversion_func;
+
+            constructor_call_expr.add_function_call_arguments(std::move(expr));
+
+            expr = std::move(constructor_call_expr);
+        }
+        expr.update_parents(old_parent);
+    }
+
+    bool analyzer::m_verify_class_access(const scope* const parent_scope, const shift_class* clazz,
+        const std::variant<const token*, const shift_name*>& error) {
+
+        for (parser* parser_ = parent_scope->get_parser(); clazz; clazz = clazz->parent.clazz) {
+            if (clazz->mods & shift_mods::PRIVATE) {
+                if (!clazz->parent.clazz && parser_->get_module() != *clazz->module_) {
+                    std::visit(
+                        utils::visit_overloader{
+                            [&](const token* error_token) {
+                                this->m_token_error(*parser_, *error_token, "private class '" + clazz->get_fqn() +
+                                    "' can only be accessed within same module (" + clazz->module_->to_string() + ")");
+                            },
+                            [&](const shift_name* name_token) {
+                                this->m_name_error(*parser_, *name_token, "private class '" + clazz->get_fqn() +
+                                    "' can only be accessed within same module (" + clazz->module_->to_string() + ")");
+                            }
+                        }, error);
+
+                    return false;
+                } else if (clazz->parent.clazz && (!parent_scope->clazz || (clazz != parent_scope->clazz &&
+                    !clazz->has_parent(parent_scope->clazz) && !parent_scope->clazz->has_parent(clazz)))) {
+                    std::visit(
+                        utils::visit_overloader{
+                            [&](const token* error_token) {
+                                this->m_token_error(*parser_, *error_token, "private class '" + clazz->get_fqn() +
+                                    "' cannot be accessed within current scope");
+                            },
+                            [&](const shift_name* name_token) {
+                                this->m_name_error(*parser_, *name_token, "private class '" + clazz->get_fqn() +
+                                    "' cannot be accessed within current scope");
+                            }
+                        }, error);
+                    return false;
+                }
+            } else if (clazz->mods & shift_mods::PROTECTED) {
+                if (!clazz->parent.clazz && !utils::starts_with((std::string_view)clazz->module_->to_string(),
+                    (std::string_view)parser_->get_module().to_string())) {
+                    std::visit(
+                        utils::visit_overloader{
+                            [&](const token* error_token) {
+                                this->m_token_error(*parser_, *error_token,
+                                    "protected class '" + clazz->get_fqn() +
+                                    "' may only be accessed from submodules of module '" + clazz->module_->to_string() + "'");
+                            },
+                            [&](const shift_name* name_token) {
+                                this->m_name_error(*parser_, *name_token,
+                                    "protected class '" + clazz->get_fqn() +
+                                    "' may only be accessed from submodules of module '" + clazz->module_->to_string() + "'");
+                            }
+                        }, error);
+                    return false;
+                } else if (clazz->parent.clazz && (!parent_scope->clazz || (clazz != parent_scope->clazz &&
+                    !clazz->has_parent(parent_scope->clazz) &&
+                    !parent_scope->clazz->has_parent(clazz) &&
+                    !parent_scope->clazz->has_base(clazz)))) {
+                    std::visit(
+                        utils::visit_overloader{
+                            [&](const token* error_token) {
+                                this->m_token_error(*parser_, *error_token,
+                                    "protected class '" + clazz->get_fqn() +
+                                    "' cannot be accessed within current scope");
+                            },
+                            [&](const shift_name* name_token) {
+                                this->m_name_error(*parser_, *name_token,
+                                    "protected class '" + clazz->get_fqn() +
+                                    "' cannot be accessed within current scope");
+                            }
+                        }, error);
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    bool analyzer::m_verify_access(const scope* parent_scope, const shift_class* clazz, const shift_name& error_name, bool silent) {
+        if (clazz->mods & shift_mods::PRIVATE) {
+            if (clazz->parent.clazz) {
+                if (!parent_scope->clazz || (parent_scope->clazz != clazz && !clazz->has_parent(parent_scope->clazz))) {
+                    if (!silent) {
+                        this->m_name_error(*parent_scope->get_parser(), error_name, "private class '" + clazz->get_fqn() + "' cannot be accessed within current scope");
+                    }
+                    return false;
+                }
+            } else {
+                if (*parent_scope->get_module() != *clazz->module_) {
+                    if (!silent) {
+                        this->m_name_error(*parent_scope->get_parser(), error_name, "private class '" + clazz->get_fqn() + "' can only be accessed within same module (" + clazz->module_->to_string() + ")");
+                    }
+                    return false;
+                }
+            }
+        } else if (clazz->mods & shift_mods::PROTECTED) {
+            if (clazz->parent.clazz) {
+                if (!parent_scope->clazz || (parent_scope->clazz != clazz && !clazz->has_parent(parent_scope->clazz) && !parent_scope->clazz->has_parent(clazz))) {
+                    if (!silent) {
+                        this->m_name_error(*parent_scope->get_parser(), error_name, "protected class '" + clazz->get_fqn() + "' cannot be accessed within current scope");
+                    }
+                    return false;
+                }
+            } else {
+                if (!utils::starts_with((std::string_view)parent_scope->get_module()->to_string(),
+                    (std::string_view)clazz->module_->to_string())) {
+                    if (!silent) {
+                        this->m_name_error(*parent_scope->get_parser(), error_name, "protected class '" + clazz->get_fqn() + "' can only be accessed from submodules of module '" + clazz->module_->to_string() + "'");
+                    }
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    bool analyzer::m_verify_access(const scope* parent_scope, const shift_module* module_, const shift_name& error_name, bool silent) {
+        if (module_->mods & shift_mods::PROTECTED) {
+            if (!utils::starts_with((std::string_view)parent_scope->get_module()->to_string(),
+                (std::string_view)module_->to_string())) {
+                if (!silent) {
+                    this->m_name_error(*parent_scope->get_parser(), error_name, "protected module '" + module_->to_string() + "' can only be accessed from submodules of module '" + module_->to_string() + "'");
+                }
+                return false;
+            }
+        }
+        return true;
+    }
+
+    bool analyzer::m_verify_access(const scope* parent_scope, shift_variable* variable, const shift_name& error_name, bool silent) {
+        if (!variable->type.is_resolved()) {
+            m_analyze_variable_type(*variable, nullptr, silent);
+        }
+
+        if (variable->type.is_resolved()) {
+            if (!m_verify_access(parent_scope, variable->type.name.clazz, error_name, silent)) {
+                return false;
+            }
+        }
+
+        if (variable->clazz || variable->module_) {
+            if (variable->mods & shift_mods::PRIVATE) {
+                if (variable->clazz) {
+                    if (!parent_scope->clazz || (parent_scope->clazz != variable->clazz && !variable->clazz->has_parent(parent_scope->clazz))) {
+                        if (!silent) {
+                            this->m_name_error(*parent_scope->get_parser(), error_name, "private field '" + variable->get_fqn() + "' cannot be accessed within current scope");
+                        }
+                        return false;
+                    }
+                } else {
+                    if (*parent_scope->get_module() != *variable->module_) {
+                        if (!silent) {
+                            this->m_name_error(*parent_scope->get_parser(), error_name, "private field '" + variable->get_fqn() + "' can only be accessed within same module (" + variable->module_->to_string() + ")");
+                        }
+                        return false;
+                    }
+                }
+            } else if (variable->mods & shift_mods::PROTECTED) {
+                if (variable->clazz) {
+                    if (!parent_scope->clazz || (parent_scope->clazz != variable->clazz && !variable->clazz->has_parent(parent_scope->clazz) && !parent_scope->clazz->has_parent(variable->clazz))) {
+                        if (!silent) {
+                            this->m_name_error(*parent_scope->get_parser(), error_name, "protected field '" + variable->get_fqn() + "' cannot be accessed within current scope");
+                        }
+                        return false;
+                    }
+                } else {
+                    if (!utils::starts_with((std::string_view)parent_scope->get_module()->to_string(),
+                        (std::string_view)variable->module_->to_string())) {
+                        if (!silent) {
+                            this->m_name_error(*parent_scope->get_parser(), error_name, "protected field '" + variable->get_fqn() + "' can only be accessed from submodules of module '" + variable->module_->to_string() + "'");
+                        }
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+    bool analyzer::m_verify_access(const scope* parent_scope, shift_function* function, const shift_name& error_name, bool silent) {
+        if (!function->return_type.is_resolved()) {
+            m_analyze_function_return_type(*function, silent);
+        }
+
+        if (function->return_type.is_resolved()) {
+            if (!m_verify_access(parent_scope, function->return_type.name.clazz, error_name, silent)) {
+                return false;
+            }
+        }
+
+        if (function->mods & shift_mods::PRIVATE) {
+            if (!parent_scope->clazz || (parent_scope->clazz != function->clazz && !function->clazz->has_parent(parent_scope->clazz))) {
+                if (!silent) {
+                    m_analyze_function_params(*function, false);
+                    this->m_name_error(*parent_scope->get_parser(), error_name, "private function '" + function->get_signature() + "' cannot be accessed within current scope");
+                }
+                return false;
+            }
+        } else if (function->mods & shift_mods::PROTECTED) {
+            if (!parent_scope->clazz || (parent_scope->clazz != function->clazz && !function->clazz->has_parent(parent_scope->clazz) && !parent_scope->clazz->has_parent(function->clazz))) {
+                if (!silent) {
+                    m_analyze_function_params(*function, false);
+                    this->m_name_error(*parent_scope->get_parser(), error_name, "protected function '" + function->get_signature() + "' cannot be accessed within current scope");
+                }
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+
+    bool analyzer::m_verify_access(const scope* parent_scope, shift_expression* expr, bool silent) {
+        if (expr->is_dotted_expression()) {
+            for (auto& sub_expr : expr->get_dotted_expressions()) {
+                if (!m_verify_access(parent_scope, &sub_expr, silent)) return false;
+            }
+        }
+        if (expr->type == token::token_type::IDENTIFIER) {
+            if (expr->resolved.module_) {
+                return m_verify_access(parent_scope, expr->resolved.module_, shift_name{ expr->begin, expr->end }, silent);
+            } else if (expr->resolved.variable) {
+                return m_verify_access(parent_scope, expr->resolved.variable, shift_name{ expr->begin, expr->end }, silent);
+            } else if (expr->resolved.function) {
+                return m_verify_access(parent_scope, expr->resolved.function, shift_name{ expr->begin, expr->end }, silent);
+            } else if (expr->resolved.clazz) {
+                return m_verify_access(parent_scope, expr->resolved.clazz, shift_name{ expr->begin, expr->end }, silent);
+            }
+        } else if (expr->is_function_call()) {
+            if (expr->resolved.function) {
+                if (!m_verify_access(parent_scope, expr->resolved.function, shift_name{ expr->get_function_call_object()->begin, expr->get_function_call_object()->end }, silent)) return false;
+            } else if (expr->get_function_call_object()->resolved.function) {
+                if (!m_verify_access(parent_scope, expr->get_function_call_object()->resolved.function, shift_name{ expr->get_function_call_object()->begin, expr->get_function_call_object()->end }, silent)) return false;
+            }
+
+            for (shift_expression& param_expr : expr->get_function_call_arguments()) {
+                if (!m_verify_access(parent_scope, &param_expr, silent)) return false;
+            }
+        } else if (expr->is_array()) {
+            if (!m_verify_access(parent_scope, expr->get_array_object(), silent)) return false;
+            for (shift_expression& dim_expr : expr->get_array_dimensions()) {
+                if (!m_verify_access(parent_scope, dim_expr.get_array_indexer_expression(), silent)) return false;
+                if (dim_expr.resolved.function && !m_verify_access(parent_scope, dim_expr.resolved.function, shift_name{ dim_expr.get_array_indexer_expression()->begin, dim_expr.get_array_indexer_expression()->end }, silent)) return false;
+            }
+        } else if (expr->type == token::token_type::COMMA) {
+            for (shift_expression& sub_expr : expr->get_comma_expressions()) {
+                if (!m_verify_access(parent_scope, &sub_expr, silent)) return false;
+            }
+        } else if (is_overload_operator(expr->type)) {
+            if (expr->resolved.function) {
+                if (!m_verify_access(parent_scope, expr->resolved.function, shift_name{ expr->begin, expr->end }, silent)) return false;
+                shift_function* const func = expr->resolved.function;
+
+                if ((func->mods & shift_mods::PRIVATE) && parent_scope->clazz != func->clazz) {
+                    m_analyze_function_params(*func, silent);
+                    this->m_token_error(*parent_scope->get_parser(), *expr->begin,
+                        "function '" + func->get_signature() +
+                        "' cannot be accessed within current scope");
+                    return false;
+                } else if ((func->mods & shift_mods::PROTECTED) && parent_scope->clazz != func->clazz &&
+                    !parent_scope->clazz->has_base(func->clazz)) {
+                    m_analyze_function_params(*func, silent);
+                    this->m_token_error(*parent_scope->get_parser(), *expr->begin,
+                        "function '" + func->get_signature() +
+                        "' cannot be accessed within current scope");
+                    return false;
+                } else if ((func->mods & shift_mods::STATIC) == 0x0) {
+                    if (parent_scope->var) {
+                        if ((parent_scope->var->type.mods & shift_mods::STATIC) || !parent_scope->var) {
+                            m_analyze_function_params(*func, silent);
+                            this->m_token_error(*parent_scope->get_parser(), *expr->begin,
+                                "non-static function '" + func->get_signature() +
+                                "' cannot be accessed within current scope");
+                            return false;
+                        }
+                    } else if (parent_scope->func) {
+                        if ((parent_scope->func->mods & shift_mods::STATIC) || !parent_scope->func) {
+                            m_analyze_function_params(*func, silent);
+                            this->m_token_error(*parent_scope->get_parser(), *expr->begin,
+                                "non-static function '" + func->get_signature() +
+                                "' cannot be accessed within current scope");
+                            return false;
+                        }
+                    }
+                }
+            }
+
+            const bool has_left = expr->has_left() && expr->get_left()->type != token::token_type::NULL_TOKEN;
+            const bool has_right = expr->has_right() && expr->get_right()->type != token::token_type::NULL_TOKEN;
+
+            if (has_left) {
+                if (!m_verify_access(parent_scope, expr->get_left(), silent)) return false;
+            }
+
+            if (has_right) {
+                if (!m_verify_access(parent_scope, expr->get_right(), silent)) return false;
+            }
+        }
+        if (expr->is_type_resolved()) {
+            if (!m_verify_access(parent_scope, expr->resolved.type.name.clazz, shift_name{ expr->begin, expr->end }, silent)) return false;
+        }
+        return true;
+    }
+
+    void analyzer::m_analyze_function_return_type(shift_function& func, bool silent) {
+        if (!func.name.begin->is_constructor() && !func.name.begin->is_destructor() && !func.return_type.name.name.begin->is_void()) {
+            scope current_scope;
+            current_scope.base = this;
+            current_scope.parser_ = func.parser_;
+            current_scope.clazz = func.clazz;
+            current_scope.func = &func;
+            current_scope.module_ = func.module_ ? func.module_ : func.clazz->module_;
+
+            std::string return_type_class_name = func.return_type.name.name.to_string();
+
+            auto return_type_class_candidates = current_scope.find_classes(return_type_class_name);
+
+            if (return_type_class_candidates.size() > 1) {
+                if (!silent)
+                    this->m_name_error(*current_scope.get_parser(), func.return_type.name.name,
+                        "ambiguous reference to class '" + return_type_class_name + "'");
+            } else if (return_type_class_candidates.empty()) {
+                if (!silent)
+                    this->m_name_error(*current_scope.get_parser(), func.return_type.name.name,
+                        "unable to resolve class '" + return_type_class_name + "'");
+            } else {
+                func.return_type.name.clazz = return_type_class_candidates.front();
+                func.return_type.name.name_clazz = func.return_type.name.clazz;
+                m_finalize_type(func.return_type);
+                m_verify_class_access(&current_scope, func.return_type.name.clazz, &*(func.return_type.name.name.end - 1));
+            }
+        } else if (func.name.begin->is_constructor() || func.name.begin->is_destructor() || func.return_type.name.name.begin->is_void()) {
+            func.return_type.name.clazz = &m_void_class;
+            func.return_type.ref_type = shift_type::reference_type::none;
+            func.return_type.mods = shift_mods(0x0);
+            func.return_type.dimensions.clear();
+        }
+    }
+
+    void analyzer::m_analyze_function_params(shift_function& func, bool silent) {
+        scope current_scope;
+        current_scope.base = this;
+        current_scope.parser_ = func.parser_;
+        current_scope.clazz = func.clazz;
+        current_scope.func = &func;
+        current_scope.module_ = func.module_ ? func.module_ : func.clazz->module_;
+
+        for (auto& [param_name, param_var] : func.parameters) {
+            if (param_var.type.tried_resolve) continue;
+            param_var.type.tried_resolve = true;
+            if (param_var.type.name.clazz || param_var.type.name.name_clazz) continue;
+            std::string param_type_class_name = param_var.type.name.name.to_string();
+
+            auto param_type_class_candidates = current_scope.find_classes(param_type_class_name);
+
+            if (param_type_class_candidates.size() > 1) {
+                // TODO list candidates
+                if (!silent)
+                    this->m_name_error(*current_scope.get_parser(), param_var.type.name.name,
+                        "ambiguous reference to class '" + param_type_class_name + "' in current scope");
+            } else if (param_type_class_candidates.empty()) {
+                if (!silent)
+                    this->m_name_error(*current_scope.get_parser(), param_var.type.name.name,
+                        "unable to resolve class '" + param_type_class_name + "' in current scope");
+            } else {
+                param_var.type.name.clazz = param_type_class_candidates.front();
+                param_var.type.name.name_clazz = param_var.type.name.clazz;
+                m_finalize_type(param_var.type);
+                m_verify_access(&current_scope, param_var.type.name.clazz, param_var.type.name.name);
+            }
+        }
+    }
+
+    void analyzer::m_analyze_function_body(shift_function& func, scope* parent_scope) {
+        // shift_function* old_func = nullptr;
+
+        // if (parent_scope) {
+        //     old_func = parent_scope->func;
+        //     parent_scope->func = &func;
+        // }
+
+        // m_analyze_scope(func.statements, parent_scope);
+
+        // if (parent_scope) {
+        //     parent_scope->func = old_func;
+        // }
+        scope func_scope;
+        func_scope.base = this;
+        func_scope.parser_ = parent_scope->parser_;
+        func_scope.clazz = parent_scope->clazz;
+        func_scope.func = &func;
+        func_scope.parent = parent_scope;
+        func_scope.module_ = parent_scope->module_;
+        m_analyze_scope(func.statements, &func_scope);
+    }
+
+    void analyzer::m_analyze_scope(typename std::deque<shift_statement>::iterator statements_begin,
+        typename std::deque<shift_statement>::iterator statements_end,
+        scope* parent_scope) {
+        scope _scope;
+        if (parent_scope) {
+            _scope.parent = parent_scope;
+            _scope.base = parent_scope->base;
+            _scope.parser_ = parent_scope->parser_;
+            _scope.clazz = parent_scope->clazz;
+            _scope.func = parent_scope->func;
+            _scope.var = parent_scope->var;
+            _scope.module_ = parent_scope->module_;
+        } else {
+            _scope.base = this;
+        }
+
+        for (; statements_begin != statements_end; statements_begin++) {
+            shift_statement& statement = *statements_begin;
+
+            switch (statement.type) {
+                case shift_statement::statement_type::variable_alloc: {
+                    shift_variable& statement_var = statement.get_variable();
+
+                    if (_scope.variables.find(statement_var.name->get_data()) != _scope.variables.end() ||
+                        _scope.func->parameters.contains(statement_var.name->get_data())) {
+                        this->m_token_error(*_scope.get_parser(), *statement_var.name,
+                            "variable with name '" + std::string(statement_var.name->get_data()) +
+                            "' has already been defined in current scope");
+                    } else if (this->m_error_handler && this->m_error_handler->is_print_warnings()) {
+                        auto found_vars = _scope.find_variables(statement_var.name->get_data());
+                        if (!found_vars.empty()) {
+                            shift_variable& found_var = *found_vars.front();
+                            if (found_var.function) {
+                                this->m_token_warning(*_scope.get_parser(), *statement_var.name,
+                                    "variable masks variable with identical name in upper scope");
+                            } else if (found_var.clazz) {
+                                this->m_token_warning(*_scope.get_parser(), *statement_var.name,
+                                    "variable masks variable with identical name in class '" +
+                                    found_var.clazz->get_fqn() + "'");
+                            }
+                        }
+                    }
+
+                    _scope.variables[statement_var.name->get_data()] = &statement_var;
+
+                    statement_var.function = _scope.func;
+                    statement_var.parser_ = _scope.get_parser();
+                    statement_var.module_ = _scope.module_;
+
+                    auto statement_var_classes = _scope.find_classes(statement_var.type.name.name);
+                    if (statement_var_classes.size() > 1) {
+                        this->m_name_error(*_scope.get_parser(), statement_var.type.name.name,
+                            "ambiguous reference to class '" + statement_var.type.name.name.to_string() +
+                            "'");
+                    } else if (statement_var_classes.empty()) {
+                        this->m_name_error(*_scope.get_parser(), statement_var.type.name.name,
+                            "unable to resolve class '" + statement_var.type.name.name.to_string() + "'");
+                    } else {
+                        statement_var.type.name.clazz = statement_var_classes.front();
+
+                        m_finalize_type(statement_var.type);
+                        m_verify_access(&_scope, statement_var.type.name.clazz, { statement_var.type.name.name.begin, statement_var.type.name.name.end });
+                    }
+
+                    if (statement_var.value.type != token::token_type::NULL_TOKEN) {
+                        m_resolve_expression(&statement_var.value, &_scope);
+                    } else {
+                        m_set_default_value(statement_var);
+                    }
+
+                    if (statement_var.value.is_type_resolved()) {
+                        m_finalize_type(statement_var.value.resolved.type);
+
+                        if (statement_var.value.resolved.type.is_conversion_needed(statement_var.type)) {
+                            const auto& conversions = m_get_implicit_conversions(statement_var.value.resolved.type, statement_var.type);
+                            if (conversions.size() == 1) {
+                                m_apply_implicit_conversion(statement_var.value, conversions.front(), _scope);
+                            } else if (conversions.size() > 1) {
+                                this->m_token_error(*_scope.get_parser(), *(statement_var.value.begin - 1),
+                                    "ambiguous type conversion from '" + statement_var.value.resolved.type.get_printable_fqn() +
+                                    "' to '" + statement_var.type.get_printable_fqn() + "'");
+                                m_error_candidates(conversions);
+                            } else {
+                                this->m_token_error(*_scope.get_parser(), *(statement_var.value.begin - 1),
+                                    "unable to convert type '" + statement_var.value.resolved.type.get_printable_fqn() +
+                                    "' into class type '" + statement_var.type.get_printable_fqn() + "'");
+                            }
+                        }
+
+                        m_verify_access(&_scope, &statement_var.value);
+                    }
+
+                    break;
+                }
+
+                case shift_statement::statement_type::expression: {
+                    if (statement.get_expression().type != token::token_type::NULL_TOKEN) {
+                        m_resolve_expression(&statement.get_expression(), &_scope);
+                        if (statement.get_expression().is_type_resolved()) {
+                            m_finalize_type(statement.get_expression().resolved.type);
+                            m_verify_access(&_scope, &statement.get_expression());
+                        }
+                    }
+
+                    // TODO remove from list otherwise (if unable to resolve name.clazz)
+                    break;
+                }
+
+                case shift_statement::statement_type::scope_begin: {
+                    m_analyze_scope(statement.get_block_statements(), &_scope);
+
+                    break;
+                }
+
+                case shift_statement::statement_type::if_: {
+                    shift_expression& if_condition = statement.get_if_condition();
+                    m_resolve_expression(&if_condition, &_scope);
+
+                    if (if_condition.is_type_resolved()) {
+                        shift_type bool_type;
+                        bool_type.name.clazz = m_classes[SHIFT_ANALYZER_BOOLEAN_CLASS];
+                        bool_type.ref_type = shift_type::reference_type::ref;
+                        bool_type.mods = shift_mods::IMUT;
+
+                        if (if_condition.resolved.type.is_conversion_needed(bool_type)) {
+                            const auto& conversions = m_get_implicit_conversions(if_condition.resolved.type, bool_type);
+                            if (conversions.size() == 1) {
+                                m_apply_implicit_conversion(if_condition, conversions.front(), _scope);
+                            } else if (conversions.size() > 1) {
+                                this->m_token_error(*_scope.get_parser(), *statement.get_if(),
+                                    "ambiguous conversion of conditional value of type '" +
+                                    if_condition.resolved.type.get_printable_fqn() +
+                                    "' to type '" SHIFT_ANALYZER_BOOLEAN_CLASS "'");
+                                m_error_candidates(conversions);
+                            } else if (conversions.empty()) {
+                                this->m_token_error(*_scope.get_parser(), *statement.get_if(),
+                                    "cannot convert conditional value of type '" +
+                                    if_condition.resolved.type.get_printable_fqn() +
+                                    "' into type '" SHIFT_ANALYZER_BOOLEAN_CLASS "'");
+                            }
+                        }
+
+                        m_verify_access(&_scope, &if_condition);
+                    }
+
+                    m_analyze_scope(statement.get_if_statements(), &_scope);
+
+                    if (statement.has_attached_else()) {
+                        m_analyze_scope(statement.get_attached_else().get_else_statements(), &_scope);
+                    }
+
+                    break;
+                }
+
+                case shift_statement::statement_type::else_: {
+                    // ~~Skipping past else statement storage, located as the last statement inside an if statement~~
+                    // This case should never be called
+                    break;
+                }
+
+                case shift_statement::statement_type::while_: {
+                    shift_expression& while_condition = statement.get_while_condition();
+                    m_resolve_expression(&while_condition, &_scope);
+
+                    if (while_condition.is_type_resolved()) {
+
+
+                        shift_type bool_type;
+                        bool_type.name.clazz = m_classes[SHIFT_ANALYZER_BOOLEAN_CLASS];
+                        bool_type.ref_type = shift_type::reference_type::ref;
+                        bool_type.mods = shift_mods::IMUT;
+
+                        if (while_condition.resolved.type.is_conversion_needed(bool_type)) {
+                            const auto& conversions = m_get_implicit_conversions(while_condition.resolved.type, bool_type);
+                            if (conversions.size() == 1) {
+                                m_apply_implicit_conversion(while_condition, conversions.front(), _scope);
+                            } else if (conversions.size() > 1) {
+                                this->m_token_error(*_scope.get_parser(), *statement.get_if(),
+                                    "ambiguous conversion of conditional value of type '" +
+                                    while_condition.resolved.type.get_printable_fqn() +
+                                    "' to type '" SHIFT_ANALYZER_BOOLEAN_CLASS "'");
+                                m_error_candidates(conversions);
+                            } else if (conversions.empty()) {
+                                this->m_token_error(*_scope.get_parser(), *statement.get_if(),
+                                    "cannot convert conditional value of type '" +
+                                    while_condition.resolved.type.get_printable_fqn() +
+                                    "' into type '" SHIFT_ANALYZER_BOOLEAN_CLASS "'");
+                            }
+                        }
+
+                        m_verify_access(&_scope, &while_condition);
+                    }
+
+                    m_analyze_scope(statement.get_while_statements(), &_scope);
+
+                    break;
+                }
+
+                case shift_statement::statement_type::for_: {
+                    {
+                        std::deque temp_initalizer(std::make_move_iterator(&statement.get_for_initializer()),
+                            std::make_move_iterator(&statement.get_for_initializer() + 1));
+                        m_analyze_scope(temp_initalizer, &_scope);
+                        statement.set_for_initializer(std::move(temp_initalizer.front()));
+                        switch (statement.get_for_initializer().type) {
+                            case shift_statement::statement_type::variable_alloc:
+                            case shift_statement::statement_type::expression:
+                                break;
+                            default:
+                            {
+                                this->m_token_error(*_scope.get_parser(), *statement.get_for(),
+                                    "unexpected statement in for loop initializer");
+                                break;
+                            }
+                        }
+                    }
+                    {
+                        shift_expression& for_condition = statement.get_for_condition();
+                        if (for_condition.type == token::token_type::NULL_TOKEN) {
+                            // set to true
+                            for_condition.resolved.type.name.clazz = m_classes[SHIFT_ANALYZER_BOOLEAN_CLASS];
+                            for_condition.resolved.type.ref_type = shift_type::reference_type::tref;
+                            for_condition.resolved.type.dimensions.clear();
+                            for_condition.resolved.type.tried_resolve = true;
+                            for_condition.begin = m_true_token_begin;
+                            for_condition.end = m_true_token_end;
+                            for_condition.type = token::token_type::IDENTIFIER;
+                        } else {
+                            m_resolve_expression(&for_condition, &_scope);
+                            if (for_condition.is_type_resolved()) {
+                                shift_type bool_type;
+                                bool_type.name.clazz = m_classes[SHIFT_ANALYZER_BOOLEAN_CLASS];
+                                bool_type.ref_type = shift_type::reference_type::ref;
+                                bool_type.mods = shift_mods::IMUT;
+
+                                if (for_condition.resolved.type.is_conversion_needed(bool_type)) {
+                                    const auto& conversions = m_get_implicit_conversions(for_condition.resolved.type,
+                                        bool_type);
+                                    if (conversions.size() == 1) {
+                                        m_apply_implicit_conversion(for_condition, conversions.front(), _scope);
+                                    } else if (conversions.size() > 1) {
+                                        this->m_token_error(*_scope.get_parser(), *statement.get_for(),
+                                            "ambiguous conversion of conditional value of type '" +
+                                            for_condition.resolved.type.name.clazz->get_fqn() +
+                                            "' to type '" SHIFT_ANALYZER_BOOLEAN_CLASS "'");
+                                        m_error_candidates(conversions);
+                                    } else if (conversions.empty()) {
+                                        this->m_token_error(*_scope.get_parser(), *statement.get_for(),
+                                            "cannot convert conditional value of type '" +
+                                            for_condition.resolved.type.name.clazz->get_fqn() +
+                                            "' into type '" SHIFT_ANALYZER_BOOLEAN_CLASS "'");
+                                    }
+                                }
+
+                                m_verify_access(&_scope, &for_condition);
+                            }
+                        }
+                    }
+
+                    {
+                        m_analyze_scope(statement.get_for_statements().begin(), statement.get_for_statements().end(), &_scope);
+                    }
+                    break;
+                }
+
+                case shift_statement::statement_type::break_: {
+                    shift_statement* temp_parent = statement.parent;
+                    for (; temp_parent; temp_parent = temp_parent->parent) {
+                        if (temp_parent->type == shift_statement::statement_type::while_ ||
+                            temp_parent->type == shift_statement::statement_type::for_) {
+                            statement.set_break_link(temp_parent);
                             break;
                         }
+                    }
+
+                    if (temp_parent == nullptr) {
+                        this->m_token_error(*_scope.get_parser(), *statement.get_break(),
+                            "unexpected 'break' inside current scope");
+                    }
+                    break;
+                }
+
+                case shift_statement::statement_type::continue_: {
+                    shift_statement* temp_parent = statement.parent;
+                    for (; temp_parent; temp_parent = temp_parent->parent) {
+                        if (temp_parent->type == shift_statement::statement_type::while_ ||
+                            temp_parent->type == shift_statement::statement_type::for_) {
+                            statement.set_continue_link(temp_parent);
+                            break;
+                        }
+                    }
+
+                    if (temp_parent == nullptr) {
+                        this->m_token_error(*_scope.get_parser(), *statement.get_continue(),
+                            "unexpected 'continue' inside current scope");
+                    }
+                    break;
+                }
+
+                case shift_statement::statement_type::return_: {
+                    shift_expression& return_expression = statement.get_return_statement();
+                    if (return_expression.type != token::token_type::NULL_TOKEN) {
+                        m_resolve_expression(&return_expression, &_scope);
+
+                        if (return_expression.is_type_resolved()) {
+                            m_finalize_type(return_expression.resolved.type);
+                            m_verify_access(&_scope, &return_expression);
+                        }
+                    }
+
+                    if (_scope.func->name.begin->is_constructor() || _scope.func->name.begin->is_destructor() || _scope.func->return_type.name.name.begin->is_void()) {
+                        if (return_expression.type != token::token_type::NULL_TOKEN) {
+                            if (return_expression.resolved.type.name.clazz != &m_void_class) {
+                                this->m_token_error(*_scope.get_parser(), *statement.get_return(),
+                                    "unexpected return value in function with return type 'void'");
+                            }
+                        }
                     } else {
-                        exact_match = false;
-                        break;
+                        if (return_expression.type == token::token_type::NULL_TOKEN ||
+                            !return_expression.is_type_resolved()) {
+                            this->m_token_error(*_scope.get_parser(), *statement.get_return(),
+                                "expected return value of type '" +
+                                _scope.func->return_type.get_printable_fqn() + "'");
+                        } else {
+                            if (_scope.func->return_type.is_resolved() && return_expression.is_type_resolved()) {
+                                if (return_expression.resolved.type.is_conversion_needed(_scope.func->return_type)) {
+                                    {
+                                        auto const old_return_ref_type = _scope.func->return_type.ref_type;
+                                        _scope.func->return_type.ref_type = return_expression.resolved.type.ref_type;
+                                        if (!return_expression.resolved.type.is_conversion_needed(_scope.func->return_type)) {
+                                            _scope.func->return_type.ref_type = old_return_ref_type;
+                                            switch (return_expression.resolved.type.ref_type) {
+                                                case shift_type::reference_type::none:
+                                                case shift_type::reference_type::ref:
+                                                    if (return_expression.resolved.variable) {
+                                                        if (return_expression.resolved.variable->function == _scope.func) {
+                                                            if (old_return_ref_type == shift_type::reference_type::none && return_expression.resolved.variable->type.ref_type == shift_type::reference_type::none) {
+                                                                // TODO TODO create implicit move expression
+                                                                shift_expression return_move_expr;
+                                                                return_move_expr.resolved = return_expression.resolved;
+                                                                return_move_expr.resolved.type.ref_type = shift_type::reference_type::tref;
+                                                                return_move_expr.set_mv_expression(std::move(return_expression));
+                                                                statement.set_return_expression(std::move(return_move_expr));
+                                                                goto conversions_end;
+                                                            } else if (return_expression.resolved.variable->type.ref_type != shift_type::reference_type::ref) {
+                                                                // assume old_return_ref_type equals shift_type::reference_type::ref here
+                                                                this->m_token_warning(*_scope.get_parser(), *statement.get_return(),
+                                                                    "returning reference to function local variable");
+                                                                goto conversions_end;
+                                                            }
+                                                            break;
+                                                        }
+                                                    }
+
+                                                    this->m_token_error(*_scope.get_parser(), *statement.get_return(),
+                                                        "cannot convert return value of type '" +
+                                                        return_expression.resolved.type.get_printable_fqn() +
+                                                        "' into type '" + _scope.func->return_type.get_printable_fqn() + "'");
+
+                                                    goto conversions_end;
+                                                case shift_type::reference_type::tref:
+                                                    if (old_return_ref_type == shift_type::reference_type::ref) {
+                                                        this->m_token_error(*_scope.get_parser(), *statement.get_return(),
+                                                            "cannot convert return value of type '" +
+                                                            return_expression.resolved.type.get_printable_fqn() +
+                                                            "' into type '" + _scope.func->return_type.get_printable_fqn() + "'");
+                                                        goto conversions_end;
+                                                    }
+                                                    break;
+                                                default:
+                                                    break;
+                                            }
+                                        }
+                                        _scope.func->return_type.ref_type = old_return_ref_type;
+                                    }
+                                    {
+                                        const auto& conversions = m_get_implicit_conversions(return_expression.resolved.type, _scope.func->return_type);
+                                        if (conversions.size() == 1) {
+                                            m_apply_implicit_conversion(return_expression, conversions.front(), _scope);
+                                        } else if (conversions.size() > 1) {
+                                            this->m_token_error(*_scope.get_parser(), *statement.get_return(),
+                                                "ambiguous conversion of return value of type '" +
+                                                return_expression.resolved.type.get_printable_fqn() +
+                                                "' to type '" + _scope.func->return_type.get_printable_fqn() + "'");
+                                            m_error_candidates(conversions);
+                                        } else if (conversions.empty()) {
+                                            this->m_token_error(*_scope.get_parser(), *statement.get_return(),
+                                                "cannot convert return value of type '" +
+                                                return_expression.resolved.type.get_printable_fqn() +
+                                                "' into type '" + _scope.func->return_type.get_printable_fqn() + "'");
+                                        }
+                                    }
+                                conversions_end:
+                                    ;
+                                } else {
+                                    if (return_expression.resolved.variable) {
+                                        if (return_expression.resolved.variable->function == _scope.func) {
+                                            if (return_expression.resolved.variable->type.ref_type != shift_type::reference_type::ref) {
+                                                this->m_token_warning(*_scope.get_parser(), *statement.get_return(),
+                                                    "returning reference to function local variable");
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    break;
+                }
+
+                case shift_statement::statement_type::use: {
+                    shift_module const& use_module = statement.get_use_module();
+                    if (!contains_module(use_module)) {
+                        this->m_name_error(*_scope.get_parser(), use_module.name,
+                            "module '" + use_module.to_string() + "' does not exist");
+                    } else if (_scope.is_using_module(use_module)) {
+                        this->m_name_warning(*_scope.get_parser(), use_module.name, "redundant 'use' statement");
+                    } else {
+                        _scope.use_modules.emplace(statement.get_use_module());
+                    }
+                    break;
+                }
+
+                default:
+                    // error?
+                    break;
+            }
+        }
+    }
+
+    void analyzer::m_resolve_expression(shift_expression* expr, scope* const parent_scope, bool silent) {
+        if (expr->resolved.type.tried_resolve) return;
+        expr->resolved.type.tried_resolve = true;
+
+        if (expr->is_dotted_expression()) {
+            expr->update_parents(expr->parent);
+
+            for (shift_expression* prev = nullptr; shift_expression & sub_expr : expr->get_dotted_expressions()) {
+                m_resolve_expression_dotted(&sub_expr, parent_scope, prev, silent);
+                sub_expr.resolved.type.tried_resolve = true;
+                if (!sub_expr.is_type_resolved() && !sub_expr.is_resolved()) break;
+                prev = &sub_expr;
+            }
+
+            expr->resolved = expr->get_dotted_expressions().back().resolved;
+        } else if (expr->type == token::token_type::IDENTIFIER) {
+            if (expr->size() == 1) {
+                expr->resolved.type.name.name.begin = expr->begin;
+                expr->resolved.type.name.name.end = expr->end;
+
+                if (expr->begin->is_true() || expr->begin->is_false()) {
+                    expr->resolved.type.name.clazz = parent_scope->base->m_classes[SHIFT_ANALYZER_BOOLEAN_CLASS];
+                    expr->resolved.type.name.name_clazz = expr->resolved.type.name.clazz;
+                    expr->resolved.type.ref_type = shift_type::reference_type::tref;
+                    return;
+                } else if (expr->begin->is_null()) {
+                    expr->resolved.type.name.clazz = &m_null_class;
+                    expr->resolved.type.name.name_clazz = expr->resolved.type.name.clazz;
+                    expr->resolved.type.ref_type = shift_type::reference_type::tref;
+                    return;
+                } else {
+                    m_resolve_expression_dotted(expr, parent_scope, nullptr, silent);
+                }
+            } else if (expr->size() > 1) {
+                if (expr->begin->is_new()) {
+                    // Handle new call
+                    m_resolve_expression(expr->get_new_expression(), parent_scope, silent);
+                    if (!expr->get_new_expression()->is_type_resolved()) return;
+                    m_finalize_type(expr->get_new_expression()->resolved.type);
+                    expr->resolved.type.name.clazz = m_make_pointer_class(expr->get_new_expression()->resolved.type.name.clazz, 1);
+                    expr->resolved.type.ref_type = shift_type::reference_type::tref;
+                } else if (expr->begin->is_cp()) {
+                    // Handle new call
+                    m_resolve_expression(expr->get_cp_expression(), parent_scope, silent);
+                    if (!expr->get_cp_expression()->is_type_resolved()) return;
+                    m_finalize_type(expr->get_cp_expression()->resolved.type);
+                    expr->resolved = expr->get_cp_expression()->resolved;
+                    expr->resolved.type.ref_type = shift_type::reference_type::tref;
+                } else if (expr->begin->is_mv()) {
+                    // Handle new call
+                    m_resolve_expression(expr->get_mv_expression(), parent_scope, silent);
+                    if (!expr->get_mv_expression()->is_type_resolved()) return;
+                    m_finalize_type(expr->get_cp_expression()->resolved.type);
+                    expr->resolved = expr->get_mv_expression()->resolved;
+                    expr->resolved.type.ref_type = shift_type::reference_type::tref;
+                } else {
+                    // error, we some how have more than one token in an identifier expression expression and its not a 'new' call
+                    if (!silent)
+                        this->m_name_error(*parent_scope->get_parser(), shift_name{ expr->begin, expr->end },
+                            "unexpected token in identifier expression");
+                    return;
+                }
+            } else {
+                // error, we have an identifier expression with no tokens
+            }
+        } else if (expr->is_function_call() || expr->is_array()) {
+            m_resolve_expression_dotted(expr, parent_scope, nullptr, silent);
+        } else if (expr->is_bracket()) {
+            const bool is_cast = expr->has_right() && expr->get_right()->type != token::token_type::NULL_TOKEN;
+
+            if (is_cast) {
+                if (!expr->get_left()->is_dotted_expression() && expr->get_left()->type != token::token_type::IDENTIFIER) {
+                    shift_name left_name;
+                    left_name.begin = expr->get_left()->begin;
+                    left_name.end = expr->get_left()->end;
+                    if (!silent)
+                        this->m_name_error(*parent_scope->get_parser(), left_name, "expected type name for explicit cast");
+                    m_resolve_expression(expr->get_right(), parent_scope, silent);
+                    return;
+                }
+
+                if (expr->get_left()->is_dotted_expression()) {
+                    for (auto& sub_expr : expr->get_left()->get_dotted_expressions()) {
+                        if (sub_expr.type != token::token_type::IDENTIFIER) {
+                            shift_name left_name;
+                            left_name.begin = sub_expr.begin;
+                            left_name.end = sub_expr.end;
+                            if (!silent)
+                                this->m_name_error(*parent_scope->get_parser(), left_name, "expected type name for explicit cast");
+                            m_resolve_expression(expr->get_right(), parent_scope, silent);
+                            return;
+                        }
                     }
                 }
 
-                if (expr_param_it != params.end()) {
-                    auto next = funcs.erase(it);
-                    it = --next;
-                    continue;
-                } else if (exact_match) {
-                    shift_function* const ret_func = &func;
-                    funcs.clear();
-                    funcs.push_back(ret_func);
-                    return funcs;
-                }
-            }
-            return funcs;
-        }
-
-        shift_class* analyzer::m_make_array_class(shift_class* const clazz, const size_t dimensions) {
-            if (dimensions == 0) return clazz;
-            std::string array_class_name = "shift.array@" + clazz->get_fqn() + "@" + std::to_string(dimensions);
-            {
-                auto f = m_classes.find(array_class_name);
-                if (f != m_classes.end()) return f->second;
-            }
-            m_extra_classes.emplace_back();
-            m_classes[array_class_name] = &m_extra_classes.back();
-
-            shift_class& array_class = *m_classes[array_class_name];
-            array_class.name = &*m_array_token;
-            array_class.module_ = &m_shift_module;
-            array_class.mods = shift_mods::PUBLIC;
-
-            {
-                shift_variable length_var;
-                length_var.name = &*m_length_token;
-                length_var.clazz = &array_class;
-                length_var.type.name_class = m_classes[SHIFT_ANALYZER_INT_CLASS];
-                length_var.type.mods = shift_mods::PUBLIC;
-                array_class.variables.push_back(std::move(length_var));
-            }
-
-            {
-                array_class.functions.emplace_back();
-                shift_function& bracket_function = array_class.functions.back();
-                bracket_function.name.begin = m_left_square_bracket_token;
-                bracket_function.name.end = bracket_function.name.begin + 1;
-                bracket_function.mods = shift_mods::PUBLIC;
-                bracket_function.return_type.name_class = m_make_array_class(clazz, dimensions - 1);
-                bracket_function.clazz = &array_class;
+                shift_name cast_class_name;
+                cast_class_name.begin = expr->get_left()->begin;
+                cast_class_name.end = expr->get_left()->end;
 
                 {
-                    shift_variable bracket_function_param;
-                    bracket_function_param.type.name_class = m_classes[SHIFT_ANALYZER_INT_CLASS];
-                    bracket_function_param.function = &bracket_function;
+                    // TODO think about allowing casting to array types
+                    auto cast_classes = parent_scope->find_classes(cast_class_name);
+                    if (cast_classes.size() == 1) {
+                        expr->resolved.type.name.name = cast_class_name;
+                        expr->resolved.type.name.clazz = cast_classes.front();
+                        m_finalize_type(expr->resolved.type);
+                        expr->get_left()->resolved.type = expr->resolved.type;
+                    } else if (cast_classes.size() > 1) {
+                        if (!silent)
+                            this->m_name_error(*parent_scope->get_parser(), cast_class_name,
+                                "ambiguous reference to class '" + cast_class_name.to_string() +
+                                "' in current scope");
+                    } else {
+                        if (!silent)
+                            this->m_name_error(*parent_scope->get_parser(), cast_class_name,
+                                "unable to resolve class '" + cast_class_name.to_string() +
+                                "' in current scope");
+                    }
+                }
 
-                    bracket_function.parameters.push_back({ "@0", std::move(bracket_function_param) });
+                m_resolve_expression(expr->get_right(), parent_scope, silent);
+
+                if (expr->get_left()->is_type_resolved() && expr->get_right()->is_type_resolved()) {
+                    m_finalize_type(expr->get_right()->resolved.type);
+
+                    if (expr->get_left()->resolved.type.name.clazz != expr->get_right()->resolved.type.name.clazz
+                        && !expr->get_left()->resolved.type.name.clazz->has_base(expr->get_right()->resolved.type.name.clazz)) {
+                        if (expr->get_right()->resolved.type.name.clazz->has_base(expr->get_left()->resolved.type.name.clazz)) {
+                            // only warn for redundancy if casting up to base class
+                            this->m_name_warning(*parent_scope->get_parser(), cast_class_name,
+                                "redundant explicit cast to '" + expr->resolved.type.get_printable_fqn() + "'");
+                        } else {
+                            this->m_name_error(*parent_scope->get_parser(), cast_class_name,
+                                "cannot explicitly cast from type '" + expr->get_right()->resolved.type.get_printable_fqn() + "' to type '" + expr->get_left()->resolved.type.get_printable_fqn() + "'");
+                        }
+                    } else if (expr->get_left()->resolved.type == expr->get_right()->resolved.type) {
+                        this->m_name_warning(*parent_scope->get_parser(), cast_class_name,
+                            "redundant explicit cast to '" + expr->resolved.type.get_printable_fqn() + "'");
+                    } else if ((expr->get_left()->resolved.type.mods & shift_mods::IMUT) == 0 && (expr->get_right()->resolved.type.mods & shift_mods::IMUT)) {
+                        this->m_name_error(*parent_scope->get_parser(), cast_class_name,
+                            "cannot cast from immutable type '" + expr->get_right()->resolved.type.get_printable_fqn() + "' to mutable type '" + expr->get_left()->resolved.type.get_printable_fqn() + "'");
+                    } else if (expr->get_left()->resolved.type.ref_type != expr->get_right()->resolved.type.ref_type) {
+                        switch (expr->get_left()->resolved.type.ref_type) {
+                            case shift_type::reference_type::none:
+                                expr->resolved.type.ref_type = expr->get_right()->resolved.type.ref_type;
+                                break;
+                            case shift_type::reference_type::ref:
+                                if (expr->get_right()->resolved.type.ref_type == shift_type::reference_type::tref) {
+                                    this->m_name_error(*parent_scope->get_parser(), cast_class_name,
+                                        "cast from type '" + expr->get_right()->resolved.type.get_printable_fqn() + "' to type '" + expr->get_left()->resolved.type.get_printable_fqn() + "' would change reference qualifiers");
+                                }
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                }
+            } else {
+                m_resolve_expression(expr->get_left(), parent_scope, silent);
+                expr->resolved = expr->get_left()->resolved;
+            }
+        } else if (is_overload_operator(expr->type)) {
+            // Look for the operator function between the two types
+            // const bool is_prefix = (is_strictly_prefix_operator(expr->type) && !is_binary_operator(expr->type)) || (is_prefix_operator(expr->type) && expr->get_left()->type == token::token_type::NULL_TOKEN);
+            // const bool is_suffix = (is_strictly_suffix_operator(expr->type) && !is_binary_operator(expr->type)) || (is_suffix_operator(expr->type) && expr->get_right()->type == token::token_type::NULL_TOKEN);
+
+            const bool has_left = expr->has_left() && expr->get_left()->type != token::token_type::NULL_TOKEN;
+            const bool has_right = expr->has_right() && expr->get_right()->type != token::token_type::NULL_TOKEN;
+
+            if (has_left) {
+                m_resolve_expression(expr->get_left(), parent_scope);
+                if (expr->get_left()->is_type_resolved()) {
+                    m_finalize_type(expr->get_left()->resolved.type);
                 }
             }
 
-            return &array_class;
-        }
-
-        void analyzer::m_token_error(const parser& parser_, const token& token_, const std::string_view msg) {
-            if (!this->m_error_handler) return;
-            SHIFT_ANALYZER_ERROR_(parser_, token_, msg);
-            std::string line = std::string(this->m_get_line(parser_, token_));
-            size_t use_col = token_.get_file_index().col;
-            std::for_each(line.begin(), line.end(), [&use_col](char& ch) {
-                if (ch == '\t') {
-                    ch = ' ';
-                    use_col -= 3;
+            if (has_right) {
+                m_resolve_expression(expr->get_right(), parent_scope);
+                if (expr->get_right()->is_type_resolved()) {
+                    m_finalize_type(expr->get_right()->resolved.type);
                 }
-                });
+            }
 
-            std::string indexer(use_col - 1, ' ');
-            indexer.append(token_.get_data().size(), '^');
-            SHIFT_ANALYZER_ERROR_LOG(line);
-            SHIFT_ANALYZER_ERROR_LOG(indexer);
-        }
+            shift_class* function_search_class;
 
-        void analyzer::m_token_error(const parser& parser_, const token& token_, const std::string& msg) { return m_token_error(parser_, token_, std::string_view(msg.c_str(), msg.length())); }
-        void analyzer::m_token_error(const parser& parser_, const token& token_, const char* const msg) { return m_token_error(parser_, token_, std::string_view(msg, std::strlen(msg))); }
+            if (has_left) {
+                function_search_class = expr->get_left()->resolved.type.name.clazz;
+            } else if (has_right) {
+                function_search_class = expr->get_right()->resolved.type.name.clazz;
+            } else {
+                // should never reached, ast should be built correctly
+                return;
+            }
 
-        void analyzer::m_token_warning(const parser& parser_, const token& token_, const std::string_view msg) {
-            if (!this->m_error_handler) return;
-            if (!this->m_error_handler->is_print_warnings()) return;
-            SHIFT_ANALYZER_WARNING_(parser_, token_, msg);
-            std::string line = std::string(this->m_get_line(parser_, token_));
-            size_t use_col = token_.get_file_index().col;
-            std::for_each(line.begin(), line.end(), [&use_col](char& ch) {
-                if (ch == '\t') {
-                    ch = ' ';
-                    use_col -= 3;
+            if (!function_search_class) {
+                // Neither typed were resolved, error must have already been printed so we can just exit
+                return;
+            }
+
+            std::string function_fqn = function_search_class->get_fqn() + ".operator" + std::string(expr->begin->get_data());
+            auto overloads = m_function_overloads.find(function_fqn);
+            if (overloads != m_function_overloads.end()) {
+                std::vector<function_filter_info> filtered;
+                if (has_right) {
+                    if (has_left) {
+                        // binary function
+                        filtered = m_filter_functions(utils::range(overloads->second), utils::range(expr->get_right(), expr->get_right() + 1), silent);
+                    } else {
+                        // unary (prefix) function
+                        filtered = m_filter_functions(utils::range(overloads->second), utils::range(expr->get_right(), expr->get_right() + 0), silent);
+                    }
+                } else if (has_left) {
+                    // unary (postfix) function
+                    filtered = m_filter_functions(utils::range(overloads->second), utils::range(expr->get_left(), expr->get_left() + 0), silent);
                 }
-                });
 
-            std::string indexer(use_col - 1, ' ');
-            indexer.append(token_.get_data().size(), '^');
+                if (filtered.size() == 1) {
+                    expr->resolved.function = filtered.front().candidate.first->func;
+                    m_analyze_function_return_type(*expr->resolved.function, silent);
+                    m_finalize_type(expr->resolved.function->return_type);
+                    expr->resolved.type = expr->resolved.function->return_type;
+                    if (expr->resolved.function->return_type.ref_type == shift_type::reference_type::none) {
+                        expr->resolved.type.ref_type = shift_type::reference_type::tref;
+                    }
+                    if (has_left && has_right) {
+                        auto& param_conversions = filtered.front().candidate.second;
+                        auto* conversion_functions = param_conversions.at(expr->get_right());
+                        if (conversion_functions) {
+                            if (conversion_functions->size() == 1) {
+                                m_apply_implicit_conversion(*expr->get_right(), conversion_functions->front(), *parent_scope, silent);
+                            } else if (conversion_functions->size() > 1) {
+                                this->m_token_error(*parent_scope->get_parser(), *expr->begin,
+                                    "ambiguous conversion of operator arguments for function '" + function_fqn + "'");
+                                m_error_candidates(*conversion_functions);
+                            } else {
+                                this->m_token_error(*parent_scope->get_parser(), *expr->begin,
+                                    "unable to convert operator arguments for function '" + function_fqn + "'");
+                            }
+                        }
+                    }
+                } else if (filtered.size() > 1) {
+                    if (!silent) {
+                        std::string error_message = "ambiguous reference to function '" + function_fqn + "(";
+                        if (has_left && has_right) {
+                            error_message += expr->get_right()->resolved.type.get_printable_fqn();
+                        }
+                        error_message += ")' in current scope";
+                        this->m_token_error(*parent_scope->get_parser(), *expr->begin,
+                            std::move(error_message));
+                        m_error_candidates(filtered);
+                    }
+                } else {
+                    if (!silent) {
+                        std::string error_message = "unable to resolve reference to function '" + function_fqn + "(";
+                        if (has_left && has_right) {
+                            error_message += expr->get_right()->resolved.type.get_printable_fqn();
+                        }
+                        error_message += ")' in current scope";
 
-            SHIFT_ANALYZER_WARNING_LOG(line);
-            SHIFT_ANALYZER_WARNING_LOG(indexer);
-        }
-
-        void analyzer::m_token_warning(const parser& parser_, const token& token_, const std::string& msg) { return m_token_warning(parser_, token_, std::string_view(msg.c_str(), msg.length())); }
-        void analyzer::m_token_warning(const parser& parser_, const token& token_, const char* const msg) { return m_token_warning(parser_, token_, std::string_view(msg, std::strlen(msg))); }
-
-        void analyzer::m_name_error(const parser& parser_, const shift_name& name, const std::string_view msg) {
-            if (!this->m_error_handler) return;
-            SHIFT_ANALYZER_ERROR_(parser_, *name.begin, msg);
-            std::string line = std::string(this->m_get_line(parser_, *name.begin));
-            size_t use_col = name.begin->get_file_index().col;
-
-            for (auto cur = line.begin(); cur != line.begin() + use_col - 1; ++cur) {
-                char& ch = *cur;
-                if (ch == '\t') {
-                    ch = ' ';
-                    use_col -= 3;
+                        this->m_token_error(*parent_scope->get_parser(), *expr->begin,
+                            std::move(error_message));
+                    }
                 }
-            } // TODO deal with tabs
+            } else {
+                if (!silent) {
+                    std::string error_message = "unable to resolve reference to function '" + function_fqn + "(";
+                    if (has_left && has_right) {
+                        error_message += expr->get_right()->resolved.type.get_printable_fqn();
+                    }
+                    error_message += ")' in current scope";
 
-            std::string indexer(use_col - 1, ' ');
-            indexer.append((name.end - 1)->get_file_index().col + (name.end - 1)->get_data().size() - name.begin->get_file_index().col, '^');
-            SHIFT_ANALYZER_ERROR_LOG(line);
-            SHIFT_ANALYZER_ERROR_LOG(indexer);
-        }
-
-        void analyzer::m_name_error(const parser& parser_, const shift_name& name, const std::string& msg) { return m_name_error(parser_, name, std::string_view(msg.c_str(), msg.length())); }
-        void analyzer::m_name_error(const parser& parser_, const shift_name& name, const char* const msg) { return m_name_error(parser_, name, std::string_view(msg, std::strlen(msg))); }
-
-        void analyzer::m_name_warning(const parser& parser_, const shift_name& name, const std::string_view msg) {
-            if (!this->m_error_handler) return;
-            if (!this->m_error_handler->is_print_warnings()) return;
-            SHIFT_ANALYZER_WARNING_(parser_, *name.begin, msg);
-            std::string line = std::string(this->m_get_line(parser_, *name.begin));
-            size_t use_col = name.begin->get_file_index().col;
-            std::for_each(line.begin(), line.end(), [&use_col](char& ch) {
-                if (ch == '\t') {
-                    ch = ' ';
-                    use_col -= 3;
+                    this->m_token_error(*parent_scope->get_parser(), *expr->begin,
+                        std::move(error_message));
                 }
-                });
+            }
+        } else if (expr->type == token::token_type::COMMA) {
+            for (shift_expression& sub_expr : expr->get_comma_expressions()) {
+                m_resolve_expression(&sub_expr, parent_scope, silent);
+            }
+            expr->resolved = expr->get_comma_expressions().back().resolved;
+        } else {
+            switch (expr->type) {
+                case token_type::STRING_LITERAL:
+                    expr->resolved.type.name.clazz = m_classes[SHIFT_ANALYZER_STRING_CLASS];
+                    expr->resolved.type.name.name_clazz = expr->resolved.type.name.clazz;
+                    expr->resolved.type.ref_type = shift_type::reference_type::tref;
+                    break;
+                case token_type::CHAR_LITERAL:
+                    expr->resolved.type.name.clazz = m_classes[SHIFT_ANALYZER_CHAR_CLASS];
+                    expr->resolved.type.name.name_clazz = expr->resolved.type.name.clazz;
+                    expr->resolved.type.ref_type = shift_type::reference_type::tref;
+                    break;
+                case token_type::INTEGER_LITERAL:
+                case token_type::BINARY_NUMBER:
+                case token_type::HEX_NUMBER:
+                    expr->resolved.type.name.clazz = m_classes[SHIFT_ANALYZER_INT_CLASS];
+                    expr->resolved.type.name.name_clazz = expr->resolved.type.name.clazz;
+                    expr->resolved.type.ref_type = shift_type::reference_type::tref;
+                    break;
+                case token_type::FLOAT:
+                    expr->resolved.type.name.clazz = m_classes[SHIFT_ANALYZER_FLOAT_CLASS];
+                    expr->resolved.type.name.name_clazz = expr->resolved.type.name.clazz;
+                    expr->resolved.type.ref_type = shift_type::reference_type::tref;
+                    break;
+                case token_type::DOUBLE:
+                    expr->resolved.type.name.clazz = m_classes[SHIFT_ANALYZER_DOUBLE_CLASS];
+                    expr->resolved.type.name.name_clazz = expr->resolved.type.name.clazz;
+                    expr->resolved.type.ref_type = shift_type::reference_type::tref;
+                    break;
+                default:
+                    this->m_name_error(*parent_scope->get_parser(), expr->to_name(),
+                        "unable to resolve type of expression");
+                    break;
+            }
+        }
+    }
 
-            std::string indexer(use_col - 1, ' ');
-            indexer.append((name.end - 1)->get_file_index().col + (name.end - 1)->get_data().size() - name.begin->get_file_index().col, '^');
-            SHIFT_ANALYZER_WARNING_LOG(line);
-            SHIFT_ANALYZER_WARNING_LOG(indexer);
+    void analyzer::m_resolve_expression_dotted(shift_expression* expr, scope* const parent_scope, shift_expression* prev, bool silent) {
+        const bool has_prev_module = prev && prev->resolved.module_, has_prev_class = prev && prev->resolved.clazz,
+            has_prev_variable = prev && prev->resolved.variable, has_prev_func = prev && prev->resolved.function,
+            has_prev_resolved_type = prev && prev->is_type_resolved();
+
+        if (expr->is_function_call()) {
+            bool all_param_resolved = true;
+            for (auto& param_expr : expr->get_function_call_arguments()) {
+                m_resolve_expression(&param_expr, parent_scope, silent);
+                all_param_resolved &= param_expr.is_type_resolved();
+            }
+
+            if (has_prev_module || has_prev_class || has_prev_variable || has_prev_func || has_prev_resolved_type) {
+                // TODO when adding function pointers, expr->get_function_call_object() might be a bracket expression
+                const std::string iden = expr->get_function_call_object()->to_string();
+
+                std::string function_fqn;
+
+                if (has_prev_module)
+                    function_fqn = prev->resolved.module_->to_string() + "." + iden;
+                else if (has_prev_class)
+                    function_fqn = prev->resolved.clazz->get_fqn() + "." + iden;
+                else if (has_prev_variable)
+                    function_fqn = prev->resolved.variable->type.name.clazz->get_fqn() + "." + iden;
+                else if (has_prev_func)
+                    function_fqn = prev->resolved.function->return_type.name.clazz->get_fqn() + "." + iden;
+                else if (has_prev_resolved_type)
+                    function_fqn = prev->resolved.type.name.clazz->get_fqn() + "." + iden;
+
+                {
+                    auto it = m_function_overloads.find(function_fqn);
+
+                    if (it == m_function_overloads.end()) {
+                        auto clazz_it = m_classes.find(function_fqn);
+                        if (clazz_it != m_classes.end()) {
+                            expr->resolved.type.name.name.begin = expr->begin;
+                            expr->resolved.type.name.name.end = expr->end;
+                            expr->resolved.type.name.clazz = clazz_it->second;
+                            expr->resolved.type.ref_type = shift_type::reference_type::tref;
+
+                            it = m_function_overloads.find(function_fqn = (clazz_it->second->get_fqn() + ".constructor"));
+                            if (it == m_function_overloads.end()) {
+                                if (!silent)
+                                    this->m_name_error(*parent_scope->get_parser(), shift_name{ expr->begin, expr->end },
+                                        "unable to resolve constructor for class '" + clazz_it->second->get_fqn() + "' in current scope");
+                                return;
+                            }
+                        }
+                    }
+
+                    if (it != m_function_overloads.end()) {
+                        auto& overloads = it->second;
+                        auto filtered = m_filter_functions(utils::range(overloads), expr->get_function_call_arguments(), silent);
+                        if (filtered.size() > 1) {
+                            if (!silent) {
+                                this->m_name_error(*parent_scope->get_parser(), shift_name{ expr->begin, expr->end },
+                                    "ambiguous reference to function '" + function_fqn + "' in current scope with given arguments");
+                                m_error_candidates(filtered);
+                            }
+                            // TODO list arguments and cadidates
+                            return;
+                        } else if (filtered.size() == 1) {
+                            expr->resolved.function = filtered.front().candidate.first->func;
+                            m_analyze_function_return_type(*expr->resolved.function, silent);
+                            if (expr->resolved.function->name.begin->is_constructor()) {
+                                expr->resolved.type.name.name = expr->to_name();
+                                expr->resolved.type.name.clazz = expr->resolved.function->clazz;
+                            } else {
+                                expr->resolved.type = expr->resolved.function->return_type;
+                            }
+                            if (expr->resolved.function->return_type.ref_type == shift_type::reference_type::none) {
+                                expr->resolved.type.ref_type = shift_type::reference_type::tref;
+                            }
+                            auto& param_conversions = filtered.front().candidate.second;
+                            for (auto& param_expr : expr->get_function_call_arguments()) {
+                                if (param_expr.is_type_resolved()) {
+                                    auto* conversion_functions = param_conversions.at(&param_expr);
+                                    if (conversion_functions) {
+                                        if (conversion_functions->size() == 1) {
+                                            if (!silent)
+                                                m_apply_implicit_conversion(param_expr, conversion_functions->front(), *parent_scope, silent);
+                                        } else if (conversion_functions->size() > 1) {
+                                            if (!silent) {
+                                                this->m_name_error(*parent_scope->get_parser(), shift_name{ param_expr.begin, param_expr.end },
+                                                    "ambiguous conversion of function arguments for function '" + function_fqn + "'");
+                                                m_error_candidates(*conversion_functions);
+                                            }
+                                        } else {
+                                            this->m_name_error(*parent_scope->get_parser(), shift_name{ param_expr.begin, param_expr.end },
+                                                "unable to convert function arguments for function '" + function_fqn + "'");
+                                        }
+                                    }
+                                }
+                            }
+                            return;
+                        } else {
+                            if (!silent) {
+                                std::string func_signature = function_fqn;
+                                func_signature += '(';
+                                for (bool past_first = false; auto & p_expr : expr->get_function_call_arguments()) {
+                                    if (past_first) {
+                                        func_signature += ", ";
+                                    }
+                                    if (p_expr.is_type_resolved()) {
+                                        func_signature += p_expr.resolved.type.get_printable_fqn();
+                                    } else {
+                                        func_signature += "<unknown>";
+                                    }
+                                    past_first = true;
+                                }
+                                func_signature += ')';
+                                this->m_name_error(*parent_scope->get_parser(), shift_name{ expr->begin, expr->end },
+                                    "unable to resolve function '" + func_signature + "' in current scope");
+                            }
+                            return;
+                        }
+                    } else {
+                        if (!silent) {
+                            this->m_name_error(*parent_scope->get_parser(), shift_name{ expr->get_function_call_object()->begin, expr->get_function_call_object()->end },
+                                "unable to resolve function '" + function_fqn + "' in current scope");
+                        }
+                        return;
+                    }
+                }
+            }
+
+            if (!prev) {
+                // TODO iden may not actually be an identifier here if we allow function pointer (but it must be one in the above if statement)
+                if (expr->get_function_call_object()->type == token::token_type::IDENTIFIER && expr->get_function_call_object()->size() == 1) {
+                    const std::string iden = expr->get_function_call_object()->to_string();
+                    std::string search_fqn = iden;
+                    auto funcs = parent_scope->find_functions(search_fqn);
+
+                    if (funcs.empty()) {
+                        auto classes = parent_scope->find_classes(search_fqn);
+                        if (classes.size() > 1) {
+                            if (!silent)
+                                this->m_name_error(*parent_scope->get_parser(), shift_name{ expr->begin, expr->end },
+                                    "ambiguous reference to class '" + search_fqn + "' in current scope");
+                            return;
+                        } else if (classes.size() == 1) {
+                            expr->resolved.type.name.name = expr->to_name();
+                            expr->resolved.type.name.clazz = classes.front();
+                            expr->resolved.type.ref_type = shift_type::reference_type::tref;
+
+                            auto overloads_it = m_function_overloads.find(search_fqn = (classes.front()->get_fqn() + ".constructor"));
+                            if (overloads_it != m_function_overloads.end()) {
+                                funcs.push_back(&overloads_it->second);
+                            }
+
+                            if (funcs.empty()) {
+                                if (!silent)
+                                    this->m_name_error(*parent_scope->get_parser(), shift_name{ expr->begin, expr->end },
+                                        "unable to resolve constructor for class '" + classes.front()->get_fqn() + "' in current scope");
+                                return;
+                            }
+                        } else {
+                            if (!silent)
+                                this->m_name_error(*parent_scope->get_parser(), shift_name{ expr->begin, expr->end },
+                                    "unable to resolve function '" + search_fqn + "' in current scope");
+                            return;
+                        }
+                    }
+
+                    auto filtered = m_filter_functions(utils::range(funcs), expr->get_function_call_arguments(), silent);
+
+                    if (filtered.size() > 1 && all_param_resolved) {
+                        if (!silent) {
+                            this->m_name_error(*parent_scope->get_parser(), shift_name{ expr->begin, expr->end },
+                                "ambiguous reference to function '" + search_fqn + "' in current scope with given arguments");
+                            m_error_candidates(filtered);
+                        }
+                        return;
+                    } else if (filtered.size() == 1) {
+                        expr->resolved.function = filtered.front().candidate.first->func;
+
+                        m_analyze_function_return_type(*expr->resolved.function, silent);
+
+                        if (expr->resolved.function->name.begin->is_constructor()) {
+                            expr->resolved.type.name.name = expr->to_name();
+                            expr->resolved.type.name.clazz = expr->resolved.function->clazz;
+                        } else {
+                            expr->resolved.type = expr->resolved.function->return_type;
+                        }
+
+                        if (expr->resolved.function->return_type.ref_type == shift_type::reference_type::none) {
+                            expr->resolved.type.ref_type = shift_type::reference_type::tref;
+                        }
+
+                        auto& param_conversions = filtered.front().candidate.second;
+                        for (auto& param_expr : expr->get_function_call_arguments()) {
+                            if (param_expr.is_type_resolved()) {
+                                auto* conversion_functions = param_conversions.at(&param_expr);
+                                if (conversion_functions) {
+                                    if (conversion_functions->size() == 1) {
+                                        m_apply_implicit_conversion(param_expr, conversion_functions->front(), *parent_scope, silent);
+                                    } else if (conversion_functions->size() > 1) {
+                                        if (!silent) {
+                                            this->m_name_error(*parent_scope->get_parser(), shift_name{ param_expr.begin, param_expr.end },
+                                                "ambiguous conversion of function arguments for function '" + expr->resolved.function->get_signature() + "'");
+                                            m_error_candidates(*conversion_functions);
+                                        }
+                                    } else {
+                                        if (!silent)
+                                            this->m_name_error(*parent_scope->get_parser(), shift_name{ param_expr.begin, param_expr.end },
+                                                "unable to convert function arguments for function '" + expr->resolved.function->get_signature() + "'");
+                                    }
+                                }
+                            }
+                        }
+                        return;
+                    } else {
+                        if (!silent) {
+                            std::string func_signature = search_fqn;
+                            func_signature += '(';
+                            for (bool past_first = false; auto & p_expr : expr->get_function_call_arguments()) {
+                                if (past_first) {
+                                    func_signature += ", ";
+                                }
+                                if (p_expr.is_type_resolved()) {
+                                    func_signature += p_expr.resolved.type.get_printable_fqn();
+                                } else {
+                                    func_signature += "<unknown>";
+                                }
+                                past_first = true;
+                            }
+                            func_signature += ')';
+                            this->m_name_error(*parent_scope->get_parser(), shift_name{ expr->begin, expr->end },
+                                "unable to resolve function '" + func_signature + "' in current scope");
+                        }
+                        return;
+                    }
+                } else {
+                    m_resolve_expression(expr->get_function_call_object(), parent_scope, silent);
+                    if (expr->get_function_call_object()->is_type_resolved()) {
+                        return m_resolve_expression_dotted(expr, parent_scope, expr->get_function_call_object());
+                    }
+                }
+            }
+            if (!silent) {
+                const std::string iden = expr->get_function_call_object()->to_string();
+                shift_name error_name;
+                error_name.begin = expr->get_function_call_object()->begin;
+                error_name.end = error_name.begin;
+                ++error_name.end;
+                if (has_prev_resolved_type) {
+                    this->m_name_error(*parent_scope->get_parser(), error_name,
+                        "unable to resolve function '" + (prev->resolved.type.name.clazz->get_fqn() + "." + iden) + "' in current scope");
+                } else {
+                    this->m_name_error(*parent_scope->get_parser(), error_name,
+                        "unable to resolve function '" + iden + "' in current scope");
+                }
+            }
+        } else if (expr->is_array()) {
+            const std::string iden = "operator[]";
+
+            m_resolve_expression(expr->get_array_object(), parent_scope, silent);
+            if (!expr->get_array_object()->is_type_resolved()) return;
+
+            std::string next_fqn_prefix = expr->get_array_object()->resolved.type.name.clazz->get_fqn();
+
+            for (auto& dim : expr->get_array_dimensions()) {
+                m_resolve_expression(dim.get_array_indexer_expression(), parent_scope, silent);
+
+                if (!dim.get_array_indexer_expression()->is_type_resolved()) return;
+
+                std::string function_fqn = next_fqn_prefix + '.' + iden;
+
+                {
+                    auto it = m_function_overloads.find(function_fqn);
+
+                    if (it != m_function_overloads.end()) {
+                        auto& overloads = it->second;
+                        auto filtered = m_filter_functions(utils::range(overloads), utils::range(dim.get_array_indexer_expression(), dim.get_array_indexer_expression() + 1), silent);
+                        if (filtered.size() > 1) {
+                            if (!silent) {
+                                this->m_name_error(*parent_scope->get_parser(), shift_name{ expr->begin, expr->end },
+                                    "ambiguous reference to function '" + function_fqn + "' in current scope with given arguments");
+                                m_error_candidates(filtered);
+                            }
+                            // TODO list arguments and cadidates
+                            return;
+                        } else if (filtered.size() == 1) {
+                            dim.resolved.function = filtered.front().candidate.first->func;
+                            m_analyze_function_return_type(*dim.resolved.function, silent);
+                            dim.resolved.type = dim.resolved.function->return_type;
+                            if (dim.resolved.function->return_type.ref_type == shift_type::reference_type::none) {
+                                dim.resolved.type.ref_type = shift_type::reference_type::tref;
+                            }
+
+                            auto& param_conversions = filtered.front().candidate.second;
+                            auto& param_expr = *dim.get_array_indexer_expression();
+                            if (param_expr.is_type_resolved()) {
+                                auto* conversion_functions = param_conversions.at(&param_expr);
+                                if (conversion_functions) {
+                                    if (conversion_functions->size() == 1) {
+                                        m_apply_implicit_conversion(param_expr, conversion_functions->front(), *parent_scope, silent);
+                                    } else if (conversion_functions->size() > 1) {
+                                        if (!silent) {
+                                            this->m_name_error(*parent_scope->get_parser(), shift_name{ param_expr.begin, param_expr.end },
+                                                "ambiguous conversion of operator arguments for function '" + dim.resolved.function->get_signature() + "'");
+                                            m_error_candidates(*conversion_functions);
+                                        }
+                                    } else {
+                                        if (!silent)
+                                            this->m_name_error(*parent_scope->get_parser(), shift_name{ param_expr.begin, param_expr.end },
+                                                "unable to convert operator arguments for function '" + dim.resolved.function->get_signature() + "'");
+                                    }
+                                }
+                            }
+                            return;
+                        } else {
+                            if (!silent) {
+                                std::string func_signature = function_fqn;
+                                func_signature += '(';
+                                {
+                                    auto& p_expr = *dim.get_array_indexer_expression();
+
+                                    if (p_expr.is_type_resolved()) {
+                                        func_signature += p_expr.resolved.type.get_printable_fqn();
+                                    } else {
+                                        func_signature += "<unknown>";
+                                    }
+                                }
+                                func_signature += ')';
+                                this->m_name_error(*parent_scope->get_parser(), shift_name{ expr->begin, expr->end },
+                                    "unable to resolve function '" + func_signature + "' in current scope");
+                            }
+                            return;
+                        }
+                    } else {
+                        if (!silent) {
+                            this->m_name_error(*parent_scope->get_parser(), shift_name{ expr->get_function_call_object()->begin, expr->get_function_call_object()->end },
+                                "unable to resolve function '" + function_fqn + "' in current scope");
+                        }
+                    }
+                }
+
+                if (dim.resolved.type.is_resolved()) {
+                    next_fqn_prefix = dim.resolved.type.name.clazz->get_fqn();
+                } else {
+                    break;
+                }
+            }
+
+            expr->resolved = expr->get_array_dimensions().back().resolved;
+            if (expr->get_array_dimensions().back().resolved.function->return_type.ref_type == shift_type::reference_type::none) {
+                expr->resolved.type.ref_type = shift_type::reference_type::tref;
+            }
+        } else if (expr->type == token::token_type::IDENTIFIER && expr->size() == 1) {
+            const std::string iden = expr->to_string();
+
+            if (has_prev_module || !prev) {
+                std::string search_fqn = iden;
+                if (has_prev_module) { search_fqn = prev->resolved.module_->to_string() + "." + iden; }
+                {
+                    auto it = m_modules.find(search_fqn);
+                    if (it != m_modules.end()) {
+                        expr->resolved.module_ = it->second;
+                        return;
+                    }
+                }
+            }
+
+            if (has_prev_module || has_prev_class) {
+                std::string search_fqn = iden;
+                if (has_prev_module) { search_fqn = prev->resolved.module_->to_string() + "." + iden; } else if (has_prev_class) { search_fqn = prev->resolved.clazz->get_fqn() + "." + iden; }
+                {
+                    auto it = m_classes.find(search_fqn);
+                    if (it != m_classes.end()) {
+                        expr->resolved.clazz = it->second;
+                        return;
+                    }
+                }
+
+                {
+                    auto it = m_variables.find(search_fqn);
+                    if (it != m_variables.end()) {
+                        expr->resolved.variable = it->second;
+                        if (!expr->resolved.variable->type.is_resolved() && !expr->resolved.variable->type.tried_resolve) {
+                            m_analyze_variable_type(*expr->resolved.variable, nullptr, silent);
+                        }
+                        expr->resolved.type = expr->resolved.variable->type;
+                        expr->resolved.type.ref_type = shift_type::reference_type::ref;
+                        return;
+                    }
+                }
+            }
+
+            if (has_prev_variable || has_prev_resolved_type) {
+                if (expr->resolved.type.tried_resolve) { return; }
+                expr->resolved.type.tried_resolve = true;
+
+                shift_type* prev_type = nullptr;
+
+                if (has_prev_variable) {
+                    if (!prev->resolved.variable->type.tried_resolve) {
+                        prev->resolved.variable->type.tried_resolve = true;
+                        m_analyze_variable_type(*prev->resolved.variable, nullptr, silent);
+                    }
+                    prev_type = &prev->resolved.variable->type;
+                }
+
+                if (has_prev_resolved_type || !prev_type) {
+                    prev_type = &prev->resolved.type;
+                }
+
+                if (prev_type->is_resolved()) {
+                    std::string search_fqn = prev_type->name.clazz->get_fqn() + "." + iden;
+                    auto it = m_variables.find(search_fqn);
+                    if (it != m_variables.end()) {
+                        expr->resolved.variable = it->second;
+                        if (!expr->resolved.variable->type.is_resolved() && !expr->resolved.variable->type.tried_resolve) {
+                            m_analyze_variable_type(*expr->resolved.variable, nullptr, silent);
+                        }
+                        expr->resolved.type = expr->resolved.variable->type;
+                        expr->resolved.type.ref_type = shift_type::reference_type::ref;
+                        return;
+                    }
+                } else {
+                    if (!silent)
+                        this->m_name_error(*parent_scope->get_parser(), shift_name{ expr->begin, expr->end },
+                            "unable to resolve variable '" + iden + "' in class '<unknown>'");
+                    return;
+                }
+                if (!silent)
+                    this->m_name_error(*parent_scope->get_parser(), shift_name{ expr->begin, expr->end },
+                        "unable to resolve variable '" + iden + "' inside class '" + prev_type->get_fqn() + "'");
+                return;
+            }
+
+            if (!prev) {
+                std::string search_fqn = iden;
+
+                {
+                    auto module_it = m_modules.find(search_fqn);
+                    if (module_it != m_modules.end()) {
+                        expr->resolved.module_ = module_it->second;
+                        return;
+                    }
+                }
+
+
+                auto variables = parent_scope->find_variables(search_fqn);
+                if (variables.size() == 1) {
+                    expr->resolved.variable = variables.front();
+                    if (!expr->resolved.variable->type.is_resolved() && !expr->resolved.variable->type.tried_resolve) {
+                        m_analyze_variable_type(*expr->resolved.variable, nullptr, silent);
+                    }
+                    expr->resolved.type = expr->resolved.variable->type;
+                    expr->resolved.type.ref_type = shift_type::reference_type::ref;
+                    return;
+                } else if (variables.size() > 1) {
+                    if (!silent)
+                        this->m_name_error(*parent_scope->get_parser(), shift_name{ expr->begin, expr->end },
+                            "ambiguous reference to variable '" + iden + "' in current scope");
+                    return;
+                }
+            }
+            if (!silent)
+                this->m_name_error(*parent_scope->get_parser(), shift_name{ expr->begin, expr->end },
+                    "unable to find module, class, or variable '" + iden + "' in current scope");
+        } else {
+            // error, something unexpected in dotted expression
+            if (!silent)
+                this->m_name_error(*parent_scope->get_parser(), shift_name{ expr->begin, expr->end },
+                    "unexpected expression in dotted expression");
+        }
+    }
+
+    shift_class* analyzer::m_make_array_class(shift_class* const clazz, const size_t dimensions) {
+        // TODO make array return type
+        if (dimensions == 0) { return clazz; }
+
+        std::string array_class_fqn = "shift.array@" + clazz->get_fqn() + "@" + std::to_string(dimensions);
+
+        {
+            auto f = m_classes.find(array_class_fqn);
+            if (f != m_classes.end()) return f->second;
         }
 
-        void analyzer::m_name_warning(const parser& parser_, const shift_name& name, const std::string& msg) { return m_name_warning(parser_, name, std::string_view(msg.c_str(), msg.length())); }
-        void analyzer::m_name_warning(const parser& parser_, const shift_name& name, const char* const msg) { return m_name_warning(parser_, name, std::string_view(msg, std::strlen(msg))); }
+        const auto& [it, inserted_] = m_classes.insert_or_assign(std::move(array_class_fqn), &m_extra_classes.emplace_back());
+        const auto& [fqn, clazz_] = *it;
 
-        void analyzer::m_error(const parser& parser_, const std::string_view msg) {
-            if (!this->m_error_handler) return;
-            SHIFT_ANALYZER_ERROR(parser_, msg);
+        {
+            shift_type temp_type;
+            temp_type.name.name_clazz = clazz;
+            temp_type.add_array_dimensions(dimensions);
+            m_classes[temp_type.get_printable_fqn()] = clazz_;
         }
 
-        void analyzer::m_error(const parser& parser_, const std::string& msg) { return m_error(parser_, std::string_view(msg.c_str(), msg.length())); }
-        void analyzer::m_error(const parser& parser_, const char* const msg) { return m_error(parser_, std::string_view(msg, std::strlen(msg))); }
+        shift_class& array_class = *clazz_;
 
-        void analyzer::m_warning(const parser& parser_, const std::string_view msg) {
-            if (!this->m_error_handler) return;
-            SHIFT_ANALYZER_WARNING(parser_, msg);
+        {
+            const size_t offset = std::strlen("shift.");
+            array_class.name = &this->m_extra_tokens.emplace_back(
+                std::string_view(fqn.data() + offset,
+                    fqn.length() - offset),
+                token::token_type::IDENTIFIER, file_indexer{ 0, 0 }
+            );
         }
 
-        void analyzer::m_warning(const parser& parser_, const std::string& msg) { return m_warning(parser_, std::string_view(msg.c_str(), msg.length())); }
-        void analyzer::m_warning(const parser& parser_, const char* const msg) { return m_warning(parser_, std::string_view(msg, std::strlen(msg))); }
+        array_class.module_ = &m_shift_module;
+        array_class.mods = shift_mods::PUBLIC;
 
-        std::string_view analyzer::m_get_line(const parser& p, const token& t) const noexcept {
-            return p.get_tokenizer()->get_lines()[t.get_file_index().line - 1];
+        {
+            shift_variable& length_var = array_class.variables.emplace_back();
+            length_var.name = &*m_length_token;
+            length_var.clazz = &array_class;
+            length_var.type.name.clazz = m_classes[SHIFT_ANALYZER_ULONG_CLASS];
+            length_var.type.name.name_clazz = length_var.type.name.clazz;
+            length_var.type.mods = shift_mods::PUBLIC | shift_mods::IMUT;
         }
+
+        {
+            shift_function& bracket_function = array_class.functions.emplace_back();
+            bracket_function.name.begin = m_operator_array_function_token_begin;
+            bracket_function.name.end = m_operator_array_function_token_end;
+            bracket_function.mods = shift_mods::PUBLIC;
+            bracket_function.return_type.ref_type = shift_type::reference_type::ref;
+            bracket_function.return_type.name.clazz = m_make_array_class(clazz, dimensions - 1);
+            bracket_function.return_type.name.name_clazz = m_classes[clazz->get_fqn()];
+            bracket_function.clazz = &array_class;
+
+            {
+                shift_variable bracket_function_param;
+                bracket_function_param.type.name.clazz = m_classes[SHIFT_ANALYZER_ULONG_CLASS];
+                bracket_function_param.type.name.name_clazz = bracket_function_param.type.name.clazz;
+                bracket_function_param.function = &bracket_function;
+
+                bracket_function.parameters.push_back({ "@0", std::move(bracket_function_param) });
+            }
+        }
+
+        return &array_class;
+    }
+
+    shift_class* analyzer::m_make_pointer_class(shift_class* const clazz, const size_t dimensions) {
+        // TODO make array return type
+        if (dimensions == 0) { return clazz; }
+
+        std::string pointer_class_fqn = "shift.pointer@" + clazz->get_fqn() + "@" + std::to_string(dimensions);
+
+        {
+            auto f = m_classes.find(pointer_class_fqn);
+            if (f != m_classes.end()) return f->second;
+        }
+
+        const auto& [it, inserted_] = m_classes.insert_or_assign(std::move(pointer_class_fqn), &m_extra_classes.emplace_back());
+        const auto& [fqn, clazz_] = *it;
+
+        {
+            shift_type temp_type;
+            temp_type.name.name_clazz = clazz;
+            temp_type.add_pointer_dimensions(dimensions);
+            m_classes[temp_type.get_printable_fqn()] = clazz_;
+        }
+
+        shift_class& pointer_class = *clazz_;
+        {
+            const size_t offset = std::strlen("shift.");
+            pointer_class.name = &this->m_extra_tokens.emplace_back(
+                std::string_view(fqn.data() + offset,
+                    fqn.length() - offset),
+                token::token_type::IDENTIFIER, file_indexer{ 0, 0 }
+            );
+        }
+
+        pointer_class.module_ = &m_shift_module;
+        pointer_class.mods = shift_mods::PUBLIC;
+        {
+            shift_type return_type;
+            return_type.name.clazz = m_make_pointer_class(clazz, dimensions - 1);
+            return_type.name.name_clazz = m_classes[clazz->get_fqn()];
+
+            {
+                shift_function& star_function = pointer_class.functions.emplace_back();
+                star_function.name.begin = m_operator_star_function_token_begin;
+                star_function.name.end = m_operator_star_function_token_end;
+                star_function.mods = shift_mods::PUBLIC;
+                star_function.return_type = return_type;
+                star_function.return_type.ref_type = shift_type::reference_type::ref;
+                star_function.clazz = &pointer_class;
+            }
+
+            {
+                shift_function& arrow_function = pointer_class.functions.emplace_back();
+                arrow_function.name.begin = m_operator_arrow_function_token_begin;
+                arrow_function.name.end = m_operator_arrow_function_token_end;
+                arrow_function.mods = shift_mods::PUBLIC;
+                arrow_function.return_type = return_type;
+                arrow_function.clazz = &pointer_class;
+            }
+        }
+
+        return &pointer_class;
+    }
+
+    shift_type& analyzer::m_finalize_type(shift_type& type) {
+        if (type.name.clazz && type.name.name_clazz && type.name.clazz != type.name.name_clazz) { return type; }
+
+        shift_class* final_class = type.name.clazz ? type.name.clazz : type.name.name_clazz;
+
+        {
+            using namespace std::string_view_literals;
+            const std::string pre_fqn = final_class->get_fqn();
+            if (utils::starts_with((std::string_view)pre_fqn, "shift.pointer"sv)
+                || utils::starts_with((std::string_view)pre_fqn, "shift.array"sv)) {
+                return type;
+            }
+        }
+
+        if (!type.name.name_clazz) {
+            type.name.name_clazz = final_class;
+        }
+
+        for (const auto& [dim, dim_type] : type.dimensions) {
+            switch (dim_type) {
+                case shift_type::dimension_type::array:
+                    final_class = m_make_array_class(final_class, dim);
+                    break;
+                case shift_type::dimension_type::pointer:
+                    final_class = m_make_pointer_class(final_class, dim);
+                    break;
+                default: break;
+            }
+        }
+
+        type.name.clazz = final_class;
+        return type;
+    }
+
+    void analyzer::m_token_error(const parser& parser_, const token& token_, const std::string_view msg) {
+        if (!this->m_error_handler) return;
+        SHIFT_ANALYZER_ERROR_(parser_, token_, msg);
+        std::string line(this->m_get_line(parser_, token_));
+        size_t use_col = token_.get_file_index().col;
+        std::for_each(line.begin(), line.end(), [&use_col](char& ch) {
+            if (ch == '\t') {
+                ch = ' ';
+                use_col -= 3;
+            }
+            });
+
+        std::string indexer(use_col - 1, ' ');
+        indexer.append(token_.get_data().size(), '^');
+        SHIFT_ANALYZER_ERROR_LOG(line);
+        SHIFT_ANALYZER_ERROR_LOG(indexer);
+    }
+
+    void analyzer::m_token_error(const parser& parser_, const token& token_, const std::string& msg) {
+        return m_token_error(parser_, token_, std::string_view(msg.c_str(), msg.length()));
+    }
+
+    void analyzer::m_token_error(const parser& parser_, const token& token_, const char* const msg) {
+        return m_token_error(parser_, token_, std::string_view(msg, std::strlen(msg)));
+    }
+
+    void analyzer::m_token_warning(const parser& parser_, const token& token_, const std::string_view msg) {
+        if (!this->m_error_handler) return;
+        if (!this->m_error_handler->is_print_warnings()) return;
+        SHIFT_ANALYZER_WARNING_(parser_, token_, msg);
+        std::string line(this->m_get_line(parser_, token_));
+        size_t use_col = token_.get_file_index().col;
+        std::for_each(line.begin(), line.end(), [&use_col](char& ch) {
+            if (ch == '\t') {
+                ch = ' ';
+                use_col -= 3;
+            }
+            });
+
+        std::string indexer(use_col - 1, ' ');
+        indexer.append(token_.get_data().size(), '^');
+
+        SHIFT_ANALYZER_WARNING_LOG(line);
+        SHIFT_ANALYZER_WARNING_LOG(indexer);
+    }
+
+    void analyzer::m_token_warning(const parser& parser_, const token& token_, const std::string& msg) {
+        return m_token_warning(parser_, token_, std::string_view(msg.c_str(), msg.length()));
+    }
+
+    void analyzer::m_token_warning(const parser& parser_, const token& token_, const char* const msg) {
+        return m_token_warning(parser_, token_, std::string_view(msg, std::strlen(msg)));
+    }
+
+    void analyzer::m_name_error(const parser& parser_, const shift_name& name, const std::string_view msg) {
+        if (!this->m_error_handler) return;
+        SHIFT_ANALYZER_ERROR_(parser_, *name.begin, msg);
+        std::string line(this->m_get_line(parser_, *name.begin));
+        size_t use_col = name.begin->get_file_index().col;
+
+        for (auto cur = line.begin(); cur != line.begin() + use_col - 1; ++cur) {
+            char& ch = *cur;
+            if (ch == '\t') {
+                ch = ' ';
+                use_col -= 3;
+            }
+        } // TODO deal with tabs
+
+        std::string indexer(use_col - 1, ' ');
+        indexer.append((name.end - 1)->get_file_index().col + (name.end - 1)->get_data().size() -
+            name.begin->get_file_index().col, '^');
+        SHIFT_ANALYZER_ERROR_LOG(line);
+        SHIFT_ANALYZER_ERROR_LOG(indexer);
+    }
+
+    void analyzer::m_name_error(const parser& parser_, const shift_name& name, const std::string& msg) {
+        return m_name_error(parser_, name, std::string_view(msg.c_str(), msg.length()));
+    }
+
+    void analyzer::m_name_error(const parser& parser_, const shift_name& name, const char* const msg) {
+        return m_name_error(parser_, name, std::string_view(msg, std::strlen(msg)));
+    }
+
+    void analyzer::m_name_warning(const parser& parser_, const shift_name& name, const std::string_view msg) {
+        if (!this->m_error_handler) return;
+        if (!this->m_error_handler->is_print_warnings()) return;
+        SHIFT_ANALYZER_WARNING_(parser_, *name.begin, msg);
+        std::string line = std::string(this->m_get_line(parser_, *name.begin));
+        size_t use_col = name.begin->get_file_index().col;
+        std::for_each(line.begin(), line.end(), [&use_col](char& ch) {
+            if (ch == '\t') {
+                ch = ' ';
+                use_col -= 3;
+            }
+            });
+
+        std::string indexer(use_col - 1, ' ');
+        indexer.append((name.end - 1)->get_file_index().col + (name.end - 1)->get_data().size() -
+            name.begin->get_file_index().col, '^');
+        SHIFT_ANALYZER_WARNING_LOG(line);
+        SHIFT_ANALYZER_WARNING_LOG(indexer);
+    }
+
+    void analyzer::m_error_candidates(const std::list<type_conversion_info>& type_conversions) {
+        if (!this->m_error_handler) return;
+        const std::string indent = "\t";
+
+        for (const auto& conversion : type_conversions) {
+            this->m_error_handler->stream() << indent << "candidate: " << conversion.from.get_printable_fqn() << " -> " << conversion.to->get_printable_fqn() << '\n';
+            this->m_error_handler->stream() << indent << indent << conversion.funcs.front()->get_signature() << '\n';
+        }
+        this->m_error_handler->flush_stream(error_handler::error);
+    }
+
+    void analyzer::m_error_candidates(const std::vector<function_filter_info>& function_overloads) {
+        if (!this->m_error_handler) return;
+        const std::string indent = "\t";
+
+        for (const auto& filter_info : function_overloads) {
+            this->m_error_handler->stream() << indent << "candidate: " << filter_info.candidate.first->func->get_signature() << '\n';
+        }
+        this->m_error_handler->flush_stream(error_handler::error);
+    }
+
+    void analyzer::m_name_warning(const parser& parser_, const shift_name& name, const std::string& msg) {
+        return m_name_warning(parser_, name, std::string_view(msg.c_str(), msg.length()));
+    }
+
+    void analyzer::m_name_warning(const parser& parser_, const shift_name& name, const char* const msg) {
+        return m_name_warning(parser_, name, std::string_view(msg, std::strlen(msg)));
+    }
+
+    void analyzer::m_error(const parser& parser_, const std::string_view msg) {
+        if (!this->m_error_handler) return;
+        SHIFT_ANALYZER_ERROR(parser_, msg);
+    }
+
+    void analyzer::m_error(const parser& parser_, const std::string& msg) {
+        return m_error(parser_, std::string_view(msg.c_str(), msg.length()));
+    }
+
+    void analyzer::m_error(const parser& parser_, const char* const msg) {
+        return m_error(parser_, std::string_view(msg, std::strlen(msg)));
+    }
+
+    void analyzer::m_warning(const parser& parser_, const std::string_view msg) {
+        if (!this->m_error_handler) return;
+        SHIFT_ANALYZER_WARNING(parser_, msg);
+    }
+
+    void analyzer::m_warning(const parser& parser_, const std::string& msg) {
+        return m_warning(parser_, std::string_view(msg.c_str(), msg.length()));
+    }
+
+    void analyzer::m_warning(const parser& parser_, const char* const msg) {
+        return m_warning(parser_, std::string_view(msg, std::strlen(msg)));
+    }
+
+    std::string_view analyzer::m_get_line(const parser& p, const token& t) const noexcept {
+        return p.get_tokenizer()->get_lines()[t.get_file_index().line - 1];
     }
 }
