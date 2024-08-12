@@ -21,7 +21,7 @@
 #elif defined(__APPLE__) || defined(__MACH__)
 #	define SHIFT_SUBSYSTEM_MAC_OSX 1 // Compiling for MacOS
 #else
-#	define SHIFT_SUBSYSTEM_UNDEFINED 1 // Compiling for unknown operating system
+#	define SHIFT_SUBSYSTEM_UNKNOWN 1 // Compiling for unknown operating system
 /* #	error Cannot compile Shift for an unknown operating system. */
 #endif
 

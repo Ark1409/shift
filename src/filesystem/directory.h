@@ -31,7 +31,6 @@ namespace shift::filesystem {
 	public:
 		/// Represents the character separator used to identify different hierarchical levels in a directory system.
 		static const char separator;
-		//static constexpr char separator = '\\';
 	public:
 		/**
 		 * @brief Creates a directory, assigning it the specified path.
@@ -280,7 +279,14 @@ namespace shift::filesystem {
 	inline directory::directory(const std::filesystem::path& path) : m_path(path) {}
 	inline directory::directory(std::filesystem::path&& path) noexcept : m_path(std::move(path)) {}
 
-	inline const char directory::separator = std::wstring_convert<std::codecvt_utf8<std::filesystem::path::value_type>, std::filesystem::path::value_type>().to_bytes(std::filesystem::path::preferred_separator).at(0);
+#ifdef SHIFT_SUBSYSTEM_WINDOWS
+	constexpr char directory::separator = '\\';
+#elif !defined(SHIFT_SUBSYSTEM_UNKNOWN)
+	constexpr char directory::separator = '/';
+#else
+	// Unknown subsystem, hope for a regular directory separator
+	constexpr char directory::separator = '/';
+#endif
 
 }
 
