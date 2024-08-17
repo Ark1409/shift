@@ -38,11 +38,18 @@ target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_20)
 # Add includes for the project
 target_include_directories(${PROJECT_NAME} PUBLIC include src)
 
-# Add warnings and compile options for the project
-target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -Wpedantic -Wwrite-strings -Wformat=2 -Wformat-security 
+# Add warnings and compile options for the project, flags depend on compiler
+# Clang has clang-cl which accepts MSVC flags, so we need to check for that
+if ((CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND CMAKE_CXX_COMPILER_FRONTEND_VARIANT MATCHES "GNU") 
+    OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+    target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -Wpedantic -Wwrite-strings -Wformat=2 -Wformat-security 
     -Wformat-nonliteral -Wformat-y2k -Wcast-align -Wcast-qual -Walloca -Walloc-zero -Wstringop-overflow=4 -Wpacked 
     -Wpointer-arith -Wredundant-decls -Wstack-protector -Wswitch-default -Wswitch -Wunreachable-code -Wunused 
     -Wunused-parameter -Wmissing-format-attribute -Wmissing-noreturn -Wdisabled-optimization -fmessage-length=0)
+elseif ((CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND CMAKE_CXX_COMPILER_FRONTEND_VARIANT MATCHES "MSVC") 
+        OR (CMAKE_CXX_COMPILER_ID MATCHES "MSVC"))
+    target_compile_options(${PROJECT_NAME} PRIVATE /W4)
+endif()
 
 # Most of the shift compiler code will be implemented inside DLL files, while the executable compiler itself will simply link and call to those DLLs
 # Planning for this functionality, it is required to specify a build type for shift (static or dynamic (dll))
