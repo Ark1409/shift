@@ -10,22 +10,12 @@ project(shift VERSION 0.1.1)
 # Add option as to whether tests should be built (requires googletest download)
 option(SHIFT_TEST "Build shift tests" ON)
 
-# Set where exe files are produced
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-
-# Set where dll files are produced
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-
-# Set where archives files are produced
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-
 # C++ settings
 
 # Create the compiler library for the project
 add_library(
-    ${PROJECT_NAME} 
+    ${PROJECT_NAME}
     SHARED
-    # src/compiler/shift_analyzer.cpp
     src/compiler/shift_argument_parser.cpp
     src/compiler/shift_compiler.cpp
     src/compiler/shift_error_handler.cpp
@@ -48,11 +38,11 @@ target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_20)
 # Add includes for the project
 target_include_directories(${PROJECT_NAME} PUBLIC include src)
 
-# Add library directories for the project
-target_link_directories(${PROJECT_NAME} PUBLIC "")
-
-# Add and link libraries to project
-target_link_libraries(${PROJECT_NAME} PUBLIC "")
+# Add warnings and compile options for the project
+target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -Wpedantic -Wwrite-strings -Wformat=2 -Wformat-security 
+    -Wformat-nonliteral -Wformat-y2k -Wcast-align -Wcast-qual -Walloca -Walloc-zero -Wstringop-overflow=4 -Wpacked 
+    -Wpointer-arith -Wredundant-decls -Wstack-protector -Wswitch-default -Wswitch -Wunreachable-code -Wunused 
+    -Wunused-parameter -Wmissing-format-attribute -Wmissing-noreturn -Wdisabled-optimization -fmessage-length=0)
 
 # Most of the shift compiler code will be implemented inside DLL files, while the executable compiler itself will simply link and call to those DLLs
 # Planning for this functionality, it is required to specify a build type for shift (static or dynamic (dll))
@@ -85,43 +75,16 @@ set_target_properties(${PROJECT_NAME}-runner PROPERTIES INTERPROCEDURAL_OPTIMIZA
 set_target_properties(${PROJECT_NAME}-runner PROPERTIES POSITION_INDEPENDENT_CODE True)
 set_target_properties(${PROJECT_NAME}-runner PROPERTIES OUTPUT_NAME ${PROJECT_NAME})
 
-# Download gtest if testing is enabled
+# Set output deirectory for the project
+set_property(TARGET ${PROJECT_NAME}-runner ${PROJECT_NAME} PROPERTY RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/out/bin)
+set_property(TARGET ${PROJECT_NAME}-runner ${PROJECT_NAME} PROPERTY LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/out/lib)
+set_property(TARGET ${PROJECT_NAME}-runner ${PROJECT_NAME} PROPERTY ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/out/lib)
+
+# Configure test project if testing is enabled
 if(SHIFT_TEST)
-    # Fetch googletest library
-    include(FetchContent)
-
-    # Download gtest repository through GitHub
-    FetchContent_Declare(googletest
-        GIT_REPOSITORY https://github.com/google/googletest.git
-        GIT_TAG f8d7d77c06936315286eb55f8de22cd23c188571 # v1.14.0
-        GIT_PROGRESS true)
-
-    # Disable unwanted googletest options
-    option(BUILD_GMOCK "Builds the googlemock subproject" OFF)
-    option(INSTALL_GTEST "Enable installation of googletest. (Projects embedding googletest may want to turn this OFF.)" OFF)
-    option(GTEST_HAS_ABSL "Use Abseil and RE2. Requires Abseil and RE2 to be separately added to the build." OFF)
-
-    # Populate project with googletest library
-    FetchContent_MakeAvailable(googletest)
-
-    # Enable ctest after ensuring googletest has been made available
+    # Enable ctest
     enable_testing()
 
-    # Create test executable
-    add_executable(
-        ${PROJECT_NAME}-test
-        test/src/argument_parser_test.cpp
-        test/src/tokenizer_test.cpp
-    )
-
-    # Set test project properties and libraries
-    set_target_properties(${PROJECT_NAME}-test PROPERTIES INTERPROCEDURAL_OPTIMIZATION True)
-    set_target_properties(${PROJECT_NAME}-test PROPERTIES POSITION_INDEPENDENT_CODE True)
-    target_link_libraries(${PROJECT_NAME}-test PRIVATE ${PROJECT_NAME} PRIVATE GTest::gtest PRIVATE GTest::gtest_main)
-
-    # Register test executable with ctest
-    add_test(
-        NAME ${PROJECT_NAME}-test
-        COMMAND ${PROJECT_NAME}-test
-    )
+    # Add test subdirectory
+    add_subdirectory(test)
 endif()

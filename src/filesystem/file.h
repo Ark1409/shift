@@ -69,6 +69,8 @@ namespace shift {
 			inline file get_absolute_file(void) const { return file(std::filesystem::absolute(this->m_path)); }
 			inline file get_canonical_file(void) const { return file(std::filesystem::weakly_canonical(this->m_path)); }
 
+			SHIFT_API std::string read_fully(bool binary = false) const;
+
 			/**
 			 * Retrieves the size of the file on disk.
 			 */

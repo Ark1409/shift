@@ -3,7 +3,7 @@
 
 #include "compiler/shift_argument_parser.h"
 
-TEST(ShiftArgumentParser, CanParseWarningArgument) {
+TEST(ShiftArgumentParser, ShouldParseWarningArgument) {
     shift::compiler::error_handler error_handler;
 
     shift::compiler::argument_parser arg_parser(&error_handler, { SHIFT_FLAG_WARNING });
@@ -14,7 +14,7 @@ TEST(ShiftArgumentParser, CanParseWarningArgument) {
     EXPECT_TRUE(arg_parser.has_flag(shift::compiler::argument_parser::flags::FLAG_WARNINGS));
 }
 
-TEST(ShiftArgumentParser, CanParseWerrorArgument) {
+TEST(ShiftArgumentParser, ShouldParseWerrorArgument) {
     shift::compiler::error_handler error_handler;
 
     {
@@ -50,7 +50,7 @@ TEST(ShiftArgumentParser, CanParseWerrorArgument) {
     }
 }
 
-TEST(ShiftArgumentParser, CanParseHelpArgument) {
+TEST(ShiftArgumentParser, ShouldParseHelpArgument) {
     shift::compiler::error_handler error_handler;
 
     {
@@ -93,7 +93,7 @@ TEST(ShiftArgumentParser, CanParseHelpArgument) {
     }
 }
 
-TEST(ShiftArgumentParser, CanParseLibArgument) {
+TEST(ShiftArgumentParser, ShouldParseLibArgument) {
     shift::compiler::error_handler error_handler;
 
     {
@@ -137,7 +137,7 @@ TEST(ShiftArgumentParser, CanParseLibArgument) {
     }
 }
 
-TEST(ShiftArgumentParser, CanParseLibPathArgument) {
+TEST(ShiftArgumentParser, ShouldParseLibPathArgument) {
     shift::compiler::error_handler error_handler;
     error_handler.set_print_warnings();
 

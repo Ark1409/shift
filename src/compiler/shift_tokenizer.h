@@ -29,6 +29,8 @@ namespace shift::compiler {
 		constexpr inline bool operator>=(const file_indexer& other) const noexcept { return !this->operator<(other); }
 
 		constexpr inline bool operator<=(const file_indexer& other) const noexcept { return !this->operator>(other); }
+
+		constexpr std::strong_ordering operator<=>(const file_indexer& other) const noexcept = default;
 	};
 
 	struct token {
@@ -151,9 +153,9 @@ namespace shift::compiler {
 
 		constexpr inline operator std::string_view(void) const noexcept { return this->m_data; }
 
-		constexpr inline operator token_type(void) const noexcept { return this->m_type; }
+		constexpr inline explicit operator token_type(void) const noexcept { return this->m_type; }
 
-		constexpr inline operator file_indexer(void) const noexcept { return this->m_index; }
+		constexpr inline explicit operator file_indexer(void) const noexcept { return this->m_index; }
 
 		constexpr inline bool is_cp(void) const noexcept { return ((this->is_identifier()) && (this->m_data == "cp")); }
 
@@ -400,6 +402,10 @@ namespace shift::compiler {
 	public:
 		inline tokenizer(error_handler* const, const filesystem::file&);
 		inline tokenizer(error_handler* const, filesystem::file&&);
+
+		inline tokenizer(error_handler* const, const std::string& file_data);
+		inline tokenizer(error_handler* const, std::string&& file_data);
+
 		~tokenizer() noexcept = default;
 		tokenizer(const tokenizer&) = default;
 		tokenizer(tokenizer&&) noexcept = default;
@@ -472,7 +478,7 @@ namespace shift::compiler {
 		inline void set_error_handler(error_handler* const error_handler) noexcept { m_error_handler = error_handler; }
 	protected:
 		error_handler* m_error_handler;
-		filesystem::file m_file;
+		filesystem::file m_file{ std::string_view("<internal>") };
 		std::string m_filedata;
 		std::vector<std::string_view> m_lines;
 		std::vector<token> m_tokens;
@@ -485,6 +491,12 @@ namespace shift::compiler {
 
 	inline tokenizer::tokenizer(error_handler* const handler, filesystem::file&& file) : m_error_handler(handler),
 		m_file(std::move(file)) {}
+
+	inline tokenizer::tokenizer(error_handler* const handler, const std::string& file_data) : m_error_handler(handler),
+		m_filedata(file_data) {}
+
+	inline tokenizer::tokenizer(error_handler* const handler, std::string&& file_data) : m_error_handler(handler),
+		m_filedata(std::move(file_data)) {}
 
 }
 

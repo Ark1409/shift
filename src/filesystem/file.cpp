@@ -2,6 +2,7 @@
 #include "directory.h"
 
 #include <fstream>
+#include <stdexcept>
 
 namespace shift::filesystem {
 
@@ -61,5 +62,30 @@ namespace shift::filesystem {
 		catch (...) {
 			return false;
 		}
+	}
+
+	SHIFT_API std::string file::read_fully(bool binary) const {
+
+		std::ifstream in(this->m_path, std::ios_base::in | (binary ? std::ios_base::binary : std::ios_base::in));
+		std::string ret;
+
+		if (!in.is_open())
+			throw std::runtime_error("Unable to open file for reading: " + this->get_absolute_path());
+
+		in.seekg(0, std::ios_base::end);
+		{
+			auto pos = in.tellg();
+			if (pos != -1) { ret.resize(pos); }
+		}
+		in.seekg(0, std::ios_base::beg);
+		in.read(ret.data(), ret.size());
+		ret.resize(in.gcount());
+		char buf[1024];
+		while (in.read(buf, sizeof(buf)) && !in.eof()) {
+			ret.append(buf, in.gcount());
+		}
+		in.close();
+
+		return ret;
 	}
 }

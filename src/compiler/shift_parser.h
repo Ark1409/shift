@@ -973,6 +973,8 @@ namespace shift::compiler {
 
         inline parser(error_handler* const error_handler, tokenizer* const tokenizer) noexcept;
 
+        inline parser(error_handler* const error_handler, tokenizer& tokenizer) noexcept;
+
         parser(const parser&) = delete;
 
         parser(parser&&) noexcept = default;
@@ -1113,6 +1115,8 @@ namespace shift::compiler {
     inline parser::parser(tokenizer* const tokenizer) noexcept : m_tokenizer(tokenizer), m_error_handler(tokenizer->get_error_handler()) {}
 
     inline parser::parser(error_handler* const error_handler, tokenizer* const tokenizer) noexcept : m_tokenizer(tokenizer), m_error_handler(error_handler) {}
+
+    inline parser::parser(error_handler* const error_handler, tokenizer& tokenizer) noexcept : parser(error_handler, &tokenizer) {}
 }
 
 #endif
