@@ -61,11 +61,11 @@ namespace shift::compiler {
 
         void m_set_default_value(shift_variable& var, bool silent = false) noexcept;
 
-        template<utils::range_of<const function_overload_info> FuncsIter, utils::range_of<const shift_expression> ParamsIter>
+        template<utils::range_of<const analyzer::function_overload_info> FuncsIter, utils::range_of<const shift_expression> ParamsIter>
         std::vector<function_filter_info>
             m_filter_functions(utils::range<FuncsIter> funcs, utils::range<ParamsIter> params, bool silent = false);
 
-        template<utils::range_of<const std::vector<function_overload_info>*> FuncsIter, utils::range_of<const shift_expression> ParamsIter>
+        template<utils::range_of<const std::vector<analyzer::function_overload_info>*> FuncsIter, utils::range_of<const shift_expression> ParamsIter>
         std::vector<function_filter_info>
             m_filter_functions(utils::range<FuncsIter> funcs, utils::range<ParamsIter> params, bool silent = false);
 
@@ -617,7 +617,7 @@ namespace shift::compiler {
             // number of function paramters that match the class type of an expression parameter exactly
             size_t exact_count = 0;
 
-            // Base class resolution levels for each parameterin the form [level, count]
+            // Base class resolution levels for each parameter in the form [level, count]
             std::map<size_t, size_t> base_levels;
 
             shift_function* func = nullptr;
@@ -709,7 +709,6 @@ namespace shift::compiler {
         analyzer::m_filter_functions(utils::range<FuncsIter> funcs, utils::range<ParamsIter> params, bool silent) {
         std::vector<function_filter_info> filtered;
         for (const std::vector<analyzer::function_overload_info>* overloads : funcs) {
-            debug_log("Filtering functions with " << overloads->size() << " overloads");
             auto sub_filter = m_filter_functions(utils::range(*overloads), params, silent);
             filtered.insert(filtered.end(), std::make_move_iterator(sub_filter.begin()), std::make_move_iterator(sub_filter.end()));
         }

@@ -303,8 +303,6 @@ namespace shift::compiler {
             }
             _scope.clazz = nullptr;
         }
-
-        debug_log("Analyzer finished");
     }
 
     std::string analyzer::m_mangle_name(const shift_function& func) {
@@ -328,7 +326,7 @@ namespace shift::compiler {
 
                 std::string param_fqn;
 
-                const bool is_ref = param.type.ref_type == shift_type::reference_type::ref, is_imut = param.type.mods & shift_mods::IMUT;
+                const bool is_ref = param.type.ref_type == shift_type::reference_type::ref, is_imut = (param.type.mods & shift_mods::IMUT) == shift_mods::IMUT;
 
                 if (is_ref || is_imut) {
                     if (is_imut) { param_fqn += "i"; }
