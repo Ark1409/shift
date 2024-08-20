@@ -40,12 +40,8 @@ set_target_properties(${PROJECT_NAME} PROPERTIES INTERPROCEDURAL_OPTIMIZATION Tr
 set_target_properties(${PROJECT_NAME} PROPERTIES POSITION_INDEPENDENT_CODE True)
 target_link_libraries(${PROJECT_NAME} PRIVATE shift::shift PRIVATE GTest::gtest PRIVATE GTest::gtest_main)
 
-set_target_properties(${PROJECT_NAME} PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-set_target_properties(${PROJECT_NAME} PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-
-# Copy over dependencies to test directory after build
-
-get_target_property(shift_RUNTIME_OUTPUT_DIR shift RUNTIME_OUTPUT_DIRECTORY)
+set_target_properties(${PROJECT_NAME} PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bin)
+set_target_properties(${PROJECT_NAME} PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib)
 
 # Register test executable with ctest
 add_test(
@@ -53,6 +49,8 @@ add_test(
     COMMAND shift-test
 )
 
+# Copy over dependencies to test directory after build
+get_target_property(shift_RUNTIME_OUTPUT_DIR shift RUNTIME_OUTPUT_DIRECTORY)
 add_custom_command(TARGET shift-test POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different ${shift_RUNTIME_OUTPUT_DIR} .
     )
