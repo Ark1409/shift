@@ -5,6 +5,7 @@
 #include <concepts>
 #include <initializer_list>
 #include <optional>
+#include <ranges>
 
 namespace shift::utils {
     template<typename InIterator, typename OutIterator, typename Transformer>
@@ -17,8 +18,8 @@ namespace shift::utils {
         typedef std::iter_difference_t<iterator_type> difference_type;
         typedef typename std::iterator_traits<iterator_type>::iterator_category iterator_category;
 
-        iterator_transformer(iterator_type it, transformer_type transformer = transformer_type()) : m_it(m_transformer.from(it)), m_transformer(transformer) {}
-        iterator_transformer(in_iterator_type it, transformer_type transformer = transformer_type()) : m_it(it), m_transformer(transformer) {}
+        iterator_transformer(iterator_type it, const transformer_type& transformer = transformer_type()) : m_it(m_transformer.from(it)), m_transformer(transformer) {}
+        iterator_transformer(in_iterator_type it, const transformer_type& transformer = transformer_type()) : m_it(it), m_transformer(transformer) {}
 
         decltype(auto) operator*() const requires std::indirectly_readable<iterator_type> {
             return *m_transformer.to(m_it);
@@ -112,7 +113,7 @@ namespace shift::utils {
     };
 
 
-    template<typename Iterator>
+    template<std::input_or_output_iterator Iterator>
     class range {
     public:
         typedef Iterator iterator_type;
@@ -123,11 +124,11 @@ namespace shift::utils {
 
         range(iterator_type begin, iterator_type end) : m_begin(begin), m_end(end) {}
 
-        template<typename C>
-        range(C& c) : m_begin(std::begin(c)), m_end(std::end(c)), m_size_cache(c.size()) {}
+        template<std::ranges::range C>
+        range(C& c) : m_begin(std::ranges::begin(c)), m_end(std::ranges::end(c)), m_size_cache(c.size()) {}
 
-        template<typename C>
-        range(const C& c) : m_begin(std::begin(c)), m_end(std::end(c)), m_size_cache(c.size()) {}
+        template<std::ranges::range C>
+        range(const C& c) : m_begin(std::ranges::begin(c)), m_end(std::ranges::end(c)), m_size_cache(c.size()) {}
 
         template<typename T, std::size_t N>
         range(T(&a)[N]) : m_begin(std::begin(a)), m_end(std::end(a)), m_size_cache(N) {}
@@ -168,10 +169,10 @@ namespace shift::utils {
         mutable std::optional<difference_type> m_size_cache{ std::nullopt };
     };
 
-    template<typename C>
+    template<std::ranges::range C>
     range(C&) -> range<typename C::iterator>;
 
-    template<typename C>
+    template<std::ranges::range C>
     range(const C&) -> range<typename C::const_iterator>;
 
     template<typename T, std::size_t N>
