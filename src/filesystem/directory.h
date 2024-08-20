@@ -267,7 +267,8 @@ namespace shift::filesystem {
 			// Not working on UNIX, refer to: https://unix.stackexchange.com/questions/34858/what-is-the-concept-of-drives-in-unix-systems
 
 			// Full working on Windows? We must assume this is a drive, no UNC network path stuff
-			return drive::get_drive(std::filesystem::absolute(this->m_path).root_path().string().at(0));
+			auto root_name = std::filesystem::absolute(this->m_path).root_name().string();
+			return drive::get_drive(root_name.size() != 2 || root_name[1] != ':' ? 0x0 : root_name[0]);
 		}
 #endif
 	protected:

@@ -12,10 +12,12 @@
 #	error drive.h may only be included on Windows platforms
 #endif
 
- // Remove macro definitions of min and max from windef.h
+// Remove macro definitions of min and max from windef.h
 #define NOMINMAX 1
+// No need for all that windows header garbage
+#define WIN32_LEAN_AND_MEAN 1
 
-#include <list>
+#include <vector>
 #include <windows.h>
 #include <ostream>
 
@@ -41,7 +43,7 @@ namespace shift::filesystem {
 		 * Retrieves all logical drives on the system.
 		 * @return A list of system drives.
 		 */
-		SHIFT_API static std::list<drive> get_drives(void) noexcept;
+		SHIFT_API static std::vector<drive> get_drives(void) noexcept;
 
 		/**
 		 * Retrieves the drive letter. This will ALWAYS be in upper case.
