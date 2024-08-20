@@ -306,7 +306,8 @@ namespace shift::compiler {
 					|| this->is_class() || this->is_init() || this->is_operator() || this->is_constructor() || this->is_destructor()
 					|| this->is_this() || this->is_base() || this->is_if() || this->is_else() || this->is_while() || this->is_do() || this->is_return()
 					|| this->is_continue() || this->is_break() || this->is_for() || this->is_true() || this->is_false() || this->is_new()
-					|| this->is_del() || this->is_access_specifier() || this->is_ref() || this->is_tref() || this->is_auto() || this->is_imut());
+					|| this->is_del() || this->is_access_specifier() || this->is_ref() || this->is_tref() || this->is_auto() || this->is_imut()
+					|| this->is_mv() || this->is_cp() || this->is_var() || this->is_null() || this->is_throw() || this->is_explicit());
 		}
 
 		constexpr inline bool is_alias(void) const noexcept { return (this->is_identifier()) && (this->m_data == "alias"); }

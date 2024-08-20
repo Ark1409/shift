@@ -31,9 +31,9 @@ using namespace std::string_literals;
 
 #define shift_tokenizer_get_full_line(__out) \
 {\
-	size_t __my_line_size = i;\
-	for(;__my_line_size < filesize && !shift_tokenizer_char_equal(this->m_filedata[__my_line_size], '\n');__my_line_size++);\
-	__out = std::string_view(&this->m_filedata[last_line], __my_line_size-last_line);\
+    size_t __my_line_size = i;\
+    for(;__my_line_size < filesize && !shift_tokenizer_char_equal(this->m_filedata[__my_line_size], '\n');__my_line_size++);\
+    __out = std::string_view(&this->m_filedata[last_line], __my_line_size-last_line);\
 }
 
 //#define shift_tokenizer_is_hex(__char) (is_between_in(__char, char('a'), char('f')) || is_between_in(__char, char('A'), char('F')) || is_between_in(__char, char('0'), char('9')))
@@ -41,35 +41,37 @@ using namespace std::string_literals;
 
 #define shift_tokenizer_is_binary(__char) (((__char)==char('0')) || ((__char)==char('1')))
 
-#define SHIFT_TOKENIZER_ERROR_PREFIX(_line_, _col_) 				"error: " << (this->m_file == "<internal>"sv ? "<internal>"sv : (std::string_view)std::filesystem::relative(this->m_file.raw_path()).string()) << ":" << line << ":" << col << ": "
-#define SHIFT_TOKENIZER_WARNING_PREFIX(_line_, _col_) 				"warning: " << (this->m_file == "<internal>"sv ? "<internal>"sv : (std::string_view)std::filesystem::relative(this->m_file.raw_path()).string()) << ":" << line << ":" << col << ": "
+#define SHIFT_TOKENIZER_FILE_PREFIX     (this->m_file == "<internal>"sv ? "<internal>"sv : (std::string_view)std::filesystem::relative(this->m_file.raw_path()).string())
 
-#define SHIFT_TOKENIZER_ERROR_LOG(__ERR__) 		if(m_error_handler) this->m_error_handler->stream() << __ERR__ << '\n', this->m_error_handler->flush_stream(error_handler::message_type::error)
+#define SHIFT_TOKENIZER_ERROR_PREFIX(_line_, _col_)     "error: " << SHIFT_TOKENIZER_FILE_PREFIX << ":" << line << ":" << col << ": "
+#define SHIFT_TOKENIZER_WARNING_PREFIX(_line_, _col_)   "warning: " << SHIFT_TOKENIZER_FILE_PREFIX << ":" << line << ":" << col << ": "
+
+#define SHIFT_TOKENIZER_ERROR_LOG(__ERR__)         if(m_error_handler) this->m_error_handler->stream() << __ERR__ << '\n', this->m_error_handler->flush_stream(error_handler::message_type::error)
 #define SHIFT_TOKENIZER_FATAL_ERROR_LOG(__ERR__)  SHIFT_TOKENIZER_ERROR_LOG(__ERR__); if(m_error_handler) this->m_error_handler->print_exit_clear()
 
-#define SHIFT_TOKENIZER_WARNING_LOG(__ERR__) 		if(m_error_handler) this->m_error_handler->stream() << __ERR__ << '\n', this->m_error_handler->flush_stream(error_handler::message_type::warning)
+#define SHIFT_TOKENIZER_WARNING_LOG(__ERR__)         if(m_error_handler) this->m_error_handler->stream() << __ERR__ << '\n', this->m_error_handler->flush_stream(error_handler::message_type::warning)
 
 #define SHIFT_TOKENIZER_ERROR(_line_, _col_, _len_, __ERR__) \
 if(this->m_error_handler) {\
-	this->m_error_handler->stream() << SHIFT_TOKENIZER_ERROR_PREFIX(_line_, _col_) << __ERR__ << '\n'; this->m_error_handler->flush_stream(error_handler::message_type::error);\
-	std::string_view __temp_line; shift_tokenizer_get_full_line(__temp_line); SHIFT_TOKENIZER_ERROR_LOG(__temp_line);\
-	this->m_error_handler->stream() << std::string((_col_)-1, ' ');\
-	this->m_error_handler->stream() << std::string(_len_, '^');\
-	this->m_error_handler->stream() << '\n';\
-	this->m_error_handler->flush_stream(error_handler::message_type::error);\
+    this->m_error_handler->stream() << SHIFT_TOKENIZER_ERROR_PREFIX(_line_, _col_) << __ERR__ << '\n'; this->m_error_handler->flush_stream(error_handler::message_type::error);\
+    std::string_view __temp_line; shift_tokenizer_get_full_line(__temp_line); SHIFT_TOKENIZER_ERROR_LOG(__temp_line);\
+    this->m_error_handler->stream() << std::string((_col_)-1, ' ');\
+    this->m_error_handler->stream() << std::string(_len_, '^');\
+    this->m_error_handler->stream() << '\n';\
+    this->m_error_handler->flush_stream(error_handler::message_type::error);\
 }
 
 #define SHIFT_TOKENIZER_WARNING(_line_, _col_, _len_, __ERR__) \
 if(this->m_error_handler) {\
-	this->m_error_handler->stream() << SHIFT_TOKENIZER_WARNING_PREFIX(_line_, _col_) << __ERR__ << '\n'; this->m_error_handler->flush_stream(error_handler::message_type::warning);\
-	std::string_view __temp_line; shift_tokenizer_get_full_line(__temp_line); SHIFT_TOKENIZER_WARNING_LOG(__temp_line);\
-	this->m_error_handler->stream() << std::string((_col_)-1, ' ');\
-	this->m_error_handler->stream() << std::string(_len_, '^');\
-	this->m_error_handler->stream() << '\n';\
-	this->m_error_handler->flush_stream(error_handler::message_type::warning);\
+    this->m_error_handler->stream() << SHIFT_TOKENIZER_WARNING_PREFIX(_line_, _col_) << __ERR__ << '\n'; this->m_error_handler->flush_stream(error_handler::message_type::warning);\
+    std::string_view __temp_line; shift_tokenizer_get_full_line(__temp_line); SHIFT_TOKENIZER_WARNING_LOG(__temp_line);\
+    this->m_error_handler->stream() << std::string((_col_)-1, ' ');\
+    this->m_error_handler->stream() << std::string(_len_, '^');\
+    this->m_error_handler->stream() << '\n';\
+    this->m_error_handler->flush_stream(error_handler::message_type::warning);\
 }
 
-#define SHIFT_TOKENIZER_FATAL_ERROR(_line_, _col_, _len_, __ERR__) 		SHIFT_TOKENIZER_ERROR(_line_, _col_, _len_, __ERR__); if(m_error_handler) this->m_error_handler->print_exit_clear()
+#define SHIFT_TOKENIZER_FATAL_ERROR(_line_, _col_, _len_, __ERR__)         SHIFT_TOKENIZER_ERROR(_line_, _col_, _len_, __ERR__); if(m_error_handler) this->m_error_handler->print_exit_clear()
 
 /** Namespace shift */
 namespace shift::compiler {
@@ -392,15 +394,15 @@ namespace shift::compiler {
 						shift_tokenizer_advance_();
 					}
 					//
-					//					Cannot transform =- to -=
-					//					Reason:
-					//					i =- 3; // -= 3 OR = -3 ? (since white spaces are ignored)
-					//					
-					//					else if (shift_tokenizer_char_equal(next, '-')) {
-					//						m_tokens.push_back(
-					//								token(std::string_view({next}) + current, token::token_type::MINUS_EQUALS, {line, col}));
-					//						shift_tokenizer_advance_();
-					//					}
+					//                    Cannot transform =- to -=
+					//                    Reason:
+					//                    i =- 3; // -= 3 OR = -3 ? (since white spaces are ignored)
+					//                    
+					//                    else if (shift_tokenizer_char_equal(next, '-')) {
+					//                        m_tokens.push_back(
+					//                                token(std::string_view({next}) + current, token::token_type::MINUS_EQUALS, {line, col}));
+					//                        shift_tokenizer_advance_();
+					//                    }
 					else {
 						m_tokens.push_back(token(std::string_view(&this->m_filedata[i], 1), token::token_type::EQUALS, { line, col }));
 					}
