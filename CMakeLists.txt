@@ -14,19 +14,19 @@ option(SHIFT_TEST "Build shift tests" ON)
 
 # Create the compiler library for the project
 add_library(
-    ${PROJECT_NAME}
-    SHARED
-    src/compiler/shift_argument_parser.cpp
-    src/compiler/shift_compiler.cpp
-    src/compiler/shift_error_handler.cpp
-    src/compiler/shift_parser.cpp
-    src/compiler/shift_tokenizer.cpp
-    src/compiler/shift_analyzer.cpp
-    src/filesystem/directory.cpp
-    src/filesystem/drive.cpp
-    src/filesystem/file.cpp
-    src/logging/console.cpp
-    src/utils/utils.cpp
+        ${PROJECT_NAME}
+        SHARED
+        src/compiler/shift_argument_parser.cpp
+        src/compiler/shift_compiler.cpp
+        src/compiler/shift_error_handler.cpp
+        src/compiler/shift_parser.cpp
+        src/compiler/shift_tokenizer.cpp
+        src/compiler/shift_analyzer.cpp
+        src/filesystem/directory.cpp
+        src/filesystem/drive.cpp
+        src/filesystem/file.cpp
+        src/logging/console.cpp
+        src/utils/utils.cpp
 )
 
 # Create base library for project
@@ -40,13 +40,13 @@ target_include_directories(${PROJECT_NAME} PUBLIC include src)
 
 # Add warnings and compile options for the project, flags depend on compiler
 # Clang has clang-cl which accepts MSVC flags, so we need to check for that
-if ((CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND CMAKE_CXX_COMPILER_FRONTEND_VARIANT MATCHES "GNU") 
-    OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-    target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -Wpedantic -Wwrite-strings -Wformat=2 -Wformat-security 
-    -Wformat-nonliteral -Wformat-y2k -Wcast-align -Wcast-qual -Walloca -Walloc-zero -Wstringop-overflow=4 -Wpacked 
-    -Wpointer-arith -Wredundant-decls -Wstack-protector -Wswitch-default -Wswitch -Wunreachable-code -Wunused 
-    -Wunused-parameter -Wmissing-format-attribute -Wmissing-noreturn -Wdisabled-optimization -fmessage-length=0)
-elseif ((CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND CMAKE_CXX_COMPILER_FRONTEND_VARIANT MATCHES "MSVC") 
+if((CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND CMAKE_CXX_COMPILER_FRONTEND_VARIANT MATCHES "GNU")
+        OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+    target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -Wpedantic -Wwrite-strings -Wformat=2 -Wformat-security
+            -Wformat-nonliteral -Wformat-y2k -Wcast-align -Wcast-qual -Walloca -Walloc-zero -Wstringop-overflow=4 -Wpacked
+            -Wpointer-arith -Wredundant-decls -Wstack-protector -Wswitch-default -Wswitch -Wunreachable-code -Wunused
+            -Wunused-parameter -Wmissing-format-attribute -Wmissing-noreturn -Wdisabled-optimization -fmessage-length=0)
+elseif((CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND CMAKE_CXX_COMPILER_FRONTEND_VARIANT MATCHES "MSVC")
         OR (CMAKE_CXX_COMPILER_ID MATCHES "MSVC"))
     target_compile_options(${PROJECT_NAME} PRIVATE /W4)
 endif()
@@ -72,17 +72,17 @@ endif()
 
 # Set the executable file (runner) for the project
 add_executable(
-    ${PROJECT_NAME}-runner 
-    src/main.cpp
+        ${PROJECT_NAME}-runner
+        src/main.cpp
 )
 
 # Add target properties to shift compiler runner
-target_link_libraries(${PROJECT_NAME}-runner PRIVATE ${PROJECT_NAME})
+target_link_libraries(${PROJECT_NAME}-runner PRIVATE ${PROJECT_NAME}::${PROJECT_NAME})
 set_target_properties(${PROJECT_NAME}-runner PROPERTIES INTERPROCEDURAL_OPTIMIZATION True)
 set_target_properties(${PROJECT_NAME}-runner PROPERTIES POSITION_INDEPENDENT_CODE True)
 set_target_properties(${PROJECT_NAME}-runner PROPERTIES OUTPUT_NAME ${PROJECT_NAME})
 
-# Set output deirectory for the project
+# Set output directory for the project
 set_property(TARGET ${PROJECT_NAME}-runner ${PROJECT_NAME} PROPERTY RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bin)
 set_property(TARGET ${PROJECT_NAME}-runner ${PROJECT_NAME} PROPERTY LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib)
 set_property(TARGET ${PROJECT_NAME}-runner ${PROJECT_NAME} PROPERTY ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib)

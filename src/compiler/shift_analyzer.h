@@ -35,6 +35,7 @@ namespace shift::compiler {
         inline std::deque<parser>* get_parsers() noexcept { return m_parsers; }
 
         inline const std::deque<parser>* get_parsers() const noexcept { return m_parsers; }
+
     private:
         struct scope;
         struct function_overload_info;
@@ -52,7 +53,8 @@ namespace shift::compiler {
         };
 
         struct function_filter_info {
-            std::pair<const function_overload_info*, std::unordered_map<const shift_expression*, const std::list<type_conversion_info>*>> candidate;
+            std::pair<const function_overload_info*,
+                      std::unordered_map<const shift_expression*, const std::list<type_conversion_info>*>> candidate;
         };
 
         void m_init_defaults();
@@ -61,25 +63,25 @@ namespace shift::compiler {
 
         void m_set_default_value(shift_variable& var, bool silent = false) noexcept;
 
-        template<utils::range_of<const analyzer::function_overload_info> FuncsIter, utils::range_of<const shift_expression> ParamsIter>
+        template<utils::iter_of<const analyzer::function_overload_info> FuncsIter, utils::iter_of<const shift_expression> ParamsIter>
         std::vector<function_filter_info>
-            m_filter_functions(utils::range<FuncsIter> funcs, utils::range<ParamsIter> params, bool silent = false);
+        m_filter_functions(utils::range<FuncsIter> funcs, utils::range<ParamsIter> params, bool silent = false);
 
-        template<utils::range_of<const std::vector<analyzer::function_overload_info>*> FuncsIter, utils::range_of<const shift_expression> ParamsIter>
+        template<utils::iter_of<const std::vector<analyzer::function_overload_info>*> FuncsIter,
+                 utils::iter_of<const shift_expression> ParamsIter>
         std::vector<function_filter_info>
-            m_filter_functions(utils::range<FuncsIter> funcs, utils::range<ParamsIter> params, bool silent = false);
+        m_filter_functions(utils::range<FuncsIter> funcs, utils::range<ParamsIter> params, bool silent = false);
 
         inline bool contains_module(const std::string& module_) const {
             return this->m_modules.find(module_) != this->m_modules.end();
         }
 
-        inline void m_analyze_scope(std::deque<shift_statement>& statements, scope* parent_scope = nullptr) {
+        inline void m_analyze_scope(utils::ideque<shift_statement>& statements, scope* parent_scope = nullptr) {
             return m_analyze_scope(statements.begin(), statements.end(), parent_scope);
         }
 
-        void m_analyze_scope(typename std::deque<shift_statement>::iterator statements_begin,
-            typename std::deque<shift_statement>::iterator statements_end,
-            scope* parent_scope = nullptr);
+        void m_analyze_scope(utils::ideque<shift_statement>::iterator statements_begin,
+            utils::ideque<shift_statement>::iterator statements_end, scope* parent_scope = nullptr);
 
         void m_analyze_function(shift_function& func, scope& parent_scope);
 
@@ -93,38 +95,44 @@ namespace shift::compiler {
 
         void m_analyze_variable_type(shift_variable& variable, const scope* current_scope, bool silent = false);
 
-        inline void m_analyze_variable_type(shift_variable& variable, bool silent = false) { return m_analyze_variable_type(variable, nullptr, silent); }
+        inline void m_analyze_variable_type(shift_variable& variable, bool silent = false) {
+            return m_analyze_variable_type(variable, nullptr, silent);
+        }
 
         void m_analyze_variable_value(shift_variable& variable, scope& current_scope);
 
         void m_resolve_expression(shift_expression*, scope* const parent_scope, bool silent = false);
 
-        void m_resolve_expression_dotted(shift_expression*, scope* const parent_scope, shift_expression* prev = nullptr, bool silent = false);
+        void
+        m_resolve_expression_dotted(shift_expression*, scope* const parent_scope, shift_expression* prev = nullptr, bool silent = false);
 
         const std::list<type_conversion_info>& m_get_implicit_conversions(const shift_type* from, const shift_type* to,
             std::unordered_set<shift_class*>& history) noexcept;
 
         inline const std::list<type_conversion_info>&
-            m_get_implicit_conversions(const shift_type* from, const shift_type* to) noexcept {
+        m_get_implicit_conversions(const shift_type* from, const shift_type* to) noexcept {
             std::unordered_set<shift_class*> history;
             return m_get_implicit_conversions(from, to, history);
         }
 
         inline const std::list<type_conversion_info>&
-            m_get_implicit_conversions(const shift_type& from, const shift_type& to) noexcept {
+        m_get_implicit_conversions(const shift_type& from, const shift_type& to) noexcept {
             return m_get_implicit_conversions(&from, &to);
         }
 
         inline const std::list<type_conversion_info>&
-            m_get_implicit_conversions(const shift_type& from, const shift_type&& to) noexcept = delete;
+        m_get_implicit_conversions(const shift_type& from, const shift_type&& to) noexcept = delete;
 
-        void m_apply_implicit_conversion(shift_expression& expr, const type_conversion_info& conversion, const scope& current_scope, bool silent = false);
+        void m_apply_implicit_conversion(shift_expression& expr, const type_conversion_info& conversion, const scope& current_scope,
+            bool silent = false);
 
         void m_error_candidates(const std::list<type_conversion_info>& type_conversions);
+
         void m_error_candidates(const std::vector<function_filter_info>& function_overloads);
 
         // Checks whether clazz is accessible from parent_scope, and reports the error if it is not
-        bool m_verify_class_access(scope const* const parent_scope, shift_class const* clazz, const std::variant<const token*, const shift_name*>& error);
+        bool m_verify_class_access(scope const* const parent_scope, shift_class const* clazz,
+            const std::variant<const token*, const shift_name*>& error);
 
         bool m_verify_access(const scope* parent_scope, shift_expression* expr, bool silent = false);
 
@@ -196,33 +204,33 @@ namespace shift::compiler {
             std::unordered_map<std::string_view, shift_variable*> variables;
 
             parser* get_parser() const noexcept {
-                if (parser_) return parser_;
-                else if (var && var->clazz) return var->clazz->parser_;
-                else if (func && func->clazz) return func->clazz->parser_;
-                else if (clazz) return clazz->parser_;
+                if (parser_) { return parser_; }
+                else if (var && var->clazz) { return var->clazz->parser_; }
+                else if (func && func->clazz) { return func->clazz->parser_; }
+                else if (clazz) { return clazz->parser_; }
 
                 return parent ? parent->get_parser() : nullptr;
             }
 
             shift_module* get_module() const noexcept {
-                if (module_) return module_;
+                if (module_) { return module_; }
                 if (var) {
-                    if (var->clazz && var->clazz->module_) return var->clazz->module_;
-                    if (var->module_) return var->module_;
+                    if (var->clazz && var->clazz->module_) { return var->clazz->module_; }
+                    if (var->module_) { return var->module_; }
                 }
                 if (func) {
-                    if (func->clazz && func->clazz->module_) return func->clazz->module_;
-                    if (func->module_) return func->module_;
+                    if (func->clazz && func->clazz->module_) { return func->clazz->module_; }
+                    if (func->module_) { return func->module_; }
                 }
-                if (clazz && clazz->module_) return clazz->module_;
+                if (clazz && clazz->module_) { return clazz->module_; }
 
                 return parent ? parent->get_module() : nullptr;
             }
 
             bool is_using_module(const shift_module& module_) const {
-                if (use_modules.find(module_) != use_modules.end()) return true;
+                if (use_modules.find(module_) != use_modules.end()) { return true; }
 
-                if ((!parent || !parent->module_) && (this->module_ && *this->module_ == module_)) return true;
+                if ((!parent || !parent->module_) && (this->module_ && *this->module_ == module_)) { return true; }
 
                 if ((!parent || !parent->clazz) && (clazz && clazz->use_statements.contains(module_))) {
                     if (var && var->clazz == clazz) {
@@ -280,7 +288,8 @@ namespace shift::compiler {
                     auto const class_name_end = std::min(pointer_index, array_index);
                     if (class_name_end != std::string::npos) {
                         auto sub_classes_temp = find_classes(name.substr(0, class_name_end));
-                        std::vector<shift_class*> sub_classes(std::make_move_iterator(sub_classes_temp.begin()), std::make_move_iterator(sub_classes_temp.end()));
+                        std::vector<shift_class*> sub_classes(std::make_move_iterator(sub_classes_temp.begin()),
+                            std::make_move_iterator(sub_classes_temp.end()));
                         for (auto it = name.begin() + class_name_end; it != name.end(); ++it) {
                             std::string::size_type dimensions;
                             switch (*it) {
@@ -300,7 +309,8 @@ namespace shift::compiler {
                                     }
                                     it += dimensions * 2 - 1;
                                     break;
-                                default: break;
+                                default:
+                                    break;
                             }
                         }
                         return { std::make_move_iterator(sub_classes.begin()), std::make_move_iterator(sub_classes.end()) };
@@ -323,7 +333,7 @@ namespace shift::compiler {
                         implicit_class_use = func->implicit_use_statements;
                     }
 
-                    for (size_t i = 0; const shift_module & module_ : clazz->use_statements) {
+                    for (size_t i = 0; const shift_module& module_ : clazz->use_statements) {
                         if (i >= implicit_class_use) break;
 
                         auto const find = base->m_classes.find(module_.to_string() + '.' + name);
@@ -354,7 +364,7 @@ namespace shift::compiler {
                             implicit_use = clazz->implicit_use_statements;
                         }
 
-                        for (size_t index = 0; const shift_module & module_ : parser_->m_global_uses) {
+                        for (size_t index = 0; const shift_module& module_ : parser_->m_global_uses) {
                             if (index >= implicit_use) break;
 
                             auto const find = base->m_classes.find(module_.to_string() + '.' + name);
@@ -476,7 +486,7 @@ namespace shift::compiler {
             }
 
             inline utils::ordered_set<shift_variable*>
-                find_variables(const token* const name) const { return find_variables(name->get_data()); }
+            find_variables(const token* const name) const { return find_variables(name->get_data()); }
 
             inline shift_variable* find_variable(const std::string_view& name) const {
                 utils::ordered_set<shift_variable*> variables = find_variables(name);
@@ -517,8 +527,9 @@ namespace shift::compiler {
                                     }
                                 }
                             }
-                            auto& use_statements = current_class->parent.clazz ? current_class->parent.clazz->use_statements : clazz->parser_->m_global_uses;
-                            for (std::size_t count = 0; auto & use_statement : use_statements) {
+                            auto& use_statements = current_class->parent.clazz ? current_class->parent.clazz->use_statements
+                                                                               : clazz->parser_->m_global_uses;
+                            for (std::size_t count = 0; auto& use_statement : use_statements) {
                                 if (count >= current_class->implicit_use_statements) break;
                                 auto f = base->m_modules.find(use_statement.to_string());
                                 if (f != base->m_modules.end()) {
@@ -536,7 +547,7 @@ namespace shift::compiler {
 
                 if (var && var->module_ && var->parser_ && (!parent || parent->var != var)) {
                     const std::string name_str(name);
-                    for (std::size_t count = 0; auto & use_statement : var->parser_->m_global_uses) {
+                    for (std::size_t count = 0; auto& use_statement : var->parser_->m_global_uses) {
                         if (count >= var->implicit_use_statements) break;
                         auto f = base->m_modules.find(use_statement.to_string());
                         if (f != base->m_modules.end()) {
@@ -550,7 +561,7 @@ namespace shift::compiler {
                     }
                 } else if (func && func->module_ && func->parser_ && (!parent || parent->func != func)) {
                     const std::string name_str(name);
-                    for (std::size_t count = 0; auto & use_statement : func->parser_->m_global_uses) {
+                    for (std::size_t count = 0; auto& use_statement : func->parser_->m_global_uses) {
                         if (count >= func->implicit_use_statements) break;
                         auto f = base->m_modules.find(use_statement.to_string());
                         if (f != base->m_modules.end()) {
@@ -587,6 +598,7 @@ namespace shift::compiler {
                 return funcs.size() == 1 ? funcs.front() : nullptr;
             }
         };
+
     private:
         friend struct scope;
     private:
@@ -608,13 +620,13 @@ namespace shift::compiler {
     inline analyzer::analyzer(error_handler* const handler, std::deque<parser>& parsers) noexcept : analyzer(handler,
         &parsers) {}
 
-    template<utils::range_of<const analyzer::function_overload_info> FuncsIter, utils::range_of<const shift_expression> ParamsIter>
+    template<utils::iter_of<const analyzer::function_overload_info> FuncsIter, utils::iter_of<const shift_expression> ParamsIter>
     std::vector<analyzer::function_filter_info>
-        analyzer::m_filter_functions(utils::range<FuncsIter> funcs, utils::range<ParamsIter> params, bool silent) {
+    analyzer::m_filter_functions(utils::range<FuncsIter> funcs, utils::range<ParamsIter> params, bool silent) {
         std::vector<function_filter_info> filtered;
 
         struct match_quality {
-            // number of function paramters that match the class type of an expression parameter exactly
+            // number of function parameters that match the class type of an expression parameter exactly
             size_t exact_count = 0;
 
             // Base class resolution levels for each parameter in the form [level, count]
@@ -625,7 +637,8 @@ namespace shift::compiler {
             inline std::strong_ordering operator<=>(const match_quality& other) const noexcept {
                 if (exact_count != other.exact_count) return exact_count <=> other.exact_count;
 
-                for (auto it = base_levels.begin(), other_it = other.base_levels.begin(); it != base_levels.end() && other_it != other.base_levels.end(); ++it, ++other_it) {
+                for (auto it = base_levels.begin(), other_it = other.base_levels.begin();
+                     it != base_levels.end() && other_it != other.base_levels.end(); ++it, ++other_it) {
                     if (it->first != other_it->first) return other_it->first <=> it->first;
                     if (it->second != other_it->second) return it->second <=> other_it->second;
                 }
@@ -633,8 +646,8 @@ namespace shift::compiler {
                 if (func && other.func) {
                     // TODO potential edits if default parameters are added
                     for (auto params_it = func->parameters.begin(), other_params_it = other.func->parameters.begin();
-                        params_it != func->parameters.end() && other_params_it != other.func->parameters.end();
-                        ++params_it, ++other_params_it) {
+                         params_it != func->parameters.end() && other_params_it != other.func->parameters.end();
+                         ++params_it, ++other_params_it) {
                         auto current_imut = (params_it->second.type.mods & shift_mods::IMUT);
                         auto other_imut = (other_params_it->second.type.mods & shift_mods::IMUT);
                         if (current_imut != other_imut) {
@@ -645,7 +658,7 @@ namespace shift::compiler {
 
                 return base_levels.size() <=> other.base_levels.size();
             }
-        } best_quality;
+        } best_quality{};
 
         for (function_overload_info const& overload_info : funcs) {
             function_filter_info filter_info;
@@ -662,7 +675,6 @@ namespace shift::compiler {
             if (func->parameters.size() != size_t(params.size())) continue;
 
             auto param_it = params.begin();
-            size_t param_index = 0;
             for (auto const& [func_param_name, func_param_var] : func->parameters) {
                 if (!func_param_var.type.tried_resolve && !func_param_var.type.is_resolved()) {
                     m_analyze_function_params(*func, silent);
@@ -675,7 +687,6 @@ namespace shift::compiler {
 
                     filter_conversions[&param_expr] = &conversions;
                     ++current_quality.base_levels[std::numeric_limits<size_t>::max()];
-
                 } else {
                     if (!param_expr.is_type_resolved()) { break; }
                     filter_conversions[&param_expr] = nullptr;
@@ -686,7 +697,6 @@ namespace shift::compiler {
                     }
                 }
                 ++param_it;
-                ++param_index;
             }
 
             if (param_it == params.end()) {
@@ -704,9 +714,10 @@ namespace shift::compiler {
         return filtered;
     }
 
-    template<utils::range_of<const std::vector<analyzer::function_overload_info>*> FuncsIter, utils::range_of<const shift_expression> ParamsIter>
+    template<utils::iter_of<const std::vector<analyzer::function_overload_info>*> FuncsIter,
+             utils::iter_of<const shift_expression> ParamsIter>
     std::vector<analyzer::function_filter_info>
-        analyzer::m_filter_functions(utils::range<FuncsIter> funcs, utils::range<ParamsIter> params, bool silent) {
+    analyzer::m_filter_functions(utils::range<FuncsIter> funcs, utils::range<ParamsIter> params, bool silent) {
         std::vector<function_filter_info> filtered;
         for (const std::vector<analyzer::function_overload_info>* overloads : funcs) {
             auto sub_filter = m_filter_functions(utils::range(*overloads), params, silent);

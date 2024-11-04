@@ -20,11 +20,11 @@
 #include <array>
 #include <optional>
 #include <memory>
+#include <ranges>
+#include <numeric>
 
- // Outline
+// Outline
 namespace shift::compiler {
-    class parser;
-
     struct shift_name;
     struct shift_type;
     struct shift_expression;
@@ -32,7 +32,10 @@ namespace shift::compiler {
     struct shift_statement;
     struct shift_function;
     struct shift_class;
-    struct shift_module;
+
+    class shift_module;
+
+    class parser;
 }
 
 
@@ -48,6 +51,7 @@ struct std::hash<shift::compiler::shift_type>;
 
 namespace shift::compiler {
     enum shift_mods : uint_fast16_t {
+        NONE = 0x0,
         PUBLIC = 0x1,
         PROTECTED = 0x2,
         PRIVATE = 0x4,
@@ -58,6 +62,46 @@ namespace shift::compiler {
         EXTERN = 0x80,
         EXPLICIT = 0x100
     };
+
+    constexpr shift::compiler::shift_mods
+    operator^(const shift::compiler::shift_mods f, const shift::compiler::shift_mods other) noexcept {
+        return shift::compiler::shift_mods(
+            std::underlying_type_t<shift::compiler::shift_mods>(f) ^
+            std::underlying_type_t<shift::compiler::shift_mods>(other));
+    }
+
+    constexpr shift::compiler::shift_mods&
+    operator^=(shift::compiler::shift_mods& f, const shift::compiler::shift_mods other) noexcept {
+        return f = operator^(f, other);
+    }
+
+    constexpr shift::compiler::shift_mods
+    operator|(const shift::compiler::shift_mods f, const shift::compiler::shift_mods other) noexcept {
+        return shift::compiler::shift_mods(
+            std::underlying_type_t<shift::compiler::shift_mods>(f) |
+            std::underlying_type_t<shift::compiler::shift_mods>(other));
+    }
+
+    constexpr shift::compiler::shift_mods&
+    operator|=(shift::compiler::shift_mods& f, const shift::compiler::shift_mods other) noexcept {
+        return f = operator|(f, other);
+    }
+
+    constexpr shift::compiler::shift_mods
+    operator&(const shift::compiler::shift_mods f, const shift::compiler::shift_mods other) noexcept {
+        return shift::compiler::shift_mods(
+            std::underlying_type_t<shift::compiler::shift_mods>(f) &
+            std::underlying_type_t<shift::compiler::shift_mods>(other));
+    }
+
+    constexpr shift::compiler::shift_mods&
+    operator&=(shift::compiler::shift_mods& f, const shift::compiler::shift_mods other) noexcept {
+        return f = operator&(f, other);
+    }
+
+    constexpr shift::compiler::shift_mods operator~(const shift::compiler::shift_mods f) noexcept {
+        return shift::compiler::shift_mods(~std::underlying_type_t<shift::compiler::shift_mods>(f));
+    }
 }
 
 namespace shift::compiler {
@@ -69,6 +113,8 @@ namespace shift::compiler {
 
         // Length in tokens
         inline auto length() const noexcept { return std::distance(begin, end); }
+
+        inline bool empty() const noexcept { return begin == end; }
 
         std::string to_string() const {
             std::string str;
@@ -153,34 +199,52 @@ namespace shift::compiler {
         } name;
 
         enum class reference_type { none, ref, tref } ref_type = reference_type::none;
-        enum class dimension_type { pointer = 1, array };
-        // std::pair<size_t, bool> -> size_t = dimension, dimension_type = type
-        std::vector<std::pair<size_t, dimension_type>> dimensions;
+
+        struct dimension {
+            std::size_t count{};
+            enum class dimension_type : uint_fast8_t { pointer = 1, array } type;
+            shift_mods mods{};
+
+            inline bool operator==(const dimension& other) const noexcept {
+                return count == other.count && type == other.type && mods == other.mods;
+            }
+
+            inline bool operator!=(const dimension& other) const noexcept {
+                return !operator==(other);
+            }
+        };
+
+        std::vector<dimension> dimensions;
 
         bool tried_resolve = false;
 
-        inline bool operator==(const shift_type& other) const noexcept { return name.clazz == other.name.clazz && dimensions == other.dimensions && ref_type == other.ref_type && mods == other.mods; }
+        inline bool operator==(const shift_type& other) const noexcept {
+            return name.clazz == other.name.clazz && dimensions == other.dimensions && ref_type == other.ref_type && mods == other.mods;
+        }
 
         inline bool operator!=(const shift_type& other) const noexcept { return !operator==(other); }
 
-        inline bool weakly_equal(const shift_type& other) const noexcept { return name.clazz == other.name.clazz && dimensions == other.dimensions; }
+        inline bool weakly_equal(const shift_type& other) const noexcept {
+            return name.clazz == other.name.clazz && dimensions == other.dimensions;
+        }
 
-        std::string get_fqn() const;
-        std::string get_printable_fqn() const;
+        SHIFT_API std::string get_fqn() const;
+
+        SHIFT_API std::string get_printable_fqn() const;
 
         inline void add_pointer_dimensions(size_t count) {
-            dimensions.emplace_back(count, dimension_type::pointer);
+            dimensions.push_back({ count, dimension::dimension_type::pointer });
         }
 
         inline void add_array_dimensions(size_t count) {
-            dimensions.emplace_back(count, dimension_type::array);
+            dimensions.push_back({ count, dimension::dimension_type::array });
         }
 
         inline bool is_resolved() const noexcept { return name.clazz; }
-        bool is_conversion_needed(const shift_type& to) const noexcept;
+
+        SHIFT_API bool is_conversion_needed(const shift_type& to) const noexcept;
     };
 }
-
 
 template<>
 struct std::hash<shift::compiler::shift_name> {
@@ -192,26 +256,35 @@ struct std::hash<shift::compiler::shift_name> {
 template<>
 struct std::hash<shift::compiler::shift_module> {
     inline std::size_t operator()(const shift::compiler::shift_module& module_) const {
-        return std::hash<shift::compiler::shift_name>()(module_.name);
+        return std::hash<std::string>()(module_.to_string());
+    }
+};
+
+template<>
+struct std::hash<shift::compiler::shift_type::dimension> {
+    inline std::size_t operator()(const shift::compiler::shift_type::dimension& dim) const {
+        static_assert(std::is_standard_layout_v<shift::compiler::shift_type::dimension>);
+        return std::hash<std::string_view>()(std::string_view((const char*) std::addressof(dim), sizeof(dim)));
     }
 };
 
 template<>
 struct std::hash<shift::compiler::shift_type> {
     inline std::size_t operator()(const shift::compiler::shift_type& type) const {
-        std::size_t ret = type.is_resolved() ? std::hash<shift::compiler::shift_class*>()(type.name.clazz) : std::hash<shift::compiler::shift_name>()(type.name.name);
-        for (auto const& [dim, type_] : type.dimensions) {
-            ret = shift::utils::hash_combine(ret, std::hash<std::size_t>()(dim), std::hash<std::size_t>()(static_cast<std::size_t>(type_)));
+        std::size_t ret = type.is_resolved() ? std::hash<shift::compiler::shift_class*>()(type.name.clazz) : std::hash<
+            shift::compiler::shift_name>()(type.name.name);
+        for (auto const& dim : type.dimensions) {
+            ret = shift::utils::hash_combine(ret, std::hash<shift::compiler::shift_type::dimension>()(dim));
         }
         ret = shift::utils::hash_combine(ret, std::hash<std::size_t>()(static_cast<std::size_t>(type.ref_type)));
         return ret;
     }
 };
 
-namespace shift::compiler {
 
+namespace shift::compiler {
     struct shift_expression {
-        token::token_type type = token::token_type::NULL_TOKEN;
+        token::type type = token::type::NULL_TOKEN;
         shift_expression* parent = nullptr;
         std::vector<token>::const_iterator begin, end;
         std::list<shift_expression> sub;
@@ -225,6 +298,7 @@ namespace shift::compiler {
         } resolved;
 
         bool is_resolved() const noexcept { return resolved.variable || resolved.function || resolved.clazz || resolved.module_; }
+
         bool is_type_resolved() const noexcept { return resolved.type.name.clazz; }
 
         inline std::string to_string() const noexcept { return to_name().to_string(); }
@@ -238,17 +312,21 @@ namespace shift::compiler {
 
         inline auto size() const noexcept { return std::distance(begin, end); }
 
-        inline bool is_bracket() const noexcept { return type == token::token_type::LEFT_BRACKET; }
+        inline bool empty() const noexcept { return begin == end; }
 
-        inline bool is_function_call() const noexcept { return type == token::token_type::LEFT_SCOPE_BRACKET; }
+        inline bool is_bracket() const noexcept { return type == token::type::LEFT_BRACKET; }
 
-        inline bool is_array() const noexcept { return type == token::token_type::LEFT_SQUARE_BRACKET; }
+        inline bool is_function_call() const noexcept {
+            return type == token::type::LEFT_SCOPE_BRACKET;
+        }
 
-        inline void set_bracket() noexcept { type = token::token_type::LEFT_BRACKET; }
+        inline bool is_array() const noexcept { return type == token::type::LEFT_SQUARE_BRACKET; }
 
-        inline void set_function_call() noexcept { type = token::token_type::LEFT_SCOPE_BRACKET; }
+        inline void set_bracket() noexcept { type = token::type::LEFT_BRACKET; }
 
-        inline void set_array() noexcept { type = token::token_type::LEFT_SQUARE_BRACKET; }
+        inline void set_function_call() noexcept { type = token::type::LEFT_SCOPE_BRACKET; }
+
+        inline void set_array() noexcept { type = token::type::LEFT_SQUARE_BRACKET; }
 
         inline void set_mv_expression(const shift_expression& expr) {
             sub.resize(1);
@@ -286,8 +364,9 @@ namespace shift::compiler {
             return get_mv_expression();
         }
 
-        inline bool is_cp() const noexcept { return sub.size() == 1 && size() >= 1 && begin->is_cp(); }
-        inline bool is_mv() const noexcept { return sub.size() == 1 && size() >= 1 && begin->is_mv(); }
+        inline bool is_cp() const noexcept { return sub.size() == 1 && !empty() && begin->is_cp(); }
+
+        inline bool is_mv() const noexcept { return sub.size() == 1 && !empty() && begin->is_mv(); }
 
         inline void set_function_call_object(const shift_expression& object) {
             sub.resize(std::max(sub.size(), size_t(1)));
@@ -317,35 +396,44 @@ namespace shift::compiler {
             set_function_call();
         }
 
-        inline shift_expression* get_function_call_object() noexcept { return sub.size() > 0 ? &sub.front() : nullptr; }
+        inline shift_expression* get_function_call_object() noexcept {
+            return sub.empty() ? nullptr : &sub.front();
+        }
 
-        inline const shift_expression* get_function_call_object() const noexcept { return sub.size() > 0 ? &sub.front() : nullptr; }
+        inline const shift_expression*
+        get_function_call_object() const noexcept { return sub.empty() ? nullptr : &sub.front(); }
 
-        inline auto get_function_call_arguments() noexcept { return utils::range(sub.empty() ? sub.begin() : ++sub.begin(), sub.end()); }
+        inline auto get_function_call_arguments() noexcept {
+            return utils::range(sub.empty() ? sub.begin() : ++sub.begin(), sub.end());
+        }
 
-        inline auto get_function_call_arguments() const noexcept { return utils::range(sub.empty() ? sub.begin() : ++sub.begin(), sub.end()); }
+        inline auto get_function_call_arguments() const noexcept {
+            return utils::range(sub.empty() ? sub.begin() : ++sub.begin(), sub.end());
+        }
 
-        inline shift_expression* get_array_object() noexcept { return sub.size() > 0 ? &sub.front() : nullptr; }
+        inline shift_expression* get_array_object() noexcept {
+            return sub.empty() ? nullptr : &sub.front();
+        }
 
-        inline const shift_expression* get_array_object() const noexcept { return sub.size() > 0 ? &sub.front() : nullptr; }
+        inline const shift_expression* get_array_object() const noexcept {
+            return sub.empty() ? nullptr : &sub.front();
+        }
 
         inline shift_expression* get_array_dimension(const size_t index) noexcept {
-            if (index + 1 >= sub.size()) return nullptr;
-            auto beg = sub.begin();
-            std::advance(beg, index + 1);
-            return &*beg;
+            return index + 1 >= sub.size() ? nullptr : &*std::next(sub.begin(), index + 1);
         }
 
         inline const shift_expression* get_array_dimension(const size_t index) const noexcept {
-            if (index + 1 >= sub.size()) return nullptr;
-            auto beg = sub.begin();
-            std::advance(beg, index + 1);
-            return &*beg;
+            return index + 1 >= sub.size() ? nullptr : &*std::next(sub.begin(), index + 1);
         }
 
-        inline auto get_array_dimensions() noexcept { return utils::range(sub.size() == 0 ? sub.begin() : ++sub.begin(), sub.end()); }
+        inline auto get_array_dimensions() noexcept {
+            return utils::range(sub.empty() ? sub.begin() : ++sub.begin(), sub.end());
+        }
 
-        inline auto get_array_dimensions() const noexcept { return utils::range(sub.size() == 0 ? sub.begin() : ++sub.begin(), sub.end()); }
+        inline auto get_array_dimensions() const noexcept {
+            return utils::range(sub.empty() ? sub.begin() : ++sub.begin(), sub.end());
+        }
 
         inline void set_array_object(const shift_expression& object) {
             sub.resize(std::max(sub.size(), size_t(1)));
@@ -377,8 +465,29 @@ namespace shift::compiler {
             set_array();
         }
 
-        inline shift_expression* get_array_indexer_expression() { return sub.size() == 1 ? &sub.front() : nullptr; }
-        inline const shift_expression* get_array_indexer_expression() const { return sub.size() == 1 ? &sub.front() : nullptr; }
+        inline void clear_array_dimensions() {
+            sub.resize(std::min<std::list<shift_expression>::size_type>(sub.size(), 1));
+        }
+
+        inline void remove_array_dimension(const std::list<shift_expression>::size_type index) {
+            if (!is_array()) return;
+            if (index + 1 >= sub.size()) return;
+            return remove_array_dimension(std::next(sub.begin(), index + 1));
+        }
+
+        inline void remove_array_dimension(std::list<shift_expression>::const_iterator it) {
+            if (!is_array()) return;
+            if (it == sub.end() || it == sub.begin()) return;
+            sub.erase(it);
+        }
+
+        inline shift_expression* get_array_indexer_expression() {
+            return sub.size() == 1 ? &sub.front() : nullptr;
+        }
+
+        inline const shift_expression* get_array_indexer_expression() const {
+            return sub.size() == 1 ? &sub.front() : nullptr;
+        }
 
         inline void set_array_indexer(const shift_expression& indexer) {
             sub.resize(1);
@@ -392,9 +501,9 @@ namespace shift::compiler {
             sub.front().update_parents(this);
         }
 
-        inline bool is_comma() const noexcept { return type == token::token_type::COMMA; }
+        inline bool is_comma() const noexcept { return type == token::type::COMMA; }
 
-        inline void set_comma() noexcept { type = token::token_type::COMMA; }
+        inline void set_comma() noexcept { type = token::type::COMMA; }
 
         inline void add_comma_expression(const shift_expression& expr) {
             sub.push_back(expr);
@@ -412,7 +521,7 @@ namespace shift::compiler {
 
         inline const auto& get_comma_expressions() const noexcept { return sub; }
 
-        inline void set_dotted_expression() noexcept { type = token::token_type::DOT; }
+        inline void set_dotted_expression() noexcept { type = token::type::DOT; }
 
         inline void add_dotted_expression(const shift_expression& expr) {
             sub.push_back(expr);
@@ -431,7 +540,7 @@ namespace shift::compiler {
         inline const auto& get_dotted_expressions() const noexcept { return sub; }
 
         inline bool is_dotted_expression() const noexcept {
-            return (type == token::token_type::DOT) && sub.size() > 0;
+            return (type == token::type::DOT) && sub.size() > 0;
         }
 
         inline void set_new_expression(const shift_expression& type) {
@@ -446,11 +555,37 @@ namespace shift::compiler {
             sub.front().update_parents(this);
         }
 
-        inline bool is_new_expression() const noexcept { return type == token::token_type::IDENTIFIER && sub.size() == 1 && begin != end && begin->is_new(); }
+        inline bool is_new_expression() const noexcept {
+            return type == token::type::IDENTIFIER && sub.size() == 1 && begin != end &&
+                   begin->is_new();
+        }
 
-        inline shift_expression* get_new_expression() noexcept { return is_new_expression() ? &sub.front() : nullptr; }
+        inline shift_expression* get_new_expression() noexcept {
+            return is_new_expression() ? &sub.front() : nullptr;
+        }
 
-        inline const shift_expression* get_new_expression() const noexcept { return is_new_expression() ? &sub.front() : nullptr; }
+        inline const shift_expression*
+        get_new_expression() const noexcept { return is_new_expression() ? &sub.front() : nullptr; }
+
+        inline shift_expression* get_bracket_expression() noexcept {
+            return is_bracket() && !sub.empty() ? &sub.front() : nullptr;
+        }
+
+        inline const shift_expression* get_bracket_expression() const noexcept {
+            return is_bracket() && !sub.empty() ? &sub.front() : nullptr;
+        }
+
+        inline void set_bracket_expression(const shift_expression& expr) {
+            sub.resize(1);
+            sub.front() = expr;
+            sub.front().update_parents(this);
+        }
+
+        inline void set_bracket_expression(shift_expression&& expr) {
+            sub.resize(1);
+            sub.front() = std::move(expr);
+            sub.front().update_parents(this);
+        }
 
         inline bool has_left() const noexcept { return sub.size() == 1 || sub.size() == 2; }
 
@@ -458,14 +593,37 @@ namespace shift::compiler {
 
         inline shift_expression* get_left() noexcept { return has_left() ? &sub.front() : nullptr; }
 
-        inline shift_expression* get_right() noexcept { return has_right() ? &sub.back() : nullptr; }
+        inline shift_expression* get_right() noexcept {
+            return has_right() ? &sub.back() : nullptr;
+        }
 
-        inline const shift_expression* get_left() const noexcept { return has_left() ? &sub.front() : nullptr; }
+        inline const shift_expression* get_left() const noexcept {
+            return has_left() ? &sub.front() : nullptr;
+        }
 
-        inline const shift_expression* get_right() const noexcept { return has_right() ? &sub.back() : nullptr; }
+        inline const shift_expression* get_right() const noexcept {
+            return has_right() ? &sub.back() : nullptr;
+        }
 
-        inline bool has_type() const noexcept { return type != token::token_type::NULL_TOKEN; }
-        inline bool has_deduced_type() const noexcept { return resolved.type.name.clazz != nullptr; }
+        inline void clear_left() noexcept {
+            if (sub.size() > 1) {
+                sub.front() = shift_expression();
+            } else {
+                sub.clear();
+            }
+        }
+
+        inline void clear_right() noexcept {
+            sub.resize(std::min<std::list<shift_expression>::size_type>(sub.size(), 1));
+        }
+
+        inline void clear_children() noexcept { sub.clear(); }
+
+        inline bool has_type() const noexcept { return type != token::type::NULL_TOKEN; }
+
+        inline bool has_deduced_type() const noexcept {
+            return resolved.type.name.clazz != nullptr;
+        }
 
         inline void set_left(const shift_expression& expr) {
             sub.resize(std::clamp<size_t>(sub.size(), 1, 2));
@@ -505,7 +663,7 @@ namespace shift::compiler {
 
     struct shift_variable {
         shift_type type;
-        shift_mods mods = shift_mods(0x0);
+        shift_mods mods = shift_mods::NONE;
         const token* name = nullptr;
         shift_expression value;
         shift_module* module_ = nullptr;
@@ -514,7 +672,7 @@ namespace shift::compiler {
         parser* parser_ = nullptr;
         size_t implicit_use_statements = 0;
 
-        std::string get_fqn() const;
+        SHIFT_API std::string get_fqn() const;
     };
 
     struct shift_statement {
@@ -562,9 +720,10 @@ namespace shift::compiler {
 
         inline const shift_expression& get_if_condition() const noexcept { return data.expr[0]; }
 
-        inline std::deque<shift_statement>& get_if_statements() noexcept { return m_sub; }
+        inline utils::ideque<shift_statement>& get_if_statements() noexcept { return m_sub; }
 
-        inline const std::deque<shift_statement>& get_if_statements() const noexcept { return m_sub; }
+        inline const utils::ideque<shift_statement>&
+        get_if_statements() const noexcept { return m_sub; }
 
         inline void set_else(const token* const token_) noexcept {
             type = statement_type::else_;
@@ -573,9 +732,10 @@ namespace shift::compiler {
 
         inline const token* get_else() const noexcept { return data.token_[0]; }
 
-        inline std::deque<shift_statement>& get_else_statements() noexcept { return m_sub; }
+        inline utils::ideque<shift_statement>& get_else_statements() noexcept { return m_sub; }
 
-        inline const std::deque<shift_statement>& get_else_statements() const noexcept { return m_sub; }
+        inline const utils::ideque<shift_statement>&
+        get_else_statements() const noexcept { return m_sub; }
 
         inline void connect_else(const shift_statement& else_statement) noexcept {
             ensure_storage_size(1);
@@ -597,7 +757,8 @@ namespace shift::compiler {
             connect_else(std::move(else_statement));
         }
 
-        inline const shift_statement& get_connected_else() const noexcept { return *data.statement; }
+        inline const shift_statement&
+        get_connected_else() const noexcept { return *data.statement; }
 
         inline const shift_statement& get_attached_else() const noexcept { return *data.statement; }
 
@@ -606,6 +767,7 @@ namespace shift::compiler {
         inline shift_statement& get_attached_else() noexcept { return *data.statement; }
 
         inline bool has_connected_else() const noexcept { return data.statement != nullptr; }
+
         inline bool has_attached_else() const noexcept { return data.statement != nullptr; }
 
         inline void set_while(const token* const token_) noexcept {
@@ -627,9 +789,10 @@ namespace shift::compiler {
 
         inline const shift_expression& get_while_condition() const noexcept { return data.expr[0]; }
 
-        inline std::deque<shift_statement>& get_while_statements() noexcept { return m_sub; }
+        inline utils::ideque<shift_statement>& get_while_statements() noexcept { return m_sub; }
 
-        inline const std::deque<shift_statement>& get_while_statements() const noexcept { return m_sub; }
+        inline const utils::ideque<shift_statement>&
+        get_while_statements() const noexcept { return m_sub; }
 
         inline void set_for(const token* const token_) noexcept {
             type = statement_type::for_;
@@ -652,7 +815,9 @@ namespace shift::compiler {
             data.expr[0] = expr;
         }
 
-        inline void set_for_condition(shift_expression&& expr) noexcept { data.expr[0] = std::move(expr); }
+        inline void set_for_condition(shift_expression&& expr) noexcept {
+            data.expr[0] = std::move(expr);
+        }
 
         inline void set_for_increment(const shift_expression& expr) {
             data.expr[1] = expr;
@@ -662,9 +827,11 @@ namespace shift::compiler {
             data.expr[1] = std::move(expr);
         }
 
-        inline shift_statement& get_for_initializer() noexcept { return m_statement_storage.front(); }
+        inline shift_statement&
+        get_for_initializer() noexcept { return m_statement_storage.front(); }
 
-        inline const shift_statement& get_for_initializer() const noexcept { return m_statement_storage.front(); }
+        inline const shift_statement&
+        get_for_initializer() const noexcept { return m_statement_storage.front(); }
 
         inline shift_expression& get_for_condition() noexcept { return data.expr[0]; }
 
@@ -672,9 +839,10 @@ namespace shift::compiler {
 
         inline const shift_expression& get_for_increment() const noexcept { return data.expr[1]; }
 
-        inline std::deque<shift_statement>& get_for_statements() noexcept { return m_sub; }
+        inline utils::ideque<shift_statement>& get_for_statements() noexcept { return m_sub; }
 
-        inline const std::deque<shift_statement>& get_for_statements() const noexcept { return m_sub; }
+        inline const utils::ideque<shift_statement>&
+        get_for_statements() const noexcept { return m_sub; }
 
         inline void set_return(const token* const token_) noexcept {
             type = statement_type::return_;
@@ -685,23 +853,30 @@ namespace shift::compiler {
             data.expr[0] = expr;
         }
 
-        inline void set_return_statement(shift_expression&& expr) noexcept { data.expr[0] = std::move(expr); }
+        inline void
+        set_return_statement(shift_expression&& expr) noexcept { data.expr[0] = std::move(expr); }
 
-        inline void set_return_expression(const shift_expression& expr) { return set_return_statement(expr); }
+        inline void
+        set_return_expression(const shift_expression& expr) { return set_return_statement(expr); }
 
-        inline void set_return_expression(shift_expression&& expr) noexcept { return set_return_statement(std::move(expr)); }
+        inline void set_return_expression(shift_expression&& expr) noexcept {
+            return set_return_statement(std::move(expr));
+        }
 
         inline const token* get_return() const noexcept { return data.token_[0]; }
 
         inline shift_expression& get_return_statement() noexcept { return data.expr[0]; }
 
-        inline const shift_expression& get_return_statement() const noexcept { return data.expr[0]; }
+        inline const shift_expression&
+        get_return_statement() const noexcept { return data.expr[0]; }
 
         inline void set_expression() noexcept { type = statement_type::expression; }
 
         inline void set_expression(const shift_expression& expr) { data.expr[0] = expr; }
 
-        inline void set_expression(shift_expression&& expr) noexcept { data.expr[0] = std::move(expr); }
+        inline void set_expression(shift_expression&& expr) noexcept {
+            data.expr[0] = std::move(expr);
+        }
 
         inline shift_expression& get_expression() noexcept { return data.expr[0]; }
 
@@ -728,15 +903,18 @@ namespace shift::compiler {
             data.token_[0] = token_;
         }
 
-        inline void set_block(const std::deque<shift_statement>& sub) noexcept { this->m_sub = sub; }
+        inline void
+        set_block(const utils::ideque<shift_statement>& sub) noexcept { this->m_sub = sub; }
 
-        inline void set_block(std::deque<shift_statement>&& sub) noexcept { this->m_sub = std::move(sub); }
+        inline void
+        set_block(utils::ideque<shift_statement>&& sub) noexcept { this->m_sub = std::move(sub); }
 
         inline const token* get_block() const noexcept { return data.token_[0]; }
 
-        inline std::deque<shift_statement>& get_block_statements() noexcept { return m_sub; }
+        inline utils::ideque<shift_statement>& get_block_statements() noexcept { return m_sub; }
 
-        inline const std::deque<shift_statement>& get_block_statements() const noexcept { return m_sub; }
+        inline const utils::ideque<shift_statement>&
+        get_block_statements() const noexcept { return m_sub; }
 
         inline void set_block_end(const token* const token_) noexcept {
             type = statement_type::scope_begin;
@@ -787,6 +965,7 @@ namespace shift::compiler {
         inline void set_continue_link(shift_statement* const stat) {
             data.statement = stat;
         }
+
     private:
         inline void ensure_sub_size(size_t n) {
             if (m_sub.size() < n) {
@@ -800,8 +979,8 @@ namespace shift::compiler {
             }
         }
 
-        std::deque<shift_statement> m_statement_storage;
-        std::deque<shift_statement> m_sub;
+        utils::ideque<shift_statement> m_statement_storage;
+        utils::ideque<shift_statement> m_sub;
     };
 
     struct shift_class {
@@ -816,7 +995,7 @@ namespace shift::compiler {
         } parent, base;
 
         // Access modifiers for class
-        shift_mods mods = shift_mods(0x0);
+        shift_mods mods = shift_mods::NONE;
 
         // Name of the class
         const token* name = nullptr;
@@ -829,10 +1008,10 @@ namespace shift::compiler {
         utils::ordered_set<shift_module> use_statements;
 
         // List of functionsin this class
-        std::deque<shift_function> functions;
+        utils::ideque<shift_function> functions;
 
         // List of variables in this class
-        std::deque<shift_variable> variables;
+        utils::ideque<shift_variable> variables;
 
         // Variables representing 'this' and 'base'
         shift_variable this_var, base_var;
@@ -853,7 +1032,9 @@ namespace shift::compiler {
         }
 
         // Checks if this class can access protected variables from the specified class
-        inline bool has_protected_access(const shift_class* const test) const noexcept { return test == this || has_base(test) > 0; }
+        inline bool has_protected_access(const shift_class* const test) const noexcept {
+            return test == this || has_base(test) > 0;
+        }
 
         // Recursively check parents to see if this class has the specified parent class
         // A parent class differs from a base in class in that a parent class is the class that directly encloses this class
@@ -877,7 +1058,7 @@ namespace shift::compiler {
             str += name->get_data();
 
             using namespace std::string_view_literals;
-            if (utils::starts_with((std::string_view)str, "shift.array@"sv)) {
+            if (utils::starts_with((std::string_view) str, "shift.array@"sv)) {
                 // shift.array@clazz_name@array_dimensions
                 // const size_t array_dim = utils::str_to_num<size_t>(str.substr(str.find_last_of('@') + 1));
                 // str = str.substr(str.find('@') + 1, str.find_last_of('@') - (str.find('@') + 1));
@@ -891,7 +1072,7 @@ namespace shift::compiler {
     };
 
     struct shift_function {
-        shift_mods mods = shift_mods(0x0);
+        shift_mods mods = shift_mods::NONE;
         shift_module* module_ = nullptr;
         shift_class* clazz = nullptr;
         parser* parser_ = nullptr;
@@ -903,7 +1084,7 @@ namespace shift::compiler {
         size_t implicit_use_statements = 0;
 
         utils::ordered_map<std::string_view, shift_variable> parameters;
-        std::deque<shift_statement> statements;
+        utils::ideque<shift_statement> statements;
 
         inline std::string get_fqn() const noexcept {
             std::string str;
@@ -924,43 +1105,18 @@ namespace shift::compiler {
 
         inline std::string get_signature() const noexcept {
             std::string str = get_fqn() + "(";
-            for (size_t param_index = 0; auto const& [name, v] : parameters) {
-                if (param_index > 0) { str += ", "; }
+            for (bool past_first = false; auto const& [name, v] : parameters) {
+                if (past_first) { str += ", "; }
                 if (v.type.name.clazz) {
                     str += v.type.get_printable_fqn();
                 } else {
                     str += "<unknown>";
                 }
-                param_index++;
+                past_first = true;
             }
             return str += ")";
         }
     };
-}
-
-constexpr inline shift::compiler::shift_mods operator^(const shift::compiler::shift_mods f, const shift::compiler::shift_mods other) noexcept {
-    return shift::compiler::shift_mods(std::underlying_type_t<shift::compiler::shift_mods>(f) ^ std::underlying_type_t<shift::compiler::shift_mods>(other));
-}
-
-constexpr inline shift::compiler::shift_mods&
-operator^=(shift::compiler::shift_mods& f, const shift::compiler::shift_mods other) noexcept { return f = operator^(f, other); }
-
-constexpr inline shift::compiler::shift_mods operator|(const shift::compiler::shift_mods f, const shift::compiler::shift_mods other) noexcept {
-    return shift::compiler::shift_mods(std::underlying_type_t<shift::compiler::shift_mods>(f) | std::underlying_type_t<shift::compiler::shift_mods>(other));
-}
-
-constexpr inline shift::compiler::shift_mods&
-operator|=(shift::compiler::shift_mods& f, const shift::compiler::shift_mods other) noexcept { return f = operator|(f, other); }
-
-constexpr inline shift::compiler::shift_mods operator&(const shift::compiler::shift_mods f, const shift::compiler::shift_mods other) noexcept {
-    return shift::compiler::shift_mods(std::underlying_type_t<shift::compiler::shift_mods>(f) & std::underlying_type_t<shift::compiler::shift_mods>(other));
-}
-
-constexpr inline shift::compiler::shift_mods&
-operator&=(shift::compiler::shift_mods& f, const shift::compiler::shift_mods other) noexcept { return f = operator&(f, other); }
-
-constexpr inline shift::compiler::shift_mods operator~(const shift::compiler::shift_mods f) noexcept {
-    return shift::compiler::shift_mods(~std::underlying_type_t<shift::compiler::shift_mods>(f));
 }
 
 namespace shift::compiler {
@@ -993,42 +1149,83 @@ namespace shift::compiler {
 
         inline const error_handler* get_error_handler() const noexcept { return m_error_handler; }
 
-        inline void set_error_handler(error_handler* const error_handler) noexcept { m_error_handler = error_handler; }
+        inline void set_error_handler(
+            error_handler* const error_handler) noexcept { m_error_handler = error_handler; }
+
+        inline shift_module& get_module() noexcept { return *this->m_module; }
 
         inline const shift_module& get_module() const noexcept { return *this->m_module; }
 
-        SHIFT_API static uint_fast8_t operator_priority(const token::token_type type, const bool prefix = false) noexcept;
+        inline std::deque<shift_class>& get_classes() noexcept { return m_classes; }
+
+        inline const std::deque<shift_class>& get_classes() const noexcept { return m_classes; }
+
+        inline std::deque<shift_function>& get_functions() noexcept { return m_functions; }
+
+        inline const std::deque<shift_function>&
+        get_functions() const noexcept { return m_functions; }
+
+        inline std::deque<shift_variable>& get_variables() noexcept { return m_variables; }
+
+        inline const std::deque<shift_variable>&
+        get_variables() const noexcept { return m_variables; }
+
+        inline utils::ordered_set<shift_module>&
+        get_global_uses() noexcept { return m_global_uses; }
+
+        inline const utils::ordered_set<shift_module>&
+        get_global_uses() const noexcept { return m_global_uses; }
+
+        inline void clear() noexcept {
+            m_module = std::make_unique<shift_module>();
+            m_global_uses.clear();
+            m_classes.clear();
+            m_functions.clear();
+            m_variables.clear();
+        }
+
+        SHIFT_API static uint_fast8_t
+        operator_priority(const token::type type, const bool prefix = false) noexcept;
 
 #ifdef SHIFT_DEBUG
-        void print_tree();
+
+        SHIFT_API void print_tree();
+
 #endif
 
     private:
-        void m_parse_access_specifier(void);
+        void m_parse_access_specifier();
 
-        void m_parse_use(void);
+        void m_parse_use();
 
         void m_parse_use(utils::ordered_set<shift_module>&);
 
-        void m_parse_module(void);
+        void m_parse_module();
 
         void m_parse_class(shift_class* parent_class = nullptr);
 
         shift_function* m_parse_function_header(shift_class* parent_class, shift_type& return_type);
 
-        std::optional<shift_variable> m_parse_variable_header(shift_class* parent_class, shift_function* parent_function, shift_type& type);
+        std::optional<shift_variable>
+        m_parse_variable_header(shift_class* parent_class, shift_function* parent_function,
+            shift_type& type);
 
         // void m_parse_class(shift_class&);
         void m_parse_function(shift_function&);
 
-        void m_parse_function_block(shift_function&, std::deque<shift_statement>&, size_t count = -1);
+        void
+        m_parse_function_block(shift_function&, utils::ideque<shift_statement>&, size_t count = -1);
 
         void m_parse_body(shift_class* = nullptr);
 
-        shift_expression m_parse_expression(const utils::predicate<std::vector<token>::const_iterator>& end_func);
+        shift_expression
+        m_parse_expression(const utils::predicate<std::vector<token>::const_iterator>& end_func);
 
-        inline shift_expression m_parse_expression(const token::token_type end_type = token::token_type::SEMICOLON) {
-            return m_parse_expression([end_type](const std::vector<token>::const_iterator it) { return it->get_token_type() == end_type; });
+        inline shift_expression
+        m_parse_expression(const token::type end_type = token::type::SEMICOLON) {
+            return m_parse_expression([end_type](const std::vector<token>::const_iterator it) {
+                return it->get_token_type() == end_type;
+            });
         }
 
         shift_name m_parse_name(std::string_view);
@@ -1055,7 +1252,7 @@ namespace shift::compiler {
 
         const token& m_skip_until(const char* const) noexcept;
 
-        const token& m_skip_until(const typename token::token_type) noexcept;
+        const token& m_skip_until(const typename token::type) noexcept;
 
         const token& m_skip_after(const std::string_view) noexcept;
 
@@ -1063,7 +1260,7 @@ namespace shift::compiler {
 
         const token& m_skip_after(const char* const) noexcept;
 
-        const token& m_skip_after(const typename token::token_type) noexcept;
+        const token& m_skip_after(const typename token::type) noexcept;
 
         const token& m_skip_before(const std::string_view) noexcept;
 
@@ -1071,17 +1268,17 @@ namespace shift::compiler {
 
         const token& m_skip_before(const char* const) noexcept;
 
-        const token& m_skip_before(const typename token::token_type) noexcept;
+        const token& m_skip_before(const typename token::type) noexcept;
 
-        const token& m_skip_until_closing(const typename token::token_type) noexcept;
+        const token& m_skip_until_closing(const typename token::type) noexcept;
 
-        shift_mods m_get_mods(void) const noexcept;
+        shift_mods m_get_mods() const noexcept;
 
         void m_add_mod(shift_mods, const token&) noexcept;
 
-        void m_clear_mods(void) noexcept;
+        void m_clear_mods() noexcept;
 
-        bool m_is_module_defined(void) const noexcept;
+        bool m_is_module_defined() const noexcept;
 
     private:
         // Tokenized file. Tokenization must have passed with no errors in order to be usable in the parsing stage
@@ -1112,11 +1309,14 @@ namespace shift::compiler {
         friend class analyzer;
     };
 
-    inline parser::parser(tokenizer* const tokenizer) noexcept : m_tokenizer(tokenizer), m_error_handler(tokenizer->get_error_handler()) {}
+    inline parser::parser(tokenizer* const tokenizer) noexcept :
+        m_tokenizer(tokenizer), m_error_handler(tokenizer->get_error_handler()) {}
 
-    inline parser::parser(error_handler* const error_handler, tokenizer* const tokenizer) noexcept : m_tokenizer(tokenizer), m_error_handler(error_handler) {}
+    inline parser::parser(error_handler* const error_handler, tokenizer* const tokenizer) noexcept :
+        m_tokenizer(tokenizer), m_error_handler(error_handler) {}
 
-    inline parser::parser(error_handler* const error_handler, tokenizer& tokenizer) noexcept : parser(error_handler, &tokenizer) {}
+    inline parser::parser(error_handler* const error_handler, tokenizer& tokenizer) noexcept :
+        parser(error_handler, &tokenizer) {}
 }
 
 #endif

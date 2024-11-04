@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.21)
 # Set the project name for tests
 project(shift-test)
 
-# Fetch googletest library
+# Include FetchContent for repository cloning
 include(FetchContent)
 
 # Inform user of operation in case it takes longer than expected
@@ -12,9 +12,9 @@ message(STATUS "Fetching googletest library (this may take a minute)...")
 
 # Download gtest repository through GitHub
 FetchContent_Declare(googletest
-    GIT_REPOSITORY https://github.com/google/googletest.git
-    GIT_TAG f8d7d77c06936315286eb55f8de22cd23c188571 # v1.14.0
-    GIT_PROGRESS true)
+        GIT_REPOSITORY https://github.com/google/googletest.git
+        GIT_TAG f8d7d77c06936315286eb55f8de22cd23c188571 # v1.14.0
+        GIT_PROGRESS true)
 
 # Disable unwanted googletest options
 option(BUILD_GMOCK "Builds the googlemock subproject" OFF)
@@ -29,10 +29,10 @@ message(STATUS "Fetching googletest library completed.")
 
 # Create test executable
 add_executable(
-    ${PROJECT_NAME}
-    src/argument_parser_test.cpp
-    src/tokenizer_test.cpp
-    src/parser_test.cpp
+        ${PROJECT_NAME}
+        src/argument_parser_test.cpp
+        src/tokenizer_test.cpp
+        src/parser_test.cpp
 )
 
 # Set test project properties and libraries
@@ -45,12 +45,12 @@ set_target_properties(${PROJECT_NAME} PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${CMAK
 
 # Register test executable with ctest
 add_test(
-    NAME shift-test
-    COMMAND shift-test
+        NAME ${PROJECT_NAME}
+        COMMAND ${PROJECT_NAME}
 )
 
 # Copy over dependencies to test directory after build
 get_target_property(shift_RUNTIME_OUTPUT_DIR shift RUNTIME_OUTPUT_DIRECTORY)
-add_custom_command(TARGET shift-test POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different ${shift_RUNTIME_OUTPUT_DIR} .
-    )
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different ${shift_RUNTIME_OUTPUT_DIR} .
+)

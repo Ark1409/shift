@@ -18,7 +18,7 @@ TEST(ShiftTokenizer, ShouldTokenizeIdentifiers) {
 
         EXPECT_EQ(handler.get_error_count(), 0);
         for (auto& token : t.get_tokens()) {
-            EXPECT_EQ(token.get_token_type(), token::token_type::IDENTIFIER);
+            EXPECT_EQ(token.get_token_type(), token::type::IDENTIFIER);
         }
     }
 
@@ -29,7 +29,7 @@ TEST(ShiftTokenizer, ShouldTokenizeIdentifiers) {
 
         EXPECT_NE(handler.get_error_count(), 0);
         for (auto& token : t.get_tokens()) {
-            EXPECT_NE(token.get_token_type(), token::token_type::IDENTIFIER);
+            EXPECT_NE(token.get_token_type(), token::type::IDENTIFIER);
         }
 
         handler.get_messages().clear();
@@ -61,7 +61,7 @@ TEST(ShiftTokenizer, ShouldTokenizeNumbers) {
 
         EXPECT_EQ(handler.get_error_count(), 0);
         for (auto& token : t.get_tokens()) {
-            EXPECT_EQ(token.get_token_type(), token::token_type::FLOAT);
+            EXPECT_EQ(token.get_token_type(), token::type::FLOAT_LITERAL);
         }
     }
 
@@ -74,7 +74,7 @@ TEST(ShiftTokenizer, ShouldTokenizeNumbers) {
 
         EXPECT_EQ(handler.get_error_count(), 0);
         for (auto& token : t.get_tokens()) {
-            EXPECT_EQ(token.get_token_type(), token::token_type::DOUBLE);
+            EXPECT_EQ(token.get_token_type(), token::type::DOUBLE_LITERAL);
         }
     }
 
@@ -86,7 +86,7 @@ TEST(ShiftTokenizer, ShouldTokenizeNumbers) {
 
         EXPECT_EQ(handler.get_error_count(), 0);
         for (auto& token : t.get_tokens()) {
-            EXPECT_EQ(token.get_token_type(), token::token_type::HEX_NUMBER);
+            EXPECT_EQ(token.get_token_type(), token::type::HEX_LITERAL);
         }
     }
 
@@ -98,7 +98,7 @@ TEST(ShiftTokenizer, ShouldTokenizeNumbers) {
 
         EXPECT_EQ(handler.get_error_count(), 0);
         for (auto& token : t.get_tokens()) {
-            EXPECT_EQ(token.get_token_type(), token::token_type::BINARY_NUMBER);
+            EXPECT_EQ(token.get_token_type(), token::type::BINARY_LITERAL);
         }
     }
 
@@ -110,9 +110,9 @@ TEST(ShiftTokenizer, ShouldTokenizeNumbers) {
 
         EXPECT_NE(handler.get_error_count(), 0);
         for (auto& token : t.get_tokens()) {
-            if (token.get_token_type() == token::token_type::BINARY_NUMBER)
+            if (token.get_token_type() == token::type::BINARY_LITERAL)
                 break;
-            EXPECT_NE(token.get_token_type(), token::token_type::BINARY_NUMBER);
+            EXPECT_NE(token.get_token_type(), token::type::BINARY_LITERAL);
         }
 
         handler.get_messages().clear();
@@ -132,16 +132,16 @@ TEST(ShiftTokenizer, ShouldTokenizeStringLiterals) {
 
         EXPECT_EQ(handler.get_error_count(), 0);
         for (auto& token : t.get_tokens()) {
-            EXPECT_EQ(token.get_token_type(), token::token_type::STRING_LITERAL);
+            EXPECT_EQ(token.get_token_type(), token::type::STRING_LITERAL);
         }
 
-        EXPECT_EQ((------t.get_tokens().end())->get_data(), "\"Hello World\\'\""sv);
-        EXPECT_EQ((----t.get_tokens().end())->get_data(), "\"Hello World\\\\\""sv);
+        EXPECT_EQ((-- -- --t.get_tokens().end())->get_data(), "\"Hello World\\'\""sv);
+        EXPECT_EQ((-- --t.get_tokens().end())->get_data(), "\"Hello World\\\\\""sv);
         EXPECT_EQ(t.get_tokens().back().get_data(), "\"Hello World\\\"\""sv);
         EXPECT_EQ((++t.get_tokens().begin())->get_data(), "\"\""sv);
-        EXPECT_EQ((++++t.get_tokens().begin())->get_data(), "\" \""sv);
-        EXPECT_EQ((++++++t.get_tokens().begin())->get_data(), "\"     \""sv);
-        EXPECT_EQ((++++++++t.get_tokens().begin())->get_data(), "\"   \\t\\v  \""sv);
+        EXPECT_EQ((++ ++t.get_tokens().begin())->get_data(), "\" \""sv);
+        EXPECT_EQ((++ ++ ++t.get_tokens().begin())->get_data(), "\"     \""sv);
+        EXPECT_EQ((++ ++ ++ ++t.get_tokens().begin())->get_data(), "\"   \\t\\v  \""sv);
     }
     {
         tokenizer t(&handler, R"("
@@ -170,11 +170,11 @@ TEST(ShiftTokenizer, ShouldTokenizeCharLiterals) {
 
         EXPECT_EQ(handler.get_error_count(), 0);
         for (auto& token : t.get_tokens()) {
-            EXPECT_EQ(token.get_token_type(), token::token_type::CHAR_LITERAL);
+            EXPECT_EQ(token.get_token_type(), token::type::CHAR_LITERAL);
         }
 
-        EXPECT_EQ((------t.get_tokens().end())->get_data(), "'\\''"sv);
-        EXPECT_EQ((----t.get_tokens().end())->get_data(), "'\\\"'"sv);
+        EXPECT_EQ((-- -- --t.get_tokens().end())->get_data(), "'\\''"sv);
+        EXPECT_EQ((-- --t.get_tokens().end())->get_data(), "'\\\"'"sv);
         EXPECT_EQ(t.get_tokens().back().get_data(), "'\\\\'"sv);
 
     }
@@ -220,19 +220,19 @@ TEST(ShiftTokenizer, VerifyTokenizerUtilities) {
 
         {
             const auto& tok = t.token_after(file_indexer{ 3, 23 });
-            EXPECT_EQ(tok.get_token_type(), token::token_type::IDENTIFIER);
+            EXPECT_EQ(tok.get_token_type(), token::type::IDENTIFIER);
             EXPECT_EQ(tok.get_data(), "shift"sv);
         }
 
         {
             const auto& tok = t.token_before(file_indexer{ 13, 5 });
-            EXPECT_EQ(tok.get_token_type(), token::token_type::SEMICOLON);
+            EXPECT_EQ(tok.get_token_type(), token::type::SEMICOLON);
             EXPECT_EQ(tok.get_data(), ";"sv);
         }
 
         {
             const auto& tok = t.token_at(file_indexer{ 16, 40 });
-            EXPECT_EQ(tok.get_token_type(), token::token_type::STRING_LITERAL);
+            EXPECT_EQ(tok.get_token_type(), token::type::STRING_LITERAL);
             EXPECT_EQ(tok.get_data(), "\"Hello World inside\\nmy home\""sv);
         }
     }
