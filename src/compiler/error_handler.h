@@ -112,6 +112,10 @@ namespace shift::compiler {
         /// After this call, this class holds an empty string as its string content buffer.
         SHIFT_API void flush(error_handler::message_type type) noexcept;
 
+        error_handler& get_error_handler() noexcept { return *m_error_handler; }
+
+        const error_handler& get_error_handler() const noexcept { return *m_error_handler; }
+
     private:
         error_handler* m_error_handler{ nullptr };
     };
