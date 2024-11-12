@@ -12,6 +12,7 @@
 #include "utils/variant.h"
 #include "utils/utility.h"
 #include "utils/strings.h"
+#include "utils/range.h"
 
 #include <chrono>
 #include <concepts>
@@ -50,16 +51,6 @@
 namespace shift::utils {
     [[noreturn]] SHIFT_API void exit(int status = EXIT_FAILURE) noexcept;
 
-    template<typename T, std::ranges::input_range R, std::invocable<T, std::ranges::range_reference_t<R>> BinaryOp>
-    T accumulate(R&& r, T init, BinaryOp op) {
-        return std::accumulate(std::ranges::begin(r), std::ranges::end(r), init, op);
-    }
-
-    template<typename T, std::ranges::input_range R>
-    T accumulate(R&& r, T init = T{}) {
-        return accumulate(std::forward<R>(r), init, std::plus<T>{});
-    }
-
     template<typename... Args>
     using predicate = std::function<bool(Args...)>;
 
@@ -74,14 +65,13 @@ namespace shift::utils {
 }
 
 #ifdef SHIFT_DEBUG
-/* std namespace injection */
-namespace std {
-    template<typename CharT, typename Traits, typename Rep, typename Period>
-    inline std::basic_ostream<CharT, Traits>& operator<<(std::basic_ostream<CharT, Traits>& _os, const std::chrono::duration<Rep, Period>&
-    dur) {
-        return _os << dur.count();
-    }
+
+template<typename CharT, typename Traits, typename Rep, typename Period>
+inline std::basic_ostream<CharT, Traits>& operator<<(std::basic_ostream<CharT, Traits>& _os,
+    const std::chrono::duration<Rep, Period>& dur) {
+    return _os << dur.count();
 }
+
 
 #endif
 

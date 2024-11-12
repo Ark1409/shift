@@ -2,7 +2,7 @@
 #define SHIFT_PARSER_H_ 1
 
 #include "compiler/lexing/lexer.h"
-#include "compiler/shift_error_handler.h"
+#include "compiler/error_handler.h"
 
 #include "compiler/mods.h"
 #include "compiler/parsing/parser_fwd.h"
@@ -203,6 +203,8 @@ namespace shift::compiler::parsing {
 
     inline parser::parser(error_handler* const eh, const lexing::lexer& lex) noexcept : m_lexer(&lex), m_error_handler(eh) {
         parse();
+
+        std::cout << *eh;
     }
 }
 

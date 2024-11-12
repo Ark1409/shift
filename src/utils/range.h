@@ -7,6 +7,7 @@
 #include <optional>
 #include <ranges>
 #include <memory>
+#include <numeric>
 
 namespace shift::utils {
     /**
@@ -91,28 +92,15 @@ namespace shift::utils {
     template<typename Iterator, typename ValueT>
     concept iter_of = std::convertible_to<std::iter_value_t<Iterator>, ValueT>;
 
-    template<typename T, typename CategoryTag = std::random_access_iterator_tag>
-    struct value_iterator {
-        typedef T value_type;
-        typedef value_type& reference;
-        typedef std::remove_reference_t<reference>* pointer;
-        typedef std::ptrdiff_t difference_type;
-        typedef CategoryTag iterator_category;
+    template<typename T, std::ranges::input_range R, std::invocable<T, std::ranges::range_reference_t<R>> BinaryOp>
+    T accumulate(R&& r, T init, BinaryOp op) {
+        return std::accumulate(std::ranges::begin(r), std::ranges::end(r), init, op);
+    }
 
-    private:
-        struct iter_base {
-            virtual iter_base& operator++() = 0;
-
-            virtual iter_base& operator++(int) = 0;
-
-            virtual reference operator*() = 0;
-
-            virtual pointer operator->() = 0;
-        };
-
-    private:
-        std::unique_ptr<iter_base> m_iter;
-    };
+    template<typename T, std::ranges::input_range R>
+    T accumulate(R&& r, T init = T{}) {
+        return accumulate(std::forward<R>(r), init, std::plus<T>{});
+    }
 }
 
 template<std::input_or_output_iterator Iterator, std::sentinel_for<Iterator> Sentinel>

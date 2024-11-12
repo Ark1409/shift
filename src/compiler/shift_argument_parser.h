@@ -5,7 +5,7 @@
 #define SHIFT_ARGUMENT_PARSER_H_ 1
 
 #include "shift_config.h"
-#include "compiler/shift_error_handler.h"
+#include "compiler/error_handler.h"
 #include "filesystem/directory.h"
 #include "filesystem/file.h"
 

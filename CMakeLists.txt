@@ -18,7 +18,7 @@ add_library(
         SHARED
         src/compiler/shift_argument_parser.cpp
         src/compiler/shift_compiler.cpp
-        src/compiler/shift_error_handler.cpp
+        src/compiler/error_handler.cpp
         src/compiler/parsing/parser.cpp
         src/compiler/lexing/lexer.cpp
         src/compiler/analyzing/analyzer.cpp

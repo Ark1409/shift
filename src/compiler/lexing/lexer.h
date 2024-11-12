@@ -8,7 +8,7 @@
 
 #include "filesystem/file.h"
 
-#include "compiler/shift_error_handler.h"
+#include "compiler/error_handler.h"
 
 #include <type_traits>
 

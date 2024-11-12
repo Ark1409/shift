@@ -4,7 +4,7 @@
 #ifndef SHIFT_COMPILER_H_
 #define SHIFT_COMPILER_H_ 1
 
-#include "compiler/shift_error_handler.h"
+#include "compiler/error_handler.h"
 #include "compiler/shift_argument_parser.h"
 #include "compiler/tokenizer/shift_tokenizer.h"
 #include "compiler/parser/parser.h"
