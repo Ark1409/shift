@@ -1,6 +1,10 @@
 name: CI
 
-on: [push, pull_request]
+on:
+  push:
+    branches: &cb [ main, v2 ]
+  pull_request:
+    branches: *cb
 
 jobs:
   test:
@@ -12,42 +16,42 @@ jobs:
       fail-fast: false
 
       matrix:
-        os: [ubuntu-latest, windows-latest]
-        build_type: [Release]
-        compiler: [{c: 'gcc', cpp: 'g++'}, {c: 'clang', cpp: 'clang++'}, {c: 'cl', cpp: 'cl'}]
+        os: [ ubuntu-latest, windows-latest ]
+        build_type: [ Release ]
+        compiler: [ { c: 'gcc', cpp: 'g++' }, { c: 'clang', cpp: 'clang++' }, { c: 'cl', cpp: 'cl' } ]
         exclude:
           - os: windows-latest
-            compiler: {c: 'clang', cpp: 'clang++'}
+            compiler: { c: 'clang', cpp: 'clang++' }
           - os: windows-latest
-            compiler: {c: 'gcc', cpp: 'g++'}
+            compiler: { c: 'gcc', cpp: 'g++' }
           - os: ubuntu-latest
-            compiler: {c: 'cl', cpp: 'cl'}
+            compiler: { c: 'cl', cpp: 'cl' }
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-    - name: Setup build directory
-      id: build_setup
-      shell: bash
-      run: |
-        mkdir "${{ github.workspace }}/build"
-        echo "build_dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
+      - name: Setup build directory
+        id: build_setup
+        shell: bash
+        run: |
+          mkdir "${{ github.workspace }}/build"
+          echo "build_dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
 
-    - name: Configure (shift/shift-test)
-      run: >
-        cmake -B ${{ steps.build_setup.outputs.build_dir }}
-        -DCMAKE_C_COMPILER=${{ matrix.compiler.c }}
-        -DCMAKE_CXX_COMPILER=${{ matrix.compiler.cpp }}
-        -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
-        -S ${{ github.workspace }}
+      - name: Configure (shift/shift-test)
+        run: >
+          cmake -B ${{ steps.build_setup.outputs.build_dir }}
+          -DCMAKE_C_COMPILER=${{ matrix.compiler.c }}
+          -DCMAKE_CXX_COMPILER=${{ matrix.compiler.cpp }}
+          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+          -S ${{ github.workspace }}
 
-    - name: Build (shift/shift-test)
-      # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
-      run: cmake --build ${{ steps.build_setup.outputs.build_dir }} --config ${{ matrix.build_type }}
+      - name: Build (shift/shift-test)
+        # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
+        run: cmake --build ${{ steps.build_setup.outputs.build_dir }} --config ${{ matrix.build_type }}
 
-    - name: Test
-      working-directory: ${{ steps.build_setup.outputs.build_dir }}
-      # Execute tests defined by the CMake configuration. Note that --build-config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
-      # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more details.
-      run: ctest --build-config ${{ matrix.build_type }}
+      - name: Test
+        working-directory: ${{ steps.build_setup.outputs.build_dir }}
+        # Execute tests defined by the CMake configuration. Note that --build-config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
+        # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more details.
+        run: ctest --build-config ${{ matrix.build_type }}
