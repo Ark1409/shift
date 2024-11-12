@@ -88,9 +88,9 @@ namespace shift::compiler::parsing {
     private:
         void parse_access_specifier();
 
-        void parse_use();
+        void parse_use(parse_state&);
 
-        void parse_use(utils::ordered_set<parser_module>&);
+        void parse_use(parse_state&, utils::ordered_set<parser_module>&);
 
         void parse_module();
 
@@ -108,7 +108,7 @@ namespace shift::compiler::parsing {
         void
         parse_function_block(parser_function&, utils::ideque<parser_statement>&, size_t count = -1);
 
-        void parse_body(parser_class* = nullptr);
+        void parse_body(parse_state&, parser_class* = nullptr);
 
         parser_expression
         parse_expression(const utils::predicate<std::vector<token>::const_iterator>& end_func);
@@ -164,12 +164,6 @@ namespace shift::compiler::parsing {
 
         const lexing::token& skip_until_closing(const typename lexing::token::type) noexcept;
 
-        shift_mods get_mods() const noexcept;
-
-        void add_mod(shift_mods, const lexing::token&) noexcept;
-
-        void clear_mods() noexcept;
-
         bool is_module_defined() const noexcept;
 
     private:
@@ -195,16 +189,12 @@ namespace shift::compiler::parsing {
         // List of variables which are tied solely to the current module inside the current file (not inside a class)
         std::deque<parser_variable> m_variables;
 
-        // Utility variable for holding the current shift_mods specified by the user
-        std::vector<std::pair<shift_mods, const lexing::token*>> m_mods;
 
         friend class analyzing::analyzer;
     };
 
     inline parser::parser(error_handler* const eh, const lexing::lexer& lex) noexcept : m_lexer(&lex), m_error_handler(eh) {
         parse();
-
-        std::cout << *eh;
     }
 }
 

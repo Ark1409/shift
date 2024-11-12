@@ -219,19 +219,19 @@ TEST(ShiftTokenizer, VerifyTokenizerUtilities) {
         EXPECT_EQ(handler.get_error_count(), 0);
 
         {
-            const auto& tok = t.token_after(file_indexer{ 3, 23 });
+            const auto& tok = t.token_after(file_position{ 3, 23 });
             EXPECT_EQ(tok.get_token_type(), token::type::IDENTIFIER);
             EXPECT_EQ(tok.get_data(), "shift"sv);
         }
 
         {
-            const auto& tok = t.token_before(file_indexer{ 13, 5 });
+            const auto& tok = t.token_before(file_position{ 13, 5 });
             EXPECT_EQ(tok.get_token_type(), token::type::SEMICOLON);
             EXPECT_EQ(tok.get_data(), ";"sv);
         }
 
         {
-            const auto& tok = t.token_at(file_indexer{ 16, 40 });
+            const auto& tok = t.token_at(file_position{ 16, 40 });
             EXPECT_EQ(tok.get_token_type(), token::type::STRING_LITERAL);
             EXPECT_EQ(tok.get_data(), "\"Hello World inside\\nmy home\""sv);
         }

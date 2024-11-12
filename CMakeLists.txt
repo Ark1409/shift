@@ -46,6 +46,7 @@ add_library(
         src/utils/containers.h
         src/utils/utility.h
         src/utils/strings.h
+        src/utils/lazy.h
 )
 
 # Create base library for project

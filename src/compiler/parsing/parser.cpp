@@ -1,8 +1,10 @@
 /**
  * @file compiler/shift_parser.cpp
  */
-#include "parser.h"
+#include "compiler/parsing/parser.h"
+#include "utils/lazy.h"
 
+#include <ranges>
 #include <cstring>
 #include <algorithm>
 #include <vector>
@@ -45,146 +47,34 @@
 #define SHIFT_PARSER_FATAL_ERROR_LOG_(__ERR__)  SHIFT_PARSER_ERROR_LOG_(__ERR__); SHIFT_PARSER_PRINT()
 
 using namespace std::string_view_literals;
+using namespace shift::compiler::lexing;
 
-namespace shift::compiler {
-    SHIFT_API std::string parser_variable::get_fqn() const {
-        std::string fqn;
+namespace shift::compiler::parsing {
+    struct parser::parse_state {
+        explicit parse_state(error_handler& eh) : err_stream(eh) {}
 
-        if (clazz) { fqn = clazz->get_fqn(); } else if (module_) { fqn = module_->to_string(); }
-        if (!fqn.empty()) fqn += '.';
+        // Current lexing::token position in the parsing process
+        lexing::lexer::const_iterator position{};
 
-        return fqn += name->get_data();
-    }
+        // Utility variable for holding the current shift_mods specified by the user
+        std::vector<std::pair<shift_mods, const lexing::token*>> current_mods;
 
-    SHIFT_API std::string shift_type::get_fqn() const {
-        std::string fqn;
-
-        if (name.clazz) {
-            fqn = name.clazz->get_fqn();
-        } else if (name.name_clazz) {
-            fqn = name.name_clazz->get_fqn();
-        } else {
-            fqn = name.name.to_string();
+        std::optional<std::pair<shift_mods, const lexing::token*>> find_mod(shift_mods mod) {
+            auto it = std::ranges::find_if(current_mods, [mod](const auto& p) { return p.first == mod; });
+            return it == std::ranges::end(current_mods) ? std::nullopt : std::optional{ *it };
         }
 
-        return fqn;
-    }
-
-    SHIFT_API std::string shift_type::get_printable_fqn() const {
-        std::string fqn;
-
-        switch (ref_type) {
-            case shift_type::reference_type::ref:
-                fqn += "ref ";
-                break;
-            case shift_type::reference_type::tref:
-                fqn += "tref ";
-                break;
-            case shift_type::reference_type::none:
-            default:
-                break;
+        bool has_mod(shift_mods mod) const {
+            return std::ranges::find_if(current_mods, [mod](const auto& p) { return p.first == mod; })
+                   != std::ranges::end(current_mods);
         }
 
-        if ((mods & shift_mods::CONST_) == shift_mods::CONST_) {
-            fqn += "const ";
-        } else if ((mods & shift_mods::IMUT) == shift_mods::IMUT) {
-            fqn += "imut ";
-        }
-
-        if (name.name_clazz) {
-            fqn += name.name_clazz->get_fqn();
-        } else if (name.clazz) {
-            fqn += name.clazz->get_fqn();
-
-            if (utils::starts_with((std::string_view) fqn, "shift.array@"sv)) {
-                // shift.array@clazz_name@array_dimensions
-                const auto array_dim = utils::str_to_num<size_t>(fqn.substr(fqn.find_last_of('@') + 1));
-                fqn = fqn.substr(fqn.find('@') + 1, std::max<std::string::size_type>(0, fqn.find_last_of('@') - (fqn.find('@') + 1)));
-                for (size_t i = 0; i < array_dim; i++) {
-                    fqn += "[]";
-                }
-                return fqn;
-            }
-        } else {
-            fqn += name.name.to_string();
-        }
-
-        for (const auto& dim : dimensions) {
-            switch (dim.type) {
-                case shift_type::dimension::dimension_type::pointer:
-                    fqn += utils::repeat('*', dim.count);
-                    break;
-                case shift_type::dimension::dimension_type::array:
-                    fqn += utils::repeat("[]"sv, dim.count);
-                    break;
-                default:
-                    break;
-            }
-        }
-        return fqn;
-    }
-
-    SHIFT_API bool shift_type::is_conversion_needed(const shift_type& to) const noexcept {
-        if ((this->shift_mods & shift_mods::IMUT) && (to.shift_mods & shift_mods::IMUT) == 0x0) return true;
-        if (!(dimensions == to.dimensions)) return true;
-
-        if (name.clazz == to.name.clazz) {
-            if (ref_type == to.ref_type) return false;
-        } else if (name.clazz && to.name.clazz) {
-            if (!name.clazz->has_base(to.name.clazz)) return true;
-        }
-
-        switch (ref_type) {
-            case shift_type::reference_type::none:
-                if (to.ref_type == shift_type::reference_type::ref) return true;
-                break;
-            case shift_type::reference_type::ref:
-                if (to.ref_type == shift_type::reference_type::none || to.ref_type == shift_type::reference_type::tref) return true;
-                break;
-            case shift_type::reference_type::tref:
-                if (to.ref_type == shift_type::reference_type::ref) return true;
-                break;
-            default:
-                break;
-        }
-
-        return false;
-    }
+        error_stream err_stream;
+    };
 }
 
-namespace shift::compiler {
-
-    using token_type = token::type;
-
-    static constexpr bool is_operator(const token_type type) noexcept {
-        return token(std::string_view(), type, file_indexer()).is_overloadable_operator();
-    }
-
-    static constexpr bool is_binary_operator(const token_type type) noexcept {
-        return token(std::string_view(), type, file_indexer()).is_binary_operator();
-    }
-
-    static constexpr bool is_unary_operator(const token_type type) noexcept {
-        return token(std::string_view(), type, file_indexer()).is_unary_operator();
-    }
-
-    static constexpr bool is_prefix_operator(const token_type type) noexcept {
-        return token(std::string_view(), type, file_indexer()).is_prefix_operator();
-    }
-
-    static constexpr bool is_suffix_operator(const token_type type) noexcept {
-        return token(std::string_view(), type, file_indexer()).is_suffix_operator();
-    }
-
-    static constexpr bool is_strictly_prefix_operator(const token_type type) noexcept {
-        return token(std::string_view(), type, file_indexer()).is_strictly_prefix_operator();
-    }
-
-    static constexpr bool is_strictly_suffix_operator(const token_type type) noexcept {
-        return token(std::string_view(), type, file_indexer()).is_strictly_suffix_operator();
-    }
-
-    static constexpr shift_mods to_access_specifier(const token& token) noexcept;
+namespace shift::compiler::parsing {
+    static constexpr shift_mods to_access_specifier(const lexing::token& token) noexcept;
 
     static constexpr shift_mods visibility_modifiers = shift_mods::PUBLIC | shift_mods::PROTECTED | shift_mods::PRIVATE;
     static constexpr shift_mods class_modifiers = visibility_modifiers | shift_mods::STATIC;
@@ -197,38 +87,16 @@ namespace shift::compiler {
     static constexpr shift_mods variable_modifiers = type_modifiers;
     static constexpr shift_mods global_variable_modifiers = variable_modifiers & ~(shift_mods::STATIC | visibility_modifiers);
 
-    static constexpr token this_token("this"sv, token::type::IDENTIFIER, { 0, 0 });
-    static constexpr token base_token("base"sv, token::type::IDENTIFIER, { 0, 0 });
+    static constexpr lexing::token this_token("this"sv, token::type::IDENTIFIER, { 0, 0 });
+    static constexpr lexing::token base_token("base"sv, token::type::IDENTIFIER, { 0, 0 });
 
-    // Stores the string content of "@0", "@1", "@2",..., which are used for identifing nameless function parameters. 
+    // Stores the string content of "@0", "@1", "@2", ..., which are used for identifying nameless function parameters.
     static std::unordered_set<std::string> func_null_params;
 
-    // parsing& parsing::operator=(parsing&& p) noexcept {
-    //     this->m_lexer = p.m_lexer;
-    //     this->m_error_handler = p.m_error_handler;
-    //     this->m_mods = std::move(p.m_mods);
-    //     this->m_module = std::move(p.m_module);
-    //     this->m_global_uses = std::move(p.m_global_uses);
-    //     this->m_classes = std::move(p.m_classes);
-    //     this->m_functions = std::move(p.m_functions);
-    //     this->m_variables = std::move(p.m_variables);
-
-    //     for (auto& clazz : m_classes) {
-    //         clazz.module_ = &m_module;
-    //     }
-
-    //     for (auto& func : m_functions) {
-    //         func.module_ = &m_module;
-    //     }
-
-    //     for (auto& var_ : m_variables) {
-    //         var_.module_ = &m_module;
-    //     }
-    //     return *this;
-    // }
-
     SHIFT_API void parser::parse() {
-        m_parse_body(nullptr);
+        parse_state state(*m_error_handler);
+        state.position = m_lexer->begin();
+        parse_body(state, nullptr);
     }
 
     static void print_expr_tree(const shift_expression& expr, std::ostream& out, const std::string& prefix) {
@@ -413,34 +281,35 @@ namespace shift::compiler {
 
 #endif
 
-    void parser::m_parse_body(shift_class* parent_class) {
-        for (const token* current = &this->m_lexer->current_token(); !current->is_null_token(); current = &this->m_lexer->next_token()) {
-            if (current->is_use()) {
+    void parser::parse_body(parse_state& state, parser_class* parent_class) {
+        for (; !state.position->is_eof_token(); ++state.position) {
+            const token& current = *state.position;
+            if (current.is_use()) {
                 // use statement
                 if (parent_class) {
-                    m_parse_use(parent_class->use_statements);
+                    parse_use(state, parent_class->use_statements);
                 } else {
-                    m_parse_use();
+                    parse_use(state);
                 }
 
                 continue;
             }
 
-            if (current->is_class()) {
+            if (current.is_class()) {
                 // creating class
                 m_parse_class(parent_class);
                 continue;
             }
 
-            if (current->is_access_specifier()) {
+            if (current.is_access_specifier()) {
                 m_parse_access_specifier();
                 continue;
             }
 
-            if (parent_class && current->is_right_scope_bracket()) break;
+            if (parent_class && current.is_right_scope_bracket()) break;
 
             // Module statemnet parsing
-            if (current->is_module()) {
+            if (current.is_module()) {
                 if (!parent_class) {
                     if (!this->m_is_module_defined()) {
                         // module statement; expected the least (only once)
@@ -457,7 +326,7 @@ namespace shift::compiler {
             }
 
             // Constructor parsing
-            if (current->is_constructor()) {
+            if (current.is_constructor()) {
                 if (!parent_class) {
                     this->m_token_error(*current, "constructor may only be defined inside of class");
                 }
@@ -467,7 +336,7 @@ namespace shift::compiler {
             }
 
             // Destructor parsing
-            if (current->is_destructor()) {
+            if (current.is_destructor()) {
                 if (!parent_class) {
                     this->m_token_error(*current, "destructor may only be defined inside of class");
                 }
@@ -476,11 +345,11 @@ namespace shift::compiler {
                 continue;
             }
 
-            if (current->is_identifier()) {
+            if (current.is_identifier()) {
                 // It must be either a variable declaration or a function declaration
                 shift_type type{};
 
-                if (current->is_void()) {
+                if (current.is_void()) {
                     type.name.name.begin = this->m_lexer->get_index();
                     type.name.name.end = type.name.name.begin + 1;
                     this->m_lexer->next_token();
@@ -566,7 +435,7 @@ namespace shift::compiler {
                 continue;
             }
 
-            this->m_token_error(*current, "unexpected token '" + std::string(current->get_data()) + "'");
+            this->m_token_error(*current, "unexpected lexing::token '" + std::string(current->get_data()) + "'");
         }
 
         if (this->m_mods.size() > 0) {
@@ -575,7 +444,7 @@ namespace shift::compiler {
         }
     }
 
-    void parser::m_parse_class(shift_class* parent_class) {
+    void parser::parse_class(shift_class* parent_class) {
         const token& class_token = this->m_lexer->current_token();
 
         if (!class_token.is_class()) {
@@ -655,7 +524,7 @@ namespace shift::compiler {
             }
         }
 
-        this->m_lexer->next_token(); // Move onto first token inside class body
+        this->m_lexer->next_token(); // Move onto first lexing::token inside class body
 
         // Parse class body
         this->m_parse_body(&clazz);
@@ -671,7 +540,7 @@ namespace shift::compiler {
         }
     }
 
-    shift_function* parser::m_parse_function_header(shift_class* parent_class, shift_type& return_type) {
+    shift_function* parser::parse_function_header(shift_class* parent_class, shift_type& return_type) {
         shift_name name;
 
         for (const token* tok = &this->m_lexer->current_token(); tok->is_access_specifier(); tok = &this->m_lexer->next_token()) {
@@ -915,7 +784,7 @@ namespace shift::compiler {
                 }
             }
 
-            this->m_lexer->next_token(); // Move onto first token inside function body
+            this->m_lexer->next_token(); // Move onto first lexing::token inside function body
 
             // Parse function body
             m_parse_function(*func);
@@ -942,7 +811,7 @@ namespace shift::compiler {
     }
 
     std::optional<shift_variable>
-    parser::m_parse_variable_header(shift_class* parent_class, shift_function* parent_function, shift_type& type) {
+    parser::parse_variable_header(shift_class* parent_class, shift_function* parent_function, shift_type& type) {
         for (const token* tok = &this->m_lexer->current_token(); tok->is_access_specifier(); tok = &this->m_lexer->next_token()) {
             this->m_parse_access_specifier();
         }
@@ -1052,11 +921,11 @@ namespace shift::compiler {
         return v;
     }
 
-    void parser::m_parse_function(shift_function& func) {
+    void parser::parse_function(shift_function& func) {
         return m_parse_function_block(func, func.statements);
     }
 
-    void parser::m_parse_function_block(shift_function& func, utils::ideque<shift_statement>& statements, size_t count) {
+    void parser::parse_function_block(shift_function& func, utils::ideque<shift_statement>& statements, size_t count) {
         for (const token* _token = &this->m_lexer->current_token();
              count != 0 && !_token->is_null_token(); _token = &this->m_lexer->next_token(), count--) {
             // This function relies on parent statements being linked in a chain; addresses of statements must not change
@@ -1134,7 +1003,7 @@ namespace shift::compiler {
                     if (statement.get_if_statements().size() == 0) {
                         this->m_token_error(this->m_lexer->current_token(), "expected valid statement after 'if' declaration");
                     }
-                    this->m_lexer->reverse_token(); // lexing will be on token after last statement token if count causes it to end
+                    this->m_lexer->reverse_token(); // lexing will be on lexing::token after last statement lexing::token if count causes it to end
                 }
 
                 for (auto& st : statement.get_if_statements()) {
@@ -1167,7 +1036,7 @@ namespace shift::compiler {
                         if (else_statement.get_else_statements().size() == 0) {
                             this->m_token_error(this->m_lexer->current_token(), "expected valid statement after 'else' declaration");
                         }
-                        this->m_lexer->reverse_token(); // lexing will be on token after last statement token if count causes it to end
+                        this->m_lexer->reverse_token(); // lexing will be on lexing::token after last statement lexing::token if count causes it to end
                     }
 
                     statement.connect_else(std::move(else_statement));
@@ -1233,7 +1102,7 @@ namespace shift::compiler {
                     if (statement.get_while_statements().size() == 0) {
                         this->m_token_error(this->m_lexer->current_token(), "expected valid statement after 'while' declaration");
                     }
-                    this->m_lexer->reverse_token(); // lexing will be on token after last statement token if count causes it to end
+                    this->m_lexer->reverse_token(); // lexing will be on lexing::token after last statement lexing::token if count causes it to end
                 }
 
                 for (auto& st : statement.get_while_statements()) {
@@ -1283,7 +1152,7 @@ namespace shift::compiler {
                 }
 
                 {
-                    // lexing will be on token after last statement token if count causes it to end; no need for next_token
+                    // lexing will be on lexing::token after last statement lexing::token if count causes it to end; no need for next_token
                     statement.set_for_condition(m_parse_expression());
                 }
 
@@ -1321,7 +1190,7 @@ namespace shift::compiler {
                     if (statement.get_for_statements().size() == 0) {
                         this->m_token_error(this->m_lexer->current_token(), "expected valid statement after 'for' declaration");
                     }
-                    this->m_lexer->reverse_token(); // lexing will be on token after last statement token if count causes it to end
+                    this->m_lexer->reverse_token(); // lexing will be on lexing::token after last statement lexing::token if count causes it to end
                 }
 
                 for (auto& st : statement.get_for_statements()) {
@@ -1427,13 +1296,13 @@ namespace shift::compiler {
         }
     }
 
-    void parser::m_parse_use() {
-        return m_parse_use(this->m_global_uses);
+    void parser::parse_use(parse_state& state) {
+        return parse_use(state, this->m_global_uses);
     }
 
-    void parser::m_parse_use(utils::ordered_set<shift_module>& modules) {
-        if (this->m_mods.size() > 0) {
-            this->m_token_error(*this->m_mods.front().second, "unexpected access specifier in 'use' declaration");
+    void parser::parse_use(parse_state& state, utils::ordered_set<shift_module>& modules) {
+        if (!state.current_mods.empty()) {
+            this->m_token_error(*state.current_mods.front().second, "unexpected access specifier in 'use' declaration");
             this->m_clear_mods();
         }
 
@@ -1454,7 +1323,7 @@ namespace shift::compiler {
                 modules.push_back(std::move(module_));
             }
 
-            const token& end_token = this->m_lexer->current_token(); // token after the module name
+            const token& end_token = this->m_lexer->current_token(); // lexing::token after the module name
             if (module_.name.size() == 0) {
                 this->m_token_error(end_token.is_null_token() ? use_token : end_token, "expected module name after 'use'");
                 this->m_skip_until(token::type::SEMICOLON);
@@ -1467,7 +1336,7 @@ namespace shift::compiler {
         }
     }
 
-    void parser::m_parse_module() {
+    void parser::parse_module() {
         if (this->m_mods.size() > 0) {
             this->m_token_error(*this->m_mods.front().second, "unexpected access specifier in 'module' declaration");
             this->m_clear_mods();
@@ -1484,7 +1353,7 @@ namespace shift::compiler {
         this->m_lexer->next_token(); // skip 'module' keyword
         this->m_module->name = m_parse_name("module name");
 
-        const token& end_token = this->m_lexer->current_token(); // token after the module name
+        const token& end_token = this->m_lexer->current_token(); // lexing::token after the module name
 
         if (this->m_module->name.size() == 0) {
             this->m_token_error(end_token.is_null_token() ? module_token : end_token, "expected module name after 'module'");
@@ -1499,13 +1368,13 @@ namespace shift::compiler {
 
     /// @param name_type The type of name to be parsed. Will be displayed in error messages.
     ///                  e.g. "module name", "variable or function type"
-    shift_name parser::m_parse_name(std::string_view name_type) {
+    shift_name parser::parse_name(std::string_view name_type) {
         shift_name name;
         name.begin = this->m_lexer->get_index();
 
         token::type last_type = token::type(0x0);
 
-        for (const token* token = &this->m_lexer->current_token(); !token->is_null_token(); token = &this->m_lexer->next_token()) {
+        for (const token* lexing::token = &this->m_lexer->current_token(); !token->is_null_token(); lexing::token = &this->m_lexer->next_token()) {
             if (token->is_access_specifier()) {
                 this->m_token_error(*token, "unexpected '" + std::string(token->get_data()) + "' specifier in " + std::string(name_type));
             } else if (token->is_keyword()) {
@@ -1540,7 +1409,7 @@ namespace shift::compiler {
         return name;
     }
 
-    std::optional<shift_type> parser::m_parse_type(std::string_view name_type) {
+    std::optional<shift_type> parser::parse_type(std::string_view name_type) {
         shift_type type;
         bool is_valid_type = true;
 
@@ -1564,7 +1433,7 @@ namespace shift::compiler {
             shift_name name;
             name.begin = this->m_lexer->get_index();
 
-            for (const token* token = &this->m_lexer->current_token(); !token->is_null_token(); token = &this->m_lexer->next_token()) {
+            for (const token* lexing::token = &this->m_lexer->current_token(); !token->is_null_token(); lexing::token = &this->m_lexer->next_token()) {
                 if (token->is_access_specifier()) {
                     if (name.end == std::vector<compiler::token>::const_iterator()) {
                         name.end = this->m_lexer->get_index();
@@ -1627,7 +1496,7 @@ namespace shift::compiler {
         }
 
         size_t dimensions = 0;
-        for (const token* token = &this->m_lexer->current_token(); !token->is_null_token(); token = &this->m_lexer->next_token()) {
+        for (const token* lexing::token = &this->m_lexer->current_token(); !token->is_null_token(); lexing::token = &this->m_lexer->next_token()) {
             if (token->is_access_specifier()) {
                 this->m_token_error(*token,
                     "unexpected '" + std::string(token->get_data()) + "' specifier in " + std::string(name_type) + " type");
@@ -1691,7 +1560,7 @@ namespace shift::compiler {
         return is_valid_type ? std::optional<shift_type>(std::move(type)) : std::nullopt;
     }
 
-    shift_expression parser::m_parse_expression(const utils::predicate<std::vector<token>::const_iterator>& end_func) {
+    shift_expression parser::parse_expression(const utils::predicate<std::vector<token>::const_iterator>& end_func) {
         shift_expression ret_expr;
         shift_expression* expr = &ret_expr;
 #ifdef SHIFT_DEBUG
@@ -2034,7 +1903,8 @@ namespace shift::compiler {
                             const auto& exprs = new_expr->get_dotted_expressions();
                             for (size_t i = 0; const auto& sub_expr : exprs) {
                                 if (i == exprs.size() - 1) { break; }
-                                if (sub_expr.is_dotted_expression() || (sub_expr.type != token_type::IDENTIFIER && !sub_expr.is_array())) {
+                                if (sub_expr.is_dotted_expression() ||
+                                    (sub_expr.type != lexing::token::type::IDENTIFIER && !sub_expr.is_array())) {
                                     this->m_token_error(*_token, "unexpected 'new' inside expression");
                                     goto end_new_check;
                                 } else if (sub_expr.is_function_call()) {
@@ -2047,7 +1917,7 @@ namespace shift::compiler {
                                 cur_expr = &sub_expr;
                             }
                         }
-                        if (cur_expr->type != token_type::IDENTIFIER && !cur_expr->is_array()) {
+                        if (cur_expr->type != lexing::token::type::IDENTIFIER && !cur_expr->is_array()) {
                             this->m_token_error(*_token, "unexpected 'new' inside expression");
                             break;
                         } else if (cur_expr->is_function_call()) {
@@ -2057,7 +1927,7 @@ namespace shift::compiler {
                             }
                         }
                       end_new_check:
-                        this->m_lexer->reverse_token(); // Move back to the last token of the new expression
+                        this->m_lexer->reverse_token(); // Move back to the last lexing::token of the new expression
                     }
                     continue;
                 }
@@ -2067,17 +1937,17 @@ namespace shift::compiler {
                     for (const token* expr_token = &this->m_lexer->current_token(); !expr_token->is_null_token(); expr_token = &this->m_lexer->next_token()) {
                         if (expr_token->is_dot()) {
                             // We keep last_type as identifier when doing function calls and array indexing expressions (check below)
-                            if (last_type != token_type::IDENTIFIER) {
+                            if (last_type != lexing::token::type::IDENTIFIER) {
                                 this->m_token_error(*expr_token, "unexpected '.' inside expression");
                             }
-                            last_type = token_type::DOT;
+                            last_type = lexing::token::type::DOT;
                             continue;
                         }
 
                         if ((expr_token->is_this() || expr_token->is_base())) {
                             if (last_type == token::type::NULL_TOKEN) {
                                 shift_expression var_expr;
-                                var_expr.type = token_type::IDENTIFIER;
+                                var_expr.type = lexing::token::type::IDENTIFIER;
                                 var_expr.begin = this->m_lexer->get_index();
                                 var_expr.end = var_expr.begin + 1;
                                 expr->add_dotted_expression(std::move(var_expr));
@@ -2085,7 +1955,7 @@ namespace shift::compiler {
                                 this->m_token_error(*expr_token,
                                     "unexpected '" + std::string(expr_token->get_data()) + "' inside expression");
                             }
-                            last_type = token_type::IDENTIFIER;
+                            last_type = lexing::token::type::IDENTIFIER;
                             continue;
                         }
 
@@ -2093,20 +1963,20 @@ namespace shift::compiler {
                             if (expr_token->is_keyword()) {
                                 this->m_token_error(*expr_token,
                                     "unexpected keyword '" + std::string(expr_token->get_data()) + "' inside expression");
-                            } else if (last_type != token_type::DOT && last_type != token::type::NULL_TOKEN) {
+                            } else if (last_type != lexing::token::type::DOT && last_type != token::type::NULL_TOKEN) {
                                 this->m_token_error(*expr_token, "unexpected identifier '" + std::string(expr_token->get_data()) +
                                                                  "' inside expression");
                             }
 
                             shift_expression loop_expr;
-                            loop_expr.type = token_type::IDENTIFIER;
+                            loop_expr.type = lexing::token::type::IDENTIFIER;
                             loop_expr.begin = this->m_lexer->get_index();
                             loop_expr.end = loop_expr.begin + 1;
 
                             while (true) {
                                 const token* next_expr_token = &this->m_lexer->peek_token();
 
-                                if (next_expr_token->is_left_bracket() && loop_expr.type == token_type::IDENTIFIER) {
+                                if (next_expr_token->is_left_bracket() && loop_expr.type == lexing::token::type::IDENTIFIER) {
                                     // No function pointers yet
                                     // function call
 
@@ -2129,15 +1999,15 @@ namespace shift::compiler {
                                         //     loop_expr.add_function_call_arguments(std::move(function_call_args));
                                         // }
 
-                                        if (function_call_args.type == token_type::COMMA) {
+                                        if (function_call_args.type == lexing::token::type::COMMA) {
                                             for (auto& sub_expr : function_call_args.get_comma_expressions()) {
-                                                if (sub_expr.type == token_type::COMMA) {
+                                                if (sub_expr.type == lexing::token::type::COMMA) {
                                                     this->m_token_error(*sub_expr.begin,
                                                         "unexpected ',' inside function call arguments inside expression");
                                                 }
                                                 loop_expr.add_function_call_arguments(std::move(sub_expr));
                                             }
-                                        } else if (function_call_args.type != token_type::NULL_TOKEN) {
+                                        } else if (function_call_args.type != lexing::token::type::NULL_TOKEN) {
                                             loop_expr.add_function_call_arguments(std::move(function_call_args));
                                         }
                                     }
@@ -2153,7 +2023,7 @@ namespace shift::compiler {
 
 
                                 } else if (next_expr_token->is_left_square_bracket() &&
-                                           (loop_expr.type == token_type::IDENTIFIER || loop_expr.is_function_call())) {
+                                           (loop_expr.type == lexing::token::type::IDENTIFIER || loop_expr.is_function_call())) {
                                     // no need to check for function calls mixed between arrays calls, since function pointers are not yet a feature
                                     // TODO add function pointers
                                     // TODO allow "test"[0] syntax
@@ -2161,7 +2031,7 @@ namespace shift::compiler {
 
                                     // array
 
-                                    this->m_lexer->next_token(); // Move onto the actual '[' token (we used peek before)
+                                    this->m_lexer->next_token(); // Move onto the actual '[' lexing::token (we used peek before)
 
                                     shift_expression array_expr;
                                     array_expr.set_array();
@@ -2180,7 +2050,7 @@ namespace shift::compiler {
                                             this->m_token_error(this->m_lexer->reverse_peek_token(),
                                                 "expected ']' inside expression before end of file");
                                         } else {
-                                            if (parsed_indexer_expr.type == token_type::NULL_TOKEN) {
+                                            if (parsed_indexer_expr.type == lexing::token::type::NULL_TOKEN) {
                                                 this->m_token_error(this->m_lexer->reverse_peek_token(),
                                                     "expected expression inside array indexer");
                                             }
@@ -2195,18 +2065,18 @@ namespace shift::compiler {
                                 } else break;
                             }
 
-                            last_type = token_type::IDENTIFIER;
+                            last_type = lexing::token::type::IDENTIFIER;
 
                             expr->add_dotted_expression(std::move(loop_expr));
                             continue;
                         }
 
-                        //this->m_token_error(*expr_token, "unexpected token '" + std::string(expr_token->get_data()) + "' inside expression");
+                        //this->m_token_error(*expr_token, "unexpected lexing::token '" + std::string(expr_token->get_data()) + "' inside expression");
                         this->m_lexer->reverse_token();
                         break;
                     }
 
-                    if (last_type == token_type::DOT) {
+                    if (last_type == lexing::token::type::DOT) {
                         if (!this->m_lexer->current_token().is_null_token()) {
                             this->m_token_error(this->m_lexer->current_token(), "unexpected '.' inside expression");
                         } else {
@@ -2228,25 +2098,25 @@ namespace shift::compiler {
                 continue;
             }
 
-            this->m_token_error(*_token, "unexpected token '" + std::string(_token->get_data()) + "' in expression");
+            this->m_token_error(*_token, "unexpected lexing::token '" + std::string(_token->get_data()) + "' in expression");
         }
 
         while (expr->parent) {
             if (is_unary_operator(expr->parent->type)) {
-                if ((expr->parent->has_left() && expr->parent->get_left()->type != token_type::NULL_TOKEN)
-                    && (expr->parent->has_right() && expr->parent->get_right()->type != token_type::NULL_TOKEN)
+                if ((expr->parent->has_left() && expr->parent->get_left()->type != lexing::token::type::NULL_TOKEN)
+                    && (expr->parent->has_right() && expr->parent->get_right()->type != lexing::token::type::NULL_TOKEN)
                     && !is_binary_operator(expr->parent->type)) {
                     // Error if we have both a left and a right meanwhile this is strictly unary
                     this->m_token_error(*expr->parent->begin, "unexpected unary operator '" + std::string(expr->parent->begin->get_data()) +
                                                               "' inside expression");
                     break;
-                } else if ((!expr->parent->has_left() || expr->parent->get_left()->type == token_type::NULL_TOKEN)
-                           && (!expr->parent->has_right() || expr->parent->get_right()->type == token_type::NULL_TOKEN)) {
+                } else if ((!expr->parent->has_left() || expr->parent->get_left()->type == lexing::token::type::NULL_TOKEN)
+                           && (!expr->parent->has_right() || expr->parent->get_right()->type == lexing::token::type::NULL_TOKEN)) {
                     // Error if we dont have a left nor a right when this is meant to be a unary operator
                     this->m_token_error(*expr->parent->begin, "unexpected unary operator '" + std::string(expr->parent->begin->get_data()) +
                                                               "' inside expression");
                     break;
-                } else if (expr->parent->has_left() && expr->parent->get_left()->type != token_type::NULL_TOKEN &&
+                } else if (expr->parent->has_left() && expr->parent->get_left()->type != lexing::token::type::NULL_TOKEN &&
                            is_suffix_operator(expr->parent->type)) {
                     // If this is a suffix expr,
                     if (expr->parent->has_right()) {
@@ -2275,7 +2145,7 @@ namespace shift::compiler {
 
             if (expr->parent->is_bracket()) {
                 expr = expr->parent;
-                if (expr->has_right() && expr->get_right()->type == token_type::NULL_TOKEN) {
+                if (expr->has_right() && expr->get_right()->type == lexing::token::type::NULL_TOKEN) {
                     expr->clear_right();
                 }
                 continue;
@@ -2304,7 +2174,7 @@ namespace shift::compiler {
         return ret_expr;
     }
 
-    void parser::m_parse_access_specifier() {
+    void parser::parse_access_specifier() {
         const token& current_token = this->m_lexer->current_token();
         const shift_mods mod = to_access_specifier(current_token);
         const shift_mods current_mods = this->m_get_mods();
@@ -2343,7 +2213,7 @@ namespace shift::compiler {
         }
     }
 
-    shift_mods parser::m_get_mods() const noexcept {
+    shift_mods parser::get_mods() const noexcept {
         shift_mods mods = static_cast<shift_mods>(0x0);
 
         for (const auto& [mod, token_] : this->m_mods) {
@@ -2353,50 +2223,50 @@ namespace shift::compiler {
         return mods;
     }
 
-    void parser::m_add_mod(shift_mods mod, const token& token_) noexcept {
+    void parser::add_mod(shift_mods mod, const token& token_) noexcept {
         this->m_mods.push_back({ mod, &token_ });
     }
 
-    void parser::m_clear_mods() noexcept {
+    void parser::clear_mods() noexcept {
         return this->m_mods.clear();
     }
 
-    const token& parser::m_skip_until(const std::string_view str) noexcept {
+    const token& parser::skip_until(const std::string_view str) noexcept {
         for (; !this->m_lexer->current_token().is_null_token() && this->m_lexer->current_token().get_data() != str;
                this->m_lexer->next_token());
         return this->m_lexer->current_token();
     }
 
-    const token& parser::m_skip_until(const std::string& str) noexcept { return m_skip_until(std::string_view(str.data(), str.length())); }
+    const token& parser::skip_until(const std::string& str) noexcept { return m_skip_until(std::string_view(str.data(), str.length())); }
 
-    const token& parser::m_skip_until(const char* const str) noexcept { return m_skip_until(std::string_view(str, std::strlen(str))); }
+    const token& parser::skip_until(const char* const str) noexcept { return m_skip_until(std::string_view(str, std::strlen(str))); }
 
-    const token& parser::m_skip_until(const typename token::type type) noexcept {
+    const token& parser::skip_until(const typename token::type type) noexcept {
         for (; !this->m_lexer->current_token().is_null_token() && this->m_lexer->current_token().get_token_type() != type;
                this->m_lexer->next_token());
         return this->m_lexer->current_token();
     }
 
-    const token& parser::m_skip_after(const std::string_view str) noexcept {
+    const token& parser::skip_after(const std::string_view str) noexcept {
         m_skip_until(str);
         return this->m_lexer->next_token();
     }
 
-    const token& parser::m_skip_after(const std::string& str) noexcept { return m_skip_after(std::string_view(str.data(), str.length())); }
+    const token& parser::skip_after(const std::string& str) noexcept { return m_skip_after(std::string_view(str.data(), str.length())); }
 
-    const token& parser::m_skip_after(const char* const str) noexcept { return m_skip_after(std::string_view(str, std::strlen(str))); }
+    const token& parser::skip_after(const char* const str) noexcept { return m_skip_after(std::string_view(str, std::strlen(str))); }
 
-    const token& parser::m_skip_after(const typename token::type type) noexcept {
+    const token& parser::skip_after(const typename token::type type) noexcept {
         m_skip_until(type);
         return this->m_lexer->next_token();
     }
 
-    const token& parser::m_skip_until_closing(const typename token::type bracket_type) noexcept {
-        if (bracket_type != token_type::LEFT_BRACKET && bracket_type != token_type::LEFT_SQUARE_BRACKET &&
-            bracket_type != token_type::LEFT_SCOPE_BRACKET)
+    const token& parser::skip_until_closing(const typename token::type bracket_type) noexcept {
+        if (bracket_type != lexing::token::type::LEFT_BRACKET && bracket_type != lexing::token::type::LEFT_SQUARE_BRACKET &&
+            bracket_type != lexing::token::type::LEFT_SCOPE_BRACKET)
             return m_skip_until(bracket_type);
 
-        const token_type look = token_type(std::underlying_type_t<token_type>(bracket_type) + 1);
+        const lexing::token::type look = lexing::token::type(std::underlying_type_t<token_type>(bracket_type) + 1);
 
         size_t count = 1;
         for (const token* _token = &this->m_lexer->current_token();
@@ -2428,23 +2298,23 @@ namespace shift::compiler {
         return this->m_lexer->current_token().is_null_token() ? this->m_lexer->current_token() : this->m_lexer->reverse_token();
     }
 
-    const token& parser::m_skip_before(const std::string_view str) noexcept {
+    const token& parser::skip_before(const std::string_view str) noexcept {
         m_skip_until(str);
         return this->m_lexer->reverse_token();
     }
 
-    const token& parser::m_skip_before(const std::string& str) noexcept {
+    const token& parser::skip_before(const std::string& str) noexcept {
         return m_skip_before(std::string_view(str.data(), str.length()));
     }
 
-    const token& parser::m_skip_before(const char* const str) noexcept { return m_skip_before(std::string_view(str, std::strlen(str))); }
+    const token& parser::skip_before(const char* const str) noexcept { return m_skip_before(std::string_view(str, std::strlen(str))); }
 
-    const token& parser::m_skip_before(const typename token::type type) noexcept {
+    const token& parser::skip_before(const typename token::type type) noexcept {
         m_skip_until(type);
         return this->m_lexer->reverse_token();
     }
 
-    void parser::m_token_error(const token& token_, const std::string_view msg) {
+    void parser::token_error(const token& token_, const std::string_view msg) {
         if (!this->m_error_handler) return;
         SHIFT_PARSER_ERROR_(token_, msg);
         std::string line = std::string(this->m_get_line(token_));
@@ -2462,15 +2332,15 @@ namespace shift::compiler {
         SHIFT_PARSER_ERROR_LOG(indexer);
     }
 
-    void parser::m_token_error(const token& token_, const std::string& msg) {
+    void parser::token_error(const token& token_, const std::string& msg) {
         return m_token_error(token_, std::string_view(msg.c_str(), msg.length()));
     }
 
-    void parser::m_token_error(const token& token_, const char* const msg) {
+    void parser::token_error(const token& token_, const char* const msg) {
         return m_token_error(token_, std::string_view(msg, std::strlen(msg)));
     }
 
-    void parser::m_token_warning(const token& token_, const std::string_view msg) {
+    void parser::token_warning(const token& token_, const std::string_view msg) {
         if (!this->m_error_handler) return;
         if (!this->m_error_handler->is_print_warnings()) return;
         SHIFT_PARSER_WARNING_(token_, msg);
@@ -2490,68 +2360,68 @@ namespace shift::compiler {
         SHIFT_PARSER_WARNING_LOG(indexer);
     }
 
-    void parser::m_token_warning(const token& token_, const std::string& msg) {
+    void parser::token_warning(const token& token_, const std::string& msg) {
         return m_token_warning(token_, std::string_view(msg.c_str(), msg.length()));
     }
 
-    void parser::m_token_warning(const token& token_, const char* const msg) {
+    void parser::token_warning(const token& token_, const char* const msg) {
         return m_token_warning(token_, std::string_view(msg, std::strlen(msg)));
     }
 
-    std::string_view parser::m_get_line(const token& token_) const noexcept {
+    std::string_view parser::get_line(const token& token_) const noexcept {
         return this->m_lexer->get_lines()[token_.get_file_index().line - 1];
     }
 
-    bool parser::m_is_module_defined() const noexcept { return this->m_module.get() && this->m_module->name.size() != 0; }
+    bool parser::is_module_defined() const noexcept { return this->m_module.get() && this->m_module->depth() > 0; }
 
-    SHIFT_API uint_fast8_t parser::operator_priority(const token_type type, const bool prefix) noexcept {
+    SHIFT_API uint_fast8_t parser::operator_priority(const lexing::token::type type, const bool prefix) noexcept {
         constexpr uint_fast8_t base_priority = 0x10;
         constexpr uint_fast8_t prefix_priority = 0xf0 - base_priority;
         switch (type) {
-            case token_type::AND:
+            case lexing::token::type::AND:
                 return base_priority + (prefix ? prefix_priority : 0x2);
-            case token_type::OR:
-            case token_type::XOR:
-            case token_type::SHIFT_LEFT:
-            case token_type::SHIFT_RIGHT:
+            case lexing::token::type::OR:
+            case lexing::token::type::XOR:
+            case lexing::token::type::SHIFT_LEFT:
+            case lexing::token::type::SHIFT_RIGHT:
                 return base_priority + 0x2;
 
-            case token_type::AND_AND:
-            case token_type::OR_OR:
+            case lexing::token::type::AND_AND:
+            case lexing::token::type::OR_OR:
                 return base_priority + 0x3;
 
-            case token_type::GREATER_THAN:
-            case token_type::LESS_THAN:
+            case lexing::token::type::GREATER_THAN:
+            case lexing::token::type::LESS_THAN:
                 return base_priority + 0x4;
 
-            case token_type::PLUS:
-            case token_type::MINUS:
+            case lexing::token::type::PLUS:
+            case lexing::token::type::MINUS:
                 return base_priority + (prefix ? prefix_priority : 0x5);
 
-            case token_type::MULTIPLY:
+            case lexing::token::type::MULTIPLY:
                 return base_priority + (prefix ? prefix_priority : 0x6);
-            case token_type::DIVIDE:
-            case token_type::MODULO:
+            case lexing::token::type::DIVIDE:
+            case lexing::token::type::MODULO:
                 return base_priority + 0x6;
 
-            case token_type::MINUS_MINUS:
-            case token_type::PLUS_PLUS:
+            case lexing::token::type::MINUS_MINUS:
+            case lexing::token::type::PLUS_PLUS:
                 return base_priority + (prefix ? prefix_priority : prefix_priority - 1);
 
-            case token_type::NOT:
+            case lexing::token::type::NOT:
                 return base_priority + prefix_priority - 3;
-            case token_type::FLIP_BITS:
+            case lexing::token::type::FLIP_BITS:
                 return base_priority + prefix_priority - 2;
 
-            case token_type::LEFT_BRACKET: // bracket-ed expressions
-            case token_type::LEFT_SQUARE_BRACKET: // array operator
-            case token_type::LEFT_SCOPE_BRACKET:
-            case token_type::IDENTIFIER: // variable names / function calls
+            case lexing::token::type::LEFT_BRACKET: // bracket-ed expressions
+            case lexing::token::type::LEFT_SQUARE_BRACKET: // array operator
+            case lexing::token::type::LEFT_SCOPE_BRACKET:
+            case lexing::token::type::IDENTIFIER: // variable names / function calls
                 return base_priority + prefix_priority + 1;
 
             default: {
                 // i = 5 + 3; -> should be -> (i) = (5 + 3); | if = had more priority -> (i = 5) + (3)
-                return (type & token_type::EQUALS) == token_type::EQUALS ?
+                return (type & lexing::token::type::EQUALS) == lexing::token::type::EQUALS ?
                        operator_priority(type & ~token_type::EQUALS, prefix) - base_priority : 0x0;
             }
         }

@@ -98,31 +98,31 @@ namespace shift::compiler {
     using token_type = token::type;
 
     static constexpr bool is_overload_operator(const token_type type) noexcept {
-        return token(std::string_view(), type, file_indexer()).is_overloadable_operator();
+        return token(std::string_view(), type, file_position()).is_overloadable_operator();
     }
 
     static constexpr bool is_binary_operator(const token_type type) noexcept {
-        return token(std::string_view(), type, file_indexer()).is_binary_operator();
+        return token(std::string_view(), type, file_position()).is_binary_operator();
     }
 
     static constexpr bool is_unary_operator(const token_type type) noexcept {
-        return token(std::string_view(), type, file_indexer()).is_unary_operator();
+        return token(std::string_view(), type, file_position()).is_unary_operator();
     }
 
     static constexpr bool is_prefix_operator(const token_type type) noexcept {
-        return token(std::string_view(), type, file_indexer()).is_prefix_operator();
+        return token(std::string_view(), type, file_position()).is_prefix_operator();
     }
 
     static constexpr bool is_suffix_operator(const token_type type) noexcept {
-        return token(std::string_view(), type, file_indexer()).is_suffix_operator();
+        return token(std::string_view(), type, file_position()).is_suffix_operator();
     }
 
     static constexpr bool is_strictly_prefix_operator(const token_type type) noexcept {
-        return token(std::string_view(), type, file_indexer()).is_strictly_prefix_operator();
+        return token(std::string_view(), type, file_position()).is_strictly_prefix_operator();
     }
 
     static constexpr bool is_strictly_suffix_operator(const token_type type) noexcept {
-        return token(std::string_view(), type, file_indexer()).is_strictly_suffix_operator();
+        return token(std::string_view(), type, file_position()).is_strictly_suffix_operator();
     }
 
     static shift_module m_shift_module;
@@ -582,22 +582,22 @@ namespace shift::compiler {
     void analyzer::m_init_defaults() {
         if (m_token_storage.empty()) {
             m_token_storage.reserve(16);
-            m_token_storage.emplace_back(std::string_view("void"), token::type::IDENTIFIER, file_indexer{ 0, 0 });
-            m_token_storage.emplace_back(std::string_view("array"), token::type::IDENTIFIER, file_indexer{ 0, 0 });
-            m_token_storage.emplace_back(std::string_view("length"), token::type::IDENTIFIER, file_indexer{ 0, 0 });
-            m_token_storage.emplace_back(std::string_view("="), token::type::EQUALS, file_indexer{ 0, 0 });
-            m_token_storage.emplace_back(std::string_view("=="), token::type::EQUALS_EQUALS, file_indexer{ 0, 0 });
-            m_token_storage.emplace_back(std::string_view("!="), token::type::NOT_EQUAL, file_indexer{ 0, 0 });
-            m_token_storage.emplace_back(std::string_view("null"), token::type::IDENTIFIER, file_indexer{ 0, 0 });
-            m_token_storage.emplace_back(std::string_view("operator"), token::type::IDENTIFIER, file_indexer{ 0, 0 });
-            m_token_storage.emplace_back(std::string_view("["), token::type::LEFT_SQUARE_BRACKET, file_indexer{ 0, 0 });
-            m_token_storage.emplace_back(std::string_view("]"), token::type::RIGHT_SQUARE_BRACKET, file_indexer{ 0, 0 });
-            m_token_storage.emplace_back(std::string_view("operator"), token::type::IDENTIFIER, file_indexer{ 0, 0 });
-            m_token_storage.emplace_back(std::string_view("*"), token::type::STAR, file_indexer{ 0, 0 });
-            m_token_storage.emplace_back(std::string_view("operator"), token::type::IDENTIFIER, file_indexer{ 0, 0 });
-            m_token_storage.emplace_back(std::string_view("->"), token::type::ARROW, file_indexer{ 0, 0 });
-            m_token_storage.emplace_back(std::string_view("shift"), token::type::IDENTIFIER, file_indexer{ 0, 0 });
-            m_token_storage.emplace_back(std::string_view("true"), token::type::IDENTIFIER, file_indexer{ 0, 0 });
+            m_token_storage.emplace_back(std::string_view("void"), token::type::IDENTIFIER, file_position{ 0, 0 });
+            m_token_storage.emplace_back(std::string_view("array"), token::type::IDENTIFIER, file_position{ 0, 0 });
+            m_token_storage.emplace_back(std::string_view("length"), token::type::IDENTIFIER, file_position{ 0, 0 });
+            m_token_storage.emplace_back(std::string_view("="), token::type::EQUALS, file_position{ 0, 0 });
+            m_token_storage.emplace_back(std::string_view("=="), token::type::EQUALS_EQUALS, file_position{ 0, 0 });
+            m_token_storage.emplace_back(std::string_view("!="), token::type::NOT_EQUAL, file_position{ 0, 0 });
+            m_token_storage.emplace_back(std::string_view("null"), token::type::IDENTIFIER, file_position{ 0, 0 });
+            m_token_storage.emplace_back(std::string_view("operator"), token::type::IDENTIFIER, file_position{ 0, 0 });
+            m_token_storage.emplace_back(std::string_view("["), token::type::LEFT_SQUARE_BRACKET, file_position{ 0, 0 });
+            m_token_storage.emplace_back(std::string_view("]"), token::type::RIGHT_SQUARE_BRACKET, file_position{ 0, 0 });
+            m_token_storage.emplace_back(std::string_view("operator"), token::type::IDENTIFIER, file_position{ 0, 0 });
+            m_token_storage.emplace_back(std::string_view("*"), token::type::STAR, file_position{ 0, 0 });
+            m_token_storage.emplace_back(std::string_view("operator"), token::type::IDENTIFIER, file_position{ 0, 0 });
+            m_token_storage.emplace_back(std::string_view("->"), token::type::ARROW, file_position{ 0, 0 });
+            m_token_storage.emplace_back(std::string_view("shift"), token::type::IDENTIFIER, file_position{ 0, 0 });
+            m_token_storage.emplace_back(std::string_view("true"), token::type::IDENTIFIER, file_position{ 0, 0 });
 
 
             auto it = m_token_storage.begin();
@@ -2485,7 +2485,7 @@ namespace shift::compiler {
             array_class.name = &this->m_extra_tokens.emplace_back(
                 std::string_view(fqn.data() + offset,
                     fqn.length() - offset),
-                token::type::IDENTIFIER, file_indexer{ 0, 0 }
+                token::type::IDENTIFIER, file_position{ 0, 0 }
             );
         }
 
@@ -2551,7 +2551,7 @@ namespace shift::compiler {
             pointer_class.name = &this->m_extra_tokens.emplace_back(
                 std::string_view(fqn.data() + offset,
                     fqn.length() - offset),
-                token::type::IDENTIFIER, file_indexer{ 0, 0 }
+                token::type::IDENTIFIER, file_position{ 0, 0 }
             );
         }
 

@@ -412,7 +412,7 @@ namespace shift::compiler::lexing {
 
     private:
         std::string_view m_data;
-        type m_type = type::NULL_TOKEN;
+        type m_type{ type::NULL_TOKEN };
         file_position m_index{};
     };
 
@@ -423,6 +423,34 @@ namespace shift::compiler::lexing {
         m_data(str.c_str(), str.length()), m_type(type), m_index(index) {}
 
     constexpr token token::eof = token(std::string_view{}, token::type::EOF_TOKEN, file_position{});
+
+    static constexpr bool is_operator(const token::type type) noexcept {
+        return lexing::token(std::string_view{}, type, lexing::file_position{}).is_overloadable_operator();
+    }
+
+    static constexpr bool is_binary_operator(const token::type type) noexcept {
+        return lexing::token(std::string_view{}, type, lexing::file_position{}).is_binary_operator();
+    }
+
+    static constexpr bool is_unary_operator(const token::type type) noexcept {
+        return lexing::token(std::string_view{}, type, lexing::file_position{}).is_unary_operator();
+    }
+
+    static constexpr bool is_prefix_operator(const token::type type) noexcept {
+        return lexing::token(std::string_view{}, type, lexing::file_position{}).is_prefix_operator();
+    }
+
+    static constexpr bool is_suffix_operator(const token::type type) noexcept {
+        return lexing::token(std::string_view{}, type, lexing::file_position{}).is_suffix_operator();
+    }
+
+    static constexpr bool is_strictly_prefix_operator(const token::type type) noexcept {
+        return lexing::token(std::string_view{}, type, lexing::file_position{}).is_strictly_prefix_operator();
+    }
+
+    static constexpr bool is_strictly_suffix_operator(const token::type type) noexcept {
+        return lexing::token(std::string_view{}, type, lexing::file_position{}).is_strictly_suffix_operator();
+    }
 
     constexpr token::type operator|(const token::type f, const token::type other) noexcept {
         return token::type(std::underlying_type_t<token::type>(f) | std::underlying_type_t<token::type>(other));
