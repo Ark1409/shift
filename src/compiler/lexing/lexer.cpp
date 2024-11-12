@@ -46,29 +46,29 @@ using namespace std::string_literals;
 #define SHIFT_TOKENIZER_ERROR_PREFIX(_line_, _col_)     "error: " << SHIFT_TOKENIZER_FILE_PREFIX << ":" << line << ":" << col << ": "
 #define SHIFT_TOKENIZER_WARNING_PREFIX(_line_, _col_)   "warning: " << SHIFT_TOKENIZER_FILE_PREFIX << ":" << line << ":" << col << ": "
 
-#define SHIFT_TOKENIZER_ERROR_LOG(__ERR__)         if(m_error_handler) this->m_error_handler->stream() << __ERR__ << '\n', this->m_error_handler->flush_stream(error_handler::message_type::error)
+#define SHIFT_TOKENIZER_ERROR_LOG(__ERR__)         if(m_error_handler) err_stream << __ERR__ << '\n', err_stream.flush(error_handler::message_type::error)
 #define SHIFT_TOKENIZER_FATAL_ERROR_LOG(__ERR__)  SHIFT_TOKENIZER_ERROR_LOG(__ERR__); if(m_error_handler) this->m_error_handler->print_exit_clear()
 
-#define SHIFT_TOKENIZER_WARNING_LOG(__ERR__)         if(m_error_handler) this->m_error_handler->stream() << __ERR__ << '\n', this->m_error_handler->flush_stream(error_handler::message_type::warning)
+#define SHIFT_TOKENIZER_WARNING_LOG(__ERR__)         if(m_error_handler) err_stream << __ERR__ << '\n', err_stream.flush(error_handler::message_type::warning)
 
 #define SHIFT_TOKENIZER_ERROR(_line_, _col_, _len_, __ERR__) \
 if(this->m_error_handler) {\
-    this->m_error_handler->stream() << SHIFT_TOKENIZER_ERROR_PREFIX(_line_, _col_) << __ERR__ << '\n'; this->m_error_handler->flush_stream(error_handler::message_type::error);\
+    err_stream << SHIFT_TOKENIZER_ERROR_PREFIX(_line_, _col_) << __ERR__ << '\n'; err_stream.flush(error_handler::message_type::error);\
     std::string_view __temp_line; shift_tokenizer_get_full_line(__temp_line); SHIFT_TOKENIZER_ERROR_LOG(__temp_line);\
-    this->m_error_handler->stream() << std::string((_col_)-1, ' ');\
-    this->m_error_handler->stream() << std::string(_len_, '^');\
-    this->m_error_handler->stream() << '\n';\
-    this->m_error_handler->flush_stream(error_handler::message_type::error);\
+    err_stream << std::string((_col_)-1, ' ');\
+    err_stream << std::string(_len_, '^');\
+    err_stream << '\n';\
+    err_stream.flush(error_handler::message_type::error);\
 }
 
 #define SHIFT_TOKENIZER_WARNING(_line_, _col_, _len_, __ERR__) \
 if(this->m_error_handler) {\
-    this->m_error_handler->stream() << SHIFT_TOKENIZER_WARNING_PREFIX(_line_, _col_) << __ERR__ << '\n'; this->m_error_handler->flush_stream(error_handler::message_type::warning);\
+    err_stream << SHIFT_TOKENIZER_WARNING_PREFIX(_line_, _col_) << __ERR__ << '\n'; err_stream.flush(error_handler::message_type::warning);\
     std::string_view __temp_line; shift_tokenizer_get_full_line(__temp_line); SHIFT_TOKENIZER_WARNING_LOG(__temp_line);\
-    this->m_error_handler->stream() << std::string((_col_)-1, ' ');\
-    this->m_error_handler->stream() << std::string(_len_, '^');\
-    this->m_error_handler->stream() << '\n';\
-    this->m_error_handler->flush_stream(error_handler::message_type::warning);\
+    err_stream << std::string((_col_)-1, ' ');\
+    err_stream << std::string(_len_, '^');\
+    err_stream << '\n';\
+    err_stream.flush(error_handler::message_type::warning);\
 }
 
 #define SHIFT_TOKENIZER_FATAL_ERROR(_line_, _col_, _len_, __ERR__)         SHIFT_TOKENIZER_ERROR(_line_, _col_, _len_, __ERR__); if(m_error_handler) this->m_error_handler->print_exit_clear()
@@ -145,7 +145,7 @@ namespace shift::compiler::lexing {
             size_t last_line = 0; // index of character after last \n
             char current = this->m_filedata.empty() ? char(0x0) : this->m_filedata[0]; // Current character (i.e. cursor)
             size_t i, line, col; // index (starts at 0), line # (starts at 1), column # (starts at 1)
-
+            error_stream err_stream(*m_error_handler);
             this->m_lines.reserve(
                 std::reduce(this->m_filedata.begin(), this->m_filedata.end(), size_t(1),
                     [](size_t acc, char a) {
