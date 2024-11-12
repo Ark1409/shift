@@ -46,7 +46,7 @@ private static class private extern namer {
         }
         while(5) {
             7+3;
-            7-3; // fix in tokenizer
+            7-3; // fix in lexer
         }
         {
             bool my_bool = true + false;

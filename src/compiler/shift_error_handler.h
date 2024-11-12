@@ -5,6 +5,7 @@
 #define SHIFT_ERROR_HANDLER_H_ 1
 
 #include "utils/utils.h"
+#include "compiler/marker.h"
 
 #include <deque>
 #include <stack>
@@ -15,7 +16,7 @@
 namespace shift::compiler {
     class error_handler {
     public:
-        enum message_type {
+        enum class message_type {
             error = 0x1, // Represents an error message from the compiler.
             warning, // Represents a warning message from the compiler.
             info
@@ -25,13 +26,13 @@ namespace shift::compiler {
     public:
         error_handler() = default;
 
-        inline error_handler(const error_handler&) noexcept;
+        inline error_handler(const error_handler&);
 
         error_handler(error_handler&&) noexcept = default;
 
         ~error_handler() noexcept = default;
 
-        SHIFT_API error_handler& operator=(const error_handler&) noexcept;
+        SHIFT_API error_handler& operator=(const error_handler&);
 
         error_handler& operator=(error_handler&&) noexcept = default;
 
@@ -95,6 +96,24 @@ namespace shift::compiler {
 
         inline bool is_warning() const noexcept { return is_print_warnings(); }
 
+        inline const std::deque<message_pair_type>& get_messages() const noexcept { return this->m_messages; }
+
+    private:
+        bool m_warnings = false, m_werror = false;
+        std::deque<message_pair_type> m_messages;
+        std::ostringstream m_message_stream;
+
+        friend struct marker<error_handler>;
+    };
+
+    inline error_handler::error_handler(const error_handler& other) : m_warnings(other.m_warnings), m_werror(other.m_werror),
+                                                                      m_messages(other.m_messages),
+                                                                      m_message_stream(other.m_message_stream.str()) {}
+
+    template<>
+    struct marker<error_handler> : marker_helper<error_handler, std::deque<error_handler::message_pair_type>::size_type> {
+        explicit marker(error_handler& e) : marker_helper(e) {}
+
         /**
          * Adds a mark to the current list of warnings and errors. Calling this method multiple times
          * will not replace previous marks. Instead, they are added into a stack, with the most
@@ -102,78 +121,57 @@ namespace shift::compiler {
          *
          * @see rollback()
          */
-        inline void mark() noexcept { this->m_marks.push(this->m_messages.size()); } // Mark current warnings and errors
+        inline void mark() { this->m_marks.push(this->m_markee.get_messages().size()); } // Mark current warnings and errors
 
         /**
          * Rolls back to the most recent mark, popping it off the stack to remove it from further use.
          */
-        SHIFT_API void rollback() noexcept; // Rollback to last mark and pop mark off stack
+        void rollback() {
+            if (this->m_marks.empty()) return;
 
-        inline void pop_mark() { return pop_marks(1); }
+            const auto mark = this->m_marks.top();
 
-        inline void pop_marks(std::stack<std::deque<message_pair_type>::size_type>::size_type count = -1) noexcept {
-            utils::pop_stack(this->m_marks, count);
+            this->m_markee.m_messages.resize(std::min(mark, this->m_markee.get_messages().size()));
+
+            this->m_marks.pop();
         }
-
-        inline const std::stack<std::deque<message_pair_type>::size_type>& get_marks() const noexcept { return this->m_marks; }
-
-        inline std::deque<message_pair_type>& get_messages() noexcept { return this->m_messages; }
-
-        inline const std::deque<message_pair_type>& get_messages() const noexcept { return this->m_messages; }
-
-    private:
-        bool m_warnings = false, m_werror = false;
-        std::deque<message_pair_type> m_messages;
-        std::stack<std::deque<message_pair_type>::size_type> m_marks;
-        std::ostringstream m_message_stream;
     };
 
-    inline error_handler::error_handler(const error_handler& other) noexcept : m_warnings(other.m_warnings), m_werror(other.m_werror),
-                                                                               m_messages(other.m_messages), m_marks(other.m_marks),
-                                                                               m_message_stream(other.m_message_stream.str()) {}
+    constexpr error_handler::message_type operator^(const error_handler::message_type f, const error_handler::message_type other) noexcept {
+        return error_handler::message_type(std::underlying_type_t<error_handler::message_type>(f) ^
+                                           std::underlying_type_t<error_handler::message_type>(other));
+    }
 
+    constexpr error_handler::message_type& operator^=(error_handler::message_type& f, const error_handler::message_type other) noexcept {
+        return f = operator^(f, other);
+    }
+
+    constexpr error_handler::message_type operator|(const error_handler::message_type f, const error_handler::message_type other) noexcept {
+        return error_handler::message_type(std::underlying_type_t<error_handler::message_type>(f) |
+                                           std::underlying_type_t<error_handler::message_type>(other));
+    }
+
+    constexpr error_handler::message_type& operator|=(error_handler::message_type& f, const error_handler::message_type other) noexcept {
+        return f = operator|(f, other);
+    }
+
+    constexpr error_handler::message_type operator&(const error_handler::message_type f, const error_handler::message_type other) noexcept {
+        return error_handler::message_type(std::underlying_type_t<error_handler::message_type>(f) &
+                                           std::underlying_type_t<error_handler::message_type>(other));
+    }
+
+    constexpr error_handler::message_type& operator&=(error_handler::message_type& f, const error_handler::message_type other) noexcept {
+        return f = operator&(f, other);
+    }
+
+    constexpr error_handler::message_type operator~(const error_handler::message_type f) noexcept {
+        return error_handler::message_type(~std::underlying_type_t<error_handler::message_type>(f));
+    }
 }
 
 inline std::ostream& operator<<(std::ostream& out, const shift::compiler::error_handler& handler) {
     handler.print(false, out, out);
     return out;
-}
-
-constexpr shift::compiler::error_handler::message_type operator^(const shift::compiler::error_handler::message_type f,
-    const shift::compiler::error_handler::message_type other) noexcept {
-    return shift::compiler::error_handler::message_type(std::underlying_type_t<shift::compiler::error_handler::message_type>(f) ^
-                                                        std::underlying_type_t<shift::compiler::error_handler::message_type>(other));
-}
-
-constexpr shift::compiler::error_handler::message_type& operator^=(shift::compiler::error_handler::message_type& f,
-    const shift::compiler::error_handler::message_type other) noexcept {
-    return f = operator^(f, other);
-}
-
-constexpr shift::compiler::error_handler::message_type operator|(const shift::compiler::error_handler::message_type f,
-    const shift::compiler::error_handler::message_type other) noexcept {
-    return shift::compiler::error_handler::message_type(std::underlying_type_t<shift::compiler::error_handler::message_type>(f) |
-                                                        std::underlying_type_t<shift::compiler::error_handler::message_type>(other));
-}
-
-constexpr shift::compiler::error_handler::message_type& operator|=(shift::compiler::error_handler::message_type& f,
-    const shift::compiler::error_handler::message_type other) noexcept {
-    return f = operator|(f, other);
-}
-
-constexpr shift::compiler::error_handler::message_type operator&(const shift::compiler::error_handler::message_type f,
-    const shift::compiler::error_handler::message_type other) noexcept {
-    return shift::compiler::error_handler::message_type(std::underlying_type_t<shift::compiler::error_handler::message_type>(f) &
-                                                        std::underlying_type_t<shift::compiler::error_handler::message_type>(other));
-}
-
-constexpr shift::compiler::error_handler::message_type& operator&=(shift::compiler::error_handler::message_type& f,
-    const shift::compiler::error_handler::message_type other) noexcept {
-    return f = operator&(f, other);
-}
-
-constexpr shift::compiler::error_handler::message_type operator~(const shift::compiler::error_handler::message_type f) noexcept {
-    return shift::compiler::error_handler::message_type(~std::underlying_type_t<shift::compiler::error_handler::message_type>(f));
 }
 
 #endif /* SHIFT_ERROR_HANDLER_H_ */

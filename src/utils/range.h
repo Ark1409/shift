@@ -6,6 +6,7 @@
 #include <initializer_list>
 #include <optional>
 #include <ranges>
+#include <memory>
 
 namespace shift::utils {
     /**
@@ -19,6 +20,7 @@ namespace shift::utils {
         typedef Sentinel sentinel_type;
         typedef std::iter_value_t<iterator_type> value_type;
         typedef std::iter_reference_t<iterator_type> reference;
+        typedef std::remove_reference_t<reference>* pointer;
         typedef std::iter_difference_t<iterator_type> difference_type;
         typedef typename std::iterator_traits<iterator_type>::iterator_category iterator_category;
 
@@ -88,6 +90,29 @@ namespace shift::utils {
 
     template<typename Iterator, typename ValueT>
     concept iter_of = std::convertible_to<std::iter_value_t<Iterator>, ValueT>;
+
+    template<typename T, typename CategoryTag = std::random_access_iterator_tag>
+    struct value_iterator {
+        typedef T value_type;
+        typedef value_type& reference;
+        typedef std::remove_reference_t<reference>* pointer;
+        typedef std::ptrdiff_t difference_type;
+        typedef CategoryTag iterator_category;
+
+    private:
+        struct iter_base {
+            virtual iter_base& operator++() = 0;
+
+            virtual iter_base& operator++(int) = 0;
+
+            virtual reference operator*() = 0;
+
+            virtual pointer operator->() = 0;
+        };
+
+    private:
+        std::unique_ptr<iter_base> m_iter;
+    };
 }
 
 template<std::input_or_output_iterator Iterator, std::sentinel_for<Iterator> Sentinel>

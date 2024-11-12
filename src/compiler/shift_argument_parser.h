@@ -74,13 +74,13 @@ namespace shift {
                 FLAG_NO_FLAGS = 0x0 /**< FLAG_NO_FLAGS */
             };
         public:
-            /// Constructs argument parser from command-line argc and argv
+            /// Constructs argument parsing from command-line argc and argv
             SHIFT_API argument_parser(error_handler* const, const size_t argc = 0, const char* const* const argv = nullptr) noexcept;
 
-            /// Constructs argument parser from array of arguments
+            /// Constructs argument parsing from array of arguments
             inline argument_parser(error_handler* const, const std::vector<std::string_view>& args) noexcept;
 
-            /// Constructs argument parser from array of arguments
+            /// Constructs argument parsing from array of arguments
             inline argument_parser(error_handler* const, std::vector<std::string_view>&& args) noexcept;
 
             /// Copy constructor
@@ -183,7 +183,7 @@ namespace shift {
             inline void set_error_handler(error_handler* const error_handler) noexcept { m_error_handler = error_handler; }
 
         protected:
-            /// Used by the argument parser for error handling
+            /// Used by the argument parsing for error handling
             error_handler* m_error_handler = nullptr;
 
             /// Compiler flags set by the user

@@ -437,7 +437,7 @@ TEST(ShiftParser, ShouldParseFunctionDeclaration) {
                     EXPECT_EQ(param_var.name->get_data(), "a"sv);
                     EXPECT_EQ(param_name, "a"sv);
                     EXPECT_TRUE(param_var.type.dimensions.empty());
-                    EXPECT_EQ(param_var.type.mods, shift_mods::NONE);
+                    EXPECT_EQ(param_var.type.shift_mods, shift_mods::NONE);
                     ++param_it;
                 }
                 {
@@ -478,7 +478,7 @@ TEST(ShiftParser, ShouldParseFunctionDeclaration) {
                     auto& [param_name, param_var] = *param_it;
                     EXPECT_EQ(param_var.type.name.name.to_string(), "shift.string"sv);
                     EXPECT_TRUE(param_var.type.dimensions.empty());
-                    EXPECT_EQ(param_var.type.mods, shift_mods::NONE);
+                    EXPECT_EQ(param_var.type.shift_mods, shift_mods::NONE);
                     ++param_it;
                 }
                 {
@@ -502,7 +502,7 @@ TEST(ShiftParser, ShouldParseFunctionDeclaration) {
                     }
                     EXPECT_EQ(param_var.name->get_data(), "b"sv);
                     EXPECT_EQ(param_name, "b"sv);
-                    EXPECT_EQ(param_var.type.mods, shift_mods::IMUT);
+                    EXPECT_EQ(param_var.type.shift_mods, shift_mods::IMUT);
                     ++param_it;
                 }
             }
@@ -686,7 +686,7 @@ TEST(ShiftParser, ShouldParseExternFunctionDeclaration) {
                 EXPECT_TRUE(func.parameters.empty());
                 EXPECT_TRUE(func.statements.empty());
                 EXPECT_EQ(func.module_->to_string(), "test"sv);
-                EXPECT_EQ(func.mods, shift_mods::EXTERN);
+                EXPECT_EQ(func.shift_mods, shift_mods::EXTERN);
                 ++func_it;
             }
             {
@@ -694,7 +694,7 @@ TEST(ShiftParser, ShouldParseExternFunctionDeclaration) {
                 EXPECT_EQ(func.return_type.name.name.to_string(), "int"sv);
                 EXPECT_EQ(func.name.to_string(), "testfunc"sv);
                 EXPECT_EQ(func.module_->to_string(), "test"sv);
-                EXPECT_EQ(func.mods, shift_mods::EXTERN);
+                EXPECT_EQ(func.shift_mods, shift_mods::EXTERN);
                 {
                     ASSERT_EQ(func.parameters.size(), 2);
 
@@ -705,7 +705,7 @@ TEST(ShiftParser, ShouldParseExternFunctionDeclaration) {
                         EXPECT_EQ(param_var.name->get_data(), "a"sv);
                         EXPECT_EQ(param_name, "a"sv);
                         EXPECT_TRUE(param_var.type.dimensions.empty());
-                        EXPECT_EQ(param_var.type.mods, shift_mods::NONE);
+                        EXPECT_EQ(param_var.type.shift_mods, shift_mods::NONE);
                         ++param_it;
                     }
                     {
@@ -714,7 +714,7 @@ TEST(ShiftParser, ShouldParseExternFunctionDeclaration) {
                         EXPECT_TRUE(param_var.type.dimensions.empty());
                         EXPECT_EQ(param_var.name->get_data(), "b"sv);
                         EXPECT_EQ(param_name, "b"sv);
-                        EXPECT_EQ(param_var.type.mods, shift_mods::NONE);
+                        EXPECT_EQ(param_var.type.shift_mods, shift_mods::NONE);
                         ++param_it;
                     }
                 }
@@ -736,7 +736,7 @@ TEST(ShiftParser, ShouldParseExternFunctionDeclaration) {
                 }
                 EXPECT_EQ(func.name.to_string(), "do_something"sv);
                 EXPECT_EQ(func.module_->to_string(), "test"sv);
-                EXPECT_EQ(func.mods, shift_mods::EXTERN);
+                EXPECT_EQ(func.shift_mods, shift_mods::EXTERN);
                 {
                     ASSERT_EQ(func.parameters.size(), 1);
 
@@ -744,7 +744,7 @@ TEST(ShiftParser, ShouldParseExternFunctionDeclaration) {
                     {
                         auto& [param_name, param_var] = *param_it;
                         EXPECT_EQ(param_var.type.name.name.to_string(), "int"sv);
-                        EXPECT_EQ(param_var.type.mods, shift_mods::NONE);
+                        EXPECT_EQ(param_var.type.shift_mods, shift_mods::NONE);
                         EXPECT_EQ(param_var.type.ref_type, shift_type::reference_type::ref);
                         ++param_it;
                     }
@@ -773,7 +773,7 @@ TEST(ShiftParser, ShouldParseExternFunctionDeclaration) {
                 }
                 EXPECT_EQ(func.name.to_string(), "helper"sv);
                 EXPECT_EQ(func.module_->to_string(), "test"sv);
-                EXPECT_EQ(func.mods, shift_mods::EXTERN);
+                EXPECT_EQ(func.shift_mods, shift_mods::EXTERN);
                 EXPECT_TRUE(func.parameters.empty());
                 {
                     EXPECT_TRUE(func.statements.empty());
@@ -928,7 +928,7 @@ TEST(ShiftParser, ShouldParseConstructorDeclaration) {
                     auto& ctor = *ctor_it;
                     EXPECT_TRUE(ctor.parameters.empty());
                     EXPECT_TRUE(ctor.statements.empty());
-                    EXPECT_EQ(ctor.mods, shift_mods::NONE);
+                    EXPECT_EQ(ctor.shift_mods, shift_mods::NONE);
                     ++ctor_it;
                 }
                 {
@@ -943,7 +943,7 @@ TEST(ShiftParser, ShouldParseConstructorDeclaration) {
                             EXPECT_EQ(param_var.name->get_data(), "a"sv);
                             EXPECT_EQ(param_name, "a"sv);
                             EXPECT_TRUE(param_var.type.dimensions.empty());
-                            EXPECT_EQ(param_var.type.mods, shift_mods::NONE);
+                            EXPECT_EQ(param_var.type.shift_mods, shift_mods::NONE);
                             ++param_it;
                         }
                         {
@@ -952,13 +952,13 @@ TEST(ShiftParser, ShouldParseConstructorDeclaration) {
                             EXPECT_TRUE(param_var.type.dimensions.empty());
                             EXPECT_EQ(param_var.name->get_data(), "b"sv);
                             EXPECT_EQ(param_name, "b"sv);
-                            EXPECT_EQ(param_var.type.mods, shift_mods::NONE);
+                            EXPECT_EQ(param_var.type.shift_mods, shift_mods::NONE);
                             EXPECT_EQ(param_var.type.ref_type, shift_type::reference_type::ref);
                             ++param_it;
                         }
                     }
                     EXPECT_TRUE(ctor.statements.empty());
-                    EXPECT_EQ(ctor.mods, shift_mods::PUBLIC);
+                    EXPECT_EQ(ctor.shift_mods, shift_mods::PUBLIC);
                     ++ctor_it;
                 }
                 {
@@ -973,7 +973,7 @@ TEST(ShiftParser, ShouldParseConstructorDeclaration) {
                             EXPECT_EQ(param_var.name->get_data(), "a"sv);
                             EXPECT_EQ(param_name, "a"sv);
                             EXPECT_TRUE(param_var.type.dimensions.empty());
-                            EXPECT_EQ(param_var.type.mods, shift_mods::NONE);
+                            EXPECT_EQ(param_var.type.shift_mods, shift_mods::NONE);
                             ++param_it;
                         }
                         {
@@ -982,7 +982,7 @@ TEST(ShiftParser, ShouldParseConstructorDeclaration) {
                             EXPECT_TRUE(param_var.type.dimensions.empty());
                             EXPECT_EQ(param_var.name->get_data(), "b"sv);
                             EXPECT_EQ(param_name, "b"sv);
-                            EXPECT_EQ(param_var.type.mods, shift_mods::IMUT);
+                            EXPECT_EQ(param_var.type.shift_mods, shift_mods::IMUT);
                             ++param_it;
                         }
                         {
@@ -1012,12 +1012,12 @@ TEST(ShiftParser, ShouldParseConstructorDeclaration) {
                             }
                             EXPECT_EQ(param_var.name->get_data(), "c"sv);
                             EXPECT_EQ(param_name, "c"sv);
-                            EXPECT_EQ(param_var.type.mods, shift_mods::NONE);
+                            EXPECT_EQ(param_var.type.shift_mods, shift_mods::NONE);
                             ++param_it;
                         }
                     }
                     EXPECT_TRUE(ctor.statements.empty());
-                    EXPECT_EQ(ctor.mods, shift_mods::EXTERN);
+                    EXPECT_EQ(ctor.shift_mods, shift_mods::EXTERN);
                     ++ctor_it;
                 }
 

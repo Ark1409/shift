@@ -19,14 +19,33 @@ add_library(
         src/compiler/shift_argument_parser.cpp
         src/compiler/shift_compiler.cpp
         src/compiler/shift_error_handler.cpp
-        src/compiler/shift_parser.cpp
-        src/compiler/shift_tokenizer.cpp
-        src/compiler/shift_analyzer.cpp
+        src/compiler/parsing/parser.cpp
+        src/compiler/lexing/lexer.cpp
+        src/compiler/analyzing/analyzer.cpp
         src/filesystem/directory.cpp
         src/filesystem/drive.cpp
         src/filesystem/file.cpp
         src/logging/console.cpp
         src/utils/utils.cpp
+        src/compiler/marker.h
+        src/compiler/parsing/parser_fwd.h
+        src/compiler/parsing/parser_types.h
+        src/compiler/parsing/parser_types.cpp
+        src/utils/iterator_wrapper.h
+        src/compiler/analyzing/type_info.h
+        src/compiler/analyzing/name_info.h
+        src/compiler/analyzing/analyzer_fwd.h
+        src/compiler/analyzing/type_info.cpp
+        src/compiler/parsing/types.h
+        src/compiler/parsing/types.cpp
+        src/compiler/parsing/types_fwd.h
+        src/compiler/parsing/parser_types_fwd.h
+        src/utils/variant.h
+        src/utils/type_traits.h
+        src/utils/compare.h
+        src/utils/containers.h
+        src/utils/utility.h
+        src/utils/strings.h
 )
 
 # Create base library for project

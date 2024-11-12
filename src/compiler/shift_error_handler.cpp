@@ -10,10 +10,9 @@
 
 /** Namespace shift */
 namespace shift::compiler {
-    SHIFT_API error_handler& error_handler::operator=(const error_handler& other) noexcept {
+    SHIFT_API error_handler& error_handler::operator=(const error_handler& other) {
         this->m_messages = other.m_messages;
         this->m_message_stream.str(other.m_message_stream.str());
-        this->m_marks = other.m_marks;
         return *this;
     }
 
@@ -116,15 +115,5 @@ namespace shift::compiler {
         return std::count_if(this->m_messages.cbegin(), this->m_messages.cend(), [](const message_pair_type& p) {
             return p.second == message_type::warning;
         });
-    }
-
-    SHIFT_API void error_handler::rollback() noexcept {
-        if (this->m_marks.empty()) return;
-
-        const auto mark = this->m_marks.top();
-
-        this->m_messages.resize(std::min(mark, this->m_messages.size()));
-
-        this->m_marks.pop();
     }
 }
