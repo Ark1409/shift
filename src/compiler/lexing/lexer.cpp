@@ -97,13 +97,13 @@ namespace shift::compiler::lexing {
         // TODO may have to change if we allow tokens to take up more than one line (e.g. multi line strings)
         auto it = std::lower_bound(this->m_tokens.cbegin(), this->m_tokens.cend(), index,
             [](const token& token, const file_position index) {
-                auto token_indexer = token.get_file_index();
+                auto token_indexer = token.get_file_position();
                 return token_indexer.line == index.line ? token_indexer.col + token.get_data().length() <= index.col : token_indexer.line <
                                                                                                                        index.line;
             });
         if (it == this->m_tokens.cend()) { return this->m_tokens.cend(); }
 
-        auto it_indexer = it->get_file_index();
+        auto it_indexer = it->get_file_position();
 
         if (index.col < it_indexer.col || index.col >= it_indexer.col + it->get_data().length()) { return this->m_tokens.cend(); }
 
@@ -113,7 +113,7 @@ namespace shift::compiler::lexing {
     SHIFT_API lexer::const_iterator lexer::position_before(const file_position index) const noexcept {
         auto it = std::lower_bound(this->m_tokens.cbegin(), this->m_tokens.cend(), index,
             [](const token& token, const file_position index) {
-                return token.get_file_index() < index;
+                return token.get_file_position() < index;
             });
 
         if (it == this->m_tokens.cbegin() || it == this->m_tokens.cend()) return this->m_tokens.cend();
@@ -123,7 +123,7 @@ namespace shift::compiler::lexing {
     SHIFT_API lexer::const_iterator lexer::position_after(const file_position index) const noexcept {
         auto it = std::upper_bound(this->m_tokens.cbegin(), this->m_tokens.cend(), index,
             [](const file_position index, const token& token) {
-                return index < token.get_file_index();
+                return index < token.get_file_position();
             });
 
         if (it == this->m_tokens.cend()) return this->m_tokens.cend();
@@ -157,7 +157,7 @@ namespace shift::compiler::lexing {
                         shift_tokenizer_next_line();
                         // col++; // col will be incremented to 1 by shift_tokenizer_advance_() in the for loop
                     } else if (shift_tokenizer_current_equal('\t')) {
-                        col += 3; // tabs are 4 spaces. col will be incremented the 4th time by shift_tokenizer_advance_() in the for loop
+                        col += get_tab_size() - 1;
                     }
                     continue;
                 }

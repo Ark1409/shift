@@ -49,14 +49,14 @@ namespace shift::compiler {
 
             SHIFT_API const_iterator position_after(file_position index) const noexcept;
 
-            inline const_iterator position_at(const token& tok) const noexcept { return position_at(tok.get_file_index()); }
+            inline const_iterator position_at(const token& tok) const noexcept { return position_at(tok.get_file_position()); }
 
             inline const_iterator position_before(const token& tok) const noexcept {
-                return position_before(tok.get_file_index());
+                return position_before(tok.get_file_position());
             }
 
             inline const_iterator position_after(const token& tok) const noexcept {
-                return position_after(tok.get_file_index());
+                return position_after(tok.get_file_position());
             }
 
             inline const token& token_at(const const_iterator it) const noexcept {
@@ -84,6 +84,9 @@ namespace shift::compiler {
             inline const error_handler* get_error_handler() const noexcept {
                 return m_error_handler;
             }
+
+
+            inline std::size_t get_tab_size() const noexcept { return 4; }
 
         private:
             error_handler* m_error_handler;
