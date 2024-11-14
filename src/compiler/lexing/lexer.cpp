@@ -6,9 +6,6 @@
 #include <algorithm>
 #include <numeric>
 
-using namespace std::string_view_literals;
-using namespace std::string_literals;
-
 #define shift_tokenizer_can_peek(__peek_count) (((i)+(__peek_count)) < (filesize))
 #define shift_tokenizer_can_peek_() shift_tokenizer_can_peek(1)
 #define shift_tokenizer_peek(__peek_count) ((i + (__peek_count)) >= filesize ? char(0x0) : this->m_filedata[i+(__peek_count)])
@@ -72,6 +69,9 @@ if(this->m_error_handler) {\
 }
 
 #define SHIFT_TOKENIZER_FATAL_ERROR(_line_, _col_, _len_, __ERR__)         SHIFT_TOKENIZER_ERROR(_line_, _col_, _len_, __ERR__); if(m_error_handler) this->m_error_handler->print_exit_clear()
+
+using namespace std::string_view_literals;
+using namespace std::string_literals;
 
 /** Namespace shift */
 namespace shift::compiler::lexing {

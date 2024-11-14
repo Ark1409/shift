@@ -124,17 +124,21 @@ namespace shift::compiler::parsing {
 
         std::optional<parser_type> parse_type(std::string_view);
 
-        void token_error(const lexing::token& lexing::token_, const std::string_view msg);
+        std::string token_underline(const lexing::token&);
 
-        void token_error(const lexing::token& lexing::token_, const std::string& msg);
+        std::string token_message_header(std::string_view type, const token&);
 
-        void token_error(const lexing::token& lexing::token_, const char* const msg);
+        void token_error(const lexing::token& token_, const std::string_view msg);
 
-        void token_warning(const lexing::token& lexing::token_, const std::string_view msg);
+        void token_error(const lexing::token& token_, const std::string& msg);
 
-        void token_warning(const lexing::token& lexing::token_, const std::string& msg);
+        void token_error(const lexing::token& token_, const char* const msg);
 
-        void token_warning(const lexing::token& lexing::token_, const char* const msg);
+        void token_warning(const lexing::token& token_, const std::string_view msg);
+
+        void token_warning(const lexing::token& token_, const std::string& msg);
+
+        void token_warning(const lexing::token& token_, const char* const msg);
 
         std::string_view get_line(const lexing::token&) const noexcept;
 

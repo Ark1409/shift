@@ -9,43 +9,6 @@
 #include <algorithm>
 #include <vector>
 
-#define SHIFT_PARSER_FILE_PREFIX                (this->m_lexer->get_file() == "<internal>"sv ? "<internal>"sv : (std::string_view)std::filesystem::relative(this->m_lexer->get_file().raw_path()).string())
-
-#define SHIFT_PARSER_ERROR_PREFIX                "error: " << SHIFT_PARSER_FILE_PREFIX << ": " // std::filesystem::relative call every time probably isn't that optimal
-#define SHIFT_PARSER_WARNING_PREFIX            "warning: " << SHIFT_PARSER_FILE_PREFIX << ": " // std::filesystem::relative call every time probably isn't that optimal
-
-#define SHIFT_PARSER_ERROR_PREFIX_EXT_(__line__, __col__) "error: " << SHIFT_PARSER_FILE_PREFIX << ":" << __line__ << ":" << __col__ << ": " // std::filesystem::relative call every time probably isn't that optimal
-#define SHIFT_PARSER_WARNING_PREFIX_EXT_(__line__, __col__) "warning: " << SHIFT_PARSER_FILE_PREFIX << ":" << __line__ << ":" << __col__ << ": " // std::filesystem::relative call every time probably isn't that optimal
-
-#define SHIFT_PARSER_ERROR_PREFIX_EXT(__token) SHIFT_PARSER_ERROR_PREFIX_EXT_((__token).get_file_index().line, (__token).get_file_index().col)
-#define SHIFT_PARSER_WARNING_PREFIX_EXT(__token) SHIFT_PARSER_WARNING_PREFIX_EXT_((__token).get_file_index().line, (__token).get_file_index().col)
-
-#define SHIFT_PARSER_PRINT() this->m_error_handler->print_exit_clear()
-
-#define SHIFT_PARSER_WARNING(__WARN__)            this->m_error_handler->stream() << SHIFT_PARSER_WARNING_PREFIX << __WARN__ << '\n'; this->m_error_handler->flush_stream(shift::compiler::error_handler::message_type::warning)
-#define SHIFT_PARSER_FATAL_WARNING(__WARN__)        SHIFT_PARSER_WARNING(__WARN__); SHIFT_PARSER_PRINT()
-
-#define SHIFT_PARSER_WARNING_LOG(__WARN__)        this->m_error_handler->stream() << __WARN__ << '\n'; this->m_error_handler->flush_stream(shift::compiler::error_handler::message_type::warning)
-#define SHIFT_PARSER_FATAL_WARNING_LOG(__WARN__)  SHIFT_PARSER_WARNING_LOG(__WARN__); SHIFT_PARSER_PRINT()
-
-#define SHIFT_PARSER_ERROR(__ERR__)            this->m_error_handler->stream() << SHIFT_PARSER_ERROR_PREFIX << __ERR__ << '\n'; this->m_error_handler->flush_stream(shift::compiler::error_handler::message_type::error)
-#define SHIFT_PARSER_FATAL_ERROR(__ERR__)        SHIFT_PARSER_ERROR(__ERR__); SHIFT_PARSER_PRINT()
-
-#define SHIFT_PARSER_ERROR_LOG(__ERR__)        this->m_error_handler->stream() << __ERR__ << '\n'; this->m_error_handler->flush_stream(shift::compiler::error_handler::message_type::error)
-#define SHIFT_PARSER_FATAL_ERROR_LOG(__ERR__)  SHIFT_PARSER_ERROR_LOG(__ERR__); SHIFT_PARSER_PRINT()
-
-#define SHIFT_PARSER_WARNING_(__token, __WARN__)    this->m_error_handler->stream() << SHIFT_PARSER_WARNING_PREFIX_EXT(__token) << __WARN__ << '\n'; this->m_error_handler->flush_stream(shift::compiler::error_handler::message_type::warning)
-#define SHIFT_PARSER_FATAL_WARNING_(__token, __WARN__)        SHIFT_PARSER_WARNING(__token, __WARN__); SHIFT_PARSER_PRINT()
-
-#define SHIFT_PARSER_WARNING_LOG_(__WARN__)        this->m_error_handler->stream() << __WARN__ << '\n'; this->m_error_handler->flush_stream(shift::compiler::error_handler::message_type::warning)
-#define SHIFT_PARSER_FATAL_WARNING_LOG_(__WARN__)  SHIFT_PARSER_WARNING_LOG_(__WARN__); SHIFT_PARSER_PRINT()
-
-#define SHIFT_PARSER_ERROR_(__token, __ERR__)            this->m_error_handler->stream() << SHIFT_PARSER_ERROR_PREFIX_EXT(__token) << __ERR__ << '\n'; this->m_error_handler->flush_stream(shift::compiler::error_handler::message_type::error)
-#define SHIFT_PARSER_FATAL_ERROR_(__token, __ERR__)        SHIFT_PARSER_ERROR_(__token, __ERR__); SHIFT_PARSER_PRINT()
-
-#define SHIFT_PARSER_ERROR_LOG_(__ERR__)        this->m_error_handler->stream() << __ERR__ << '\n'; this->m_error_handler->flush_stream(shift::compiler::error_handler::message_type::error)
-#define SHIFT_PARSER_FATAL_ERROR_LOG_(__ERR__)  SHIFT_PARSER_ERROR_LOG_(__ERR__); SHIFT_PARSER_PRINT()
-
 using namespace std::string_view_literals;
 using namespace shift::compiler::lexing;
 
@@ -2299,77 +2262,101 @@ namespace shift::compiler::parsing {
     }
 
     const token& parser::skip_before(const std::string_view str) noexcept {
-        m_skip_until(str);
+        skip_until(str);
         return this->m_lexer->reverse_token();
     }
 
     const token& parser::skip_before(const std::string& str) noexcept {
-        return m_skip_before(std::string_view(str.data(), str.length()));
+        return skip_before(std::string_view(str.data(), str.length()));
     }
 
-    const token& parser::skip_before(const char* const str) noexcept { return m_skip_before(std::string_view(str, std::strlen(str))); }
+    const token& parser::skip_before(const char* const str) noexcept { return skip_before(std::string_view(str, std::strlen(str))); }
 
     const token& parser::skip_before(const typename token::type type) noexcept {
-        m_skip_until(type);
+        skip_until(type);
         return this->m_lexer->reverse_token();
     }
 
-    void parser::token_error(const token& token_, const std::string_view msg) {
-        if (!this->m_error_handler) return;
-        SHIFT_PARSER_ERROR_(token_, msg);
-        std::string line = std::string(this->m_get_line(token_));
-        size_t use_col = token_.get_file_index().col;
-        std::for_each(line.begin(), line.end(), [&use_col](char& ch) {
-            if (ch == '\t') {
-                ch = ' ';
-                use_col -= 3;
+    std::string parser::token_message_header(const std::string_view type, const token& tok) {
+        std::string err;
+        lexing::file_position file_pos = tok.get_file_position();
+        err += type;
+        err += ": ";
+        err += m_lexer->get_file() == "<internal>"sv ? "<internal>"sv
+                                                     : (std::string_view) std::filesystem::relative(
+                this->m_lexer->get_file().raw_path()).string();
+        err += ':';
+        err += std::to_string(file_pos.line);
+        err += ':';
+        err += std::to_string(file_pos.col);
+        err += ": ";
+        return err;
+    }
+
+    std::string parser::token_underline(const lexing::token& tok) {
+        // TODO Change underline algorithm if tokens are able to take up more than one line (e.g. multi-line string)
+        auto line = std::string(this->get_line(tok));
+
+        std::size_t use_col = tok.get_file_position().col;
+
+        {
+            const auto tab_size = m_lexer->get_tab_size();
+            for (char& ch : line) {
+                if (ch == '\t') {
+                    ch = ' ';
+                    use_col -= tab_size;
+                }
             }
-        });
+        }
 
         std::string indexer(use_col - 1, ' ');
-        indexer.append(token_.get_data().size(), '^');
-        SHIFT_PARSER_ERROR_LOG(line);
-        SHIFT_PARSER_ERROR_LOG(indexer);
+        indexer.append(tok.get_data().length(), '^');
+        return line + '\n' + indexer;
+    }
+
+    void parser::token_error(const token& tok, const std::string_view msg) {
+        if (!this->m_error_handler) return;
+
+        std::string err = token_message_header("error", tok);
+
+        err += msg;
+        err += '\n';
+        err += token_underline(tok);
+
+        m_error_handler->add_error(std::move(err));
     }
 
     void parser::token_error(const token& token_, const std::string& msg) {
-        return m_token_error(token_, std::string_view(msg.c_str(), msg.length()));
+        return token_error(token_, std::string_view{ msg });
     }
 
     void parser::token_error(const token& token_, const char* const msg) {
-        return m_token_error(token_, std::string_view(msg, std::strlen(msg)));
+        return token_error(token_, std::string_view{ msg });
     }
 
-    void parser::token_warning(const token& token_, const std::string_view msg) {
+    void parser::token_warning(const token& tok, const std::string_view msg) {
         if (!this->m_error_handler) return;
         if (!this->m_error_handler->is_print_warnings()) return;
-        SHIFT_PARSER_WARNING_(token_, msg);
-        std::string line = std::string(this->m_get_line(token_));
-        size_t use_col = token_.get_file_index().col;
-        std::for_each(line.begin(), line.end(), [&use_col](char& ch) {
-            if (ch == '\t') {
-                ch = ' ';
-                use_col -= 3;
-            }
-        });
 
-        std::string indexer(use_col - 1, ' ');
-        indexer.append(token_.get_data().size(), '^');
+        std::string err = token_message_header("warning", tok);
 
-        SHIFT_PARSER_WARNING_LOG(line);
-        SHIFT_PARSER_WARNING_LOG(indexer);
+        err += msg;
+        err += '\n';
+        err += token_underline(tok);
+
+        m_error_handler->add_warning(std::move(err));
     }
 
     void parser::token_warning(const token& token_, const std::string& msg) {
-        return m_token_warning(token_, std::string_view(msg.c_str(), msg.length()));
+        return token_warning(token_, std::string_view{ msg });
     }
 
     void parser::token_warning(const token& token_, const char* const msg) {
-        return m_token_warning(token_, std::string_view(msg, std::strlen(msg)));
+        return token_warning(token_, std::string_view{ msg });
     }
 
     std::string_view parser::get_line(const token& token_) const noexcept {
-        return this->m_lexer->get_lines()[token_.get_file_index().line - 1];
+        return this->m_lexer->get_lines()[token_.get_file_position().line - 1];
     }
 
     bool parser::is_module_defined() const noexcept { return this->m_module.get() && this->m_module->depth() > 0; }
@@ -2422,7 +2409,7 @@ namespace shift::compiler::parsing {
             default: {
                 // i = 5 + 3; -> should be -> (i) = (5 + 3); | if = had more priority -> (i = 5) + (3)
                 return (type & lexing::token::type::EQUALS) == lexing::token::type::EQUALS ?
-                       operator_priority(type & ~token_type::EQUALS, prefix) - base_priority : 0x0;
+                       operator_priority(type & ~token::type::EQUALS, prefix) - base_priority : 0x0;
             }
         }
     }
