@@ -4,6 +4,12 @@ cmake_minimum_required(VERSION 3.21)
 # Set the project name for tests
 project(shift-test)
 
+# Make sure shift base target is already being built
+if(NOT TARGET shift)
+    message(FATAL_ERROR "Cannot build shift-test target in a standalone fashion, the shift base project must first be built.\
+     Please use the CMakeLists.txt file from the parent project.")
+endif()
+
 # Include FetchContent for repository cloning
 include(FetchContent)
 
