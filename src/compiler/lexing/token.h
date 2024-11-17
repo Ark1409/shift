@@ -7,6 +7,9 @@
 #include <string_view>
 #include <string>
 
+#include "compiler/mods.h"
+#include "utils/enum.h"
+
 namespace shift::compiler::lexing {
     struct file_position {
         size_t line{}, col{};
@@ -137,7 +140,7 @@ namespace shift::compiler::lexing {
 
         constexpr std::string_view get_data() const noexcept { return this->m_data; }
 
-        constexpr file_position get_file_index() const noexcept { return this->m_index; }
+        constexpr file_position get_file_position() const noexcept { return this->m_index; }
 
         constexpr type get_token_type() const noexcept { return this->m_type; }
 
@@ -233,9 +236,8 @@ namespace shift::compiler::lexing {
 
         constexpr bool is_explicit() const noexcept { return (this->is_identifier()) && (this->m_data == "explicit"); }
 
-        constexpr bool is_access_specifier() const noexcept {
-            return this->is_public() || this->is_protected() || this->is_private() || this->is_static() || this->is_const()
-                   || this->is_extern() || this->is_binary() || this->is_unsafe() || this->is_explicit() || this->is_imut();
+        constexpr bool is_modifier() const noexcept {
+            return to_mod(get_data()) != shift_mods::NONE;
         }
 
         constexpr bool is_overloadable_operator() const noexcept {
@@ -322,7 +324,9 @@ namespace shift::compiler::lexing {
                    || this->is_constructor() || this->is_destructor() || this->is_this() || this->is_base() || this->is_if()
                    || this->is_else() || this->is_while() || this->is_do() || this->is_return() || this->is_continue()
                    || this->is_break() || this->is_for() || this->is_true() || this->is_false() || this->is_new()
-                   || this->is_del() || this->is_access_specifier() || this->is_ref() || this->is_tref() || this->is_auto()
+                   || this->is_del() ||
+                   this->is_modifier() || this->is_ref() ||
+                   this->is_tref() || this->is_auto()
                    || this->is_imut() || this->is_mv() || this->is_cp() || this->is_var() || this->is_null()
                    || this->is_throw() || this->is_explicit();
         }
@@ -412,7 +416,7 @@ namespace shift::compiler::lexing {
 
     private:
         std::string_view m_data;
-        type m_type{ type::NULL_TOKEN };
+        type m_type{type::NULL_TOKEN};
         file_position m_index{};
     };
 
@@ -453,7 +457,7 @@ namespace shift::compiler::lexing {
     }
 
     constexpr token::type operator|(const token::type f, const token::type other) noexcept {
-        return token::type(std::underlying_type_t<token::type>(f) | std::underlying_type_t<token::type>(other));
+        return token::type(utils::to_underlying(f) | utils::to_underlying(other));
     }
 
     constexpr token::type& operator|=(token::type& f, const token::type other) noexcept {
@@ -461,7 +465,7 @@ namespace shift::compiler::lexing {
     }
 
     constexpr token::type operator&(const token::type f, const token::type other) noexcept {
-        return token::type(std::underlying_type_t<token::type>(f) & std::underlying_type_t<token::type>(other));
+        return token::type(utils::to_underlying(f) & utils::to_underlying(other));
     }
 
     constexpr token::type& operator&=(token::type& f, const token::type other) noexcept {
@@ -469,7 +473,7 @@ namespace shift::compiler::lexing {
     }
 
     constexpr token::type operator~(const token::type f) noexcept {
-        return token::type(~std::underlying_type_t<token::type>(f));
+        return token::type(~utils::to_underlying(f));
     }
 }
 

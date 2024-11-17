@@ -26,16 +26,16 @@
 #endif
 
 #ifdef SHIFT_SUBSYSTEM_WINDOWS
-	// Windows
-    // Also works with MinGW
+// Windows
+// Also works with MinGW
 #	define SHIFT_EXPORT __declspec(dllexport)
 #	define SHIFT_IMPORT __declspec(dllimport)
 #elif defined(__GNUC__)
-    //  GCC (unix)
+//  GCC (unix)
     #define SHIFT_EXPORT __attribute__((visibility("default")))
     #define SHIFT_IMPORT
 #else
-	// Other (unkown)
+// Other (unkown)
 #	define SHIFT_EXPORT
 #	define SHIFT_IMPORT
 #endif
@@ -57,6 +57,15 @@
 #	define SHIFT_API
 #else
 #	error Either SHIFT_BUILD_STATIC or SHIFT_BUILD_DLL must be defined
+#endif
+
+#ifdef SHIFT_DEBUG
+
+#   include <cassert>
+
+#   define SHIFT_ASSERT(x) assert(x)
+#else
+#   define SHIFT_ASSERT(x)
 #endif
 
 #endif /* SHIFT_CONFIG_H_ */

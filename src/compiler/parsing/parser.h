@@ -77,7 +77,7 @@ namespace shift::compiler::parsing {
 
         inline const auto& get_global_uses() const noexcept { return m_global_uses; }
 
-        SHIFT_API static uint_fast8_t operator_priority(const lexing::token::type type, const bool prefix = false) noexcept;
+        SHIFT_API static std::uint8_t operator_priority(const lexing::token::type type, const bool prefix = false) noexcept;
 
 #ifdef SHIFT_DEBUG
 
@@ -86,15 +86,15 @@ namespace shift::compiler::parsing {
 #endif
 
     private:
-        void parse_access_specifier();
+        void parse_modifier(parse_state& state);
 
         void parse_use(parse_state&);
 
         void parse_use(parse_state&, utils::ordered_set<parser_module>&);
 
-        void parse_module();
+        void parse_module(parse_state& state);
 
-        void parse_class(parser_class* parent_class = nullptr);
+        void parse_class(parse_state& state, parser_class* parent_class = nullptr);
 
         parser_function* parse_function_header(parser_class* parent_class, parser_type& return_type);
 
@@ -103,30 +103,32 @@ namespace shift::compiler::parsing {
             parser_type& type);
 
         // void parse_class(parser_class&);
-        void parse_function(parser_function&);
+        void parse_function(parse_state& state, parser_function&);
 
         void
-        parse_function_block(parser_function&, utils::ideque<parser_statement>&, size_t count = -1);
+        parse_function_block(parse_state& state, parser_function&, utils::ideque<parser_statement>&, size_t count = -1);
 
         void parse_body(parse_state&, parser_class* = nullptr);
 
-        parser_expression
-        parse_expression(const utils::predicate<std::vector<token>::const_iterator>& end_func);
+        shift_expression
+        parse_expression(parse_state& state, const utils::predicate<std::vector<token>::const_iterator>& end_func);
 
-        inline parser_expression
-        parse_expression(const lexing::token::type end_type = lexing::token::type::SEMICOLON) {
+        inline shift_expression
+        parse_expression(parse_state& state, const lexing::token::type end_type = lexing::token::type::SEMICOLON) {
             return parse_expression([end_type](const std::vector<token>::const_iterator it) {
                 return it->get_token_type() == end_type;
             });
         }
 
-        parser_name parse_name(std::string_view);
+        token_group parse_name(parse_state& state, std::string_view name_type);
 
-        std::optional<parser_type> parse_type(std::string_view);
+        token_group expect_name(parse_state& state, std::string_view name_type);
+
+        std::optional<parser_type> parse_type(parse_state& state, std::string_view);
 
         std::string token_underline(const lexing::token&);
 
-        std::string token_message_header(std::string_view type, const token&);
+        std::string token_message_header(std::string_view type, const lexing::token&);
 
         void token_error(const lexing::token& token_, const std::string_view msg);
 
@@ -142,30 +144,6 @@ namespace shift::compiler::parsing {
 
         std::string_view get_line(const lexing::token&) const noexcept;
 
-        const lexing::token& skip_until(const std::string_view) noexcept;
-
-        const lexing::token& skip_until(const std::string&) noexcept;
-
-        const lexing::token& skip_until(const char* const) noexcept;
-
-        const lexing::token& skip_until(const typename lexing::token::type) noexcept;
-
-        const lexing::token& skip_after(const std::string_view) noexcept;
-
-        const lexing::token& skip_after(const std::string&) noexcept;
-
-        const lexing::token& skip_after(const char* const) noexcept;
-
-        const lexing::token& skip_after(const typename lexing::token::type) noexcept;
-
-        const lexing::token& skip_before(const std::string_view) noexcept;
-
-        const lexing::token& skip_before(const std::string&) noexcept;
-
-        const lexing::token& skip_before(const char* const) noexcept;
-
-        const lexing::token& skip_before(const typename lexing::token::type) noexcept;
-
         const lexing::token& skip_until_closing(const typename lexing::token::type) noexcept;
 
         bool is_module_defined() const noexcept;
@@ -175,7 +153,7 @@ namespace shift::compiler::parsing {
         const lexing::lexer* m_lexer;
 
         // Error handler (if desired)
-        error_handler* m_error_handler{ nullptr };
+        error_handler* m_error_handler{nullptr};
 
         // The current module for the file
         std::unique_ptr<parser_module> m_module;

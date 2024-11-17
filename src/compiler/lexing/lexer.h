@@ -90,7 +90,7 @@ namespace shift::compiler {
 
         private:
             error_handler* m_error_handler;
-            filesystem::file m_file{ std::string_view("<internal>") };
+            filesystem::file m_file{std::string_view("<internal>")};
             std::string m_filedata;
             std::vector<std::string_view> m_lines;
             std::vector<token> m_tokens;
@@ -143,15 +143,52 @@ namespace shift::compiler {
 
             inline void set_position(const_iterator pos) noexcept { this->m_cursor = pos; }
 
+            inline bool is_eof() const noexcept { return current_token().is_eof_token(); }
+
             inline const token& operator[](difference_type diff) const noexcept { return peek_token(diff); }
 
-        private:
-            [[nodiscard]] const token& as_token(const_iterator pos) const noexcept;
+            token_stream& operator+=(difference_type diff) noexcept {
+                next_token(diff);
+                return *this;
+            }
 
-            [[nodiscard]] const_iterator peek_position(difference_type count) const noexcept;
+            token_stream& operator-=(difference_type diff) noexcept {
+                reverse_token(diff);
+                return *this;
+            }
+
+            token_stream& operator++() noexcept { return *this += 1; }
+
+            token_stream& operator--() noexcept { return *this -= 1; }
+
+            const token& operator*() const noexcept { return current_token(); }
+
+            const token* operator->() const noexcept { return &current_token(); }
+
+            const token* operator+(difference_type diff) const noexcept { return &as_token(peek_position(diff)); }
+
+            const token* operator-(difference_type diff) const noexcept { return *this + -diff; }
+
+            template<std::predicate<const lexing::token&> Pred>
+            inline void skip_until(Pred&& p) {
+                for (; !p(current_token()); next_token());
+            }
+
+            void skip_until(token::type t) {
+                return skip_until([t](auto& tok) { return tok.get_token_type() == t; });
+            }
+
+            void skip_until(const std::string_view& v) {
+                return skip_until([v](auto& tok) { return tok.get_data() == v; });
+            }
 
         private:
-            const lexer* m_source{ nullptr };
+            [[nodiscard]] SHIFT_API const token& as_token(const_iterator pos) const noexcept;
+
+            [[nodiscard]] SHIFT_API const_iterator peek_position(difference_type count) const noexcept;
+
+        private:
+            const lexer* m_source{nullptr};
             const const_iterator m_begin, m_end;
             const_iterator m_cursor;
 

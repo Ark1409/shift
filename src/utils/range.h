@@ -27,17 +27,21 @@ namespace shift::utils {
 
         range() = default;
 
+        range(const range&) = default;
+
+        range(range&&) noexcept = default;
+
+        range& operator=(const range&) = default;
+
+        range& operator=(range&&) noexcept = default;
+
         range(iterator_type begin, sentinel_type end) : m_begin(begin), m_end(end) {}
 
-        template<std::ranges::borrowed_range R>
+        template<std::ranges::borrowed_range R> requires std::same_as<std::ranges::iterator_t<R>, Iterator>
         range(R&& r) : m_begin(std::ranges::begin(r)), m_end(std::ranges::end(r)) {}
 
-        template<std::ranges::borrowed_range R> requires std::ranges::sized_range<R>
+        template<std::ranges::borrowed_range R> requires std::same_as<std::ranges::iterator_t<R>, Iterator> && std::ranges::sized_range<R>
         range(R&& r) : m_begin(std::ranges::begin(r)), m_end(std::ranges::end(r)), m_size_cache(std::ranges::size(r)) {}
-
-        template<typename T>
-        range(std::initializer_list<T> list) :
-            m_begin(std::ranges::begin(list)), m_end(std::ranges::end(list)), m_size_cache(list.size()) {}
 
         reference operator[](difference_type index) const requires std::random_access_iterator<iterator_type> {
             return *(m_begin + index);
@@ -82,9 +86,6 @@ namespace shift::utils {
 
     template<std::ranges::borrowed_range R> requires std::ranges::sized_range<R>
     range(R&&) -> range<std::ranges::iterator_t<R>, std::ranges::sentinel_t<R>>;
-
-    template<typename T>
-    range(std::initializer_list<T>) -> range<typename std::initializer_list<T>::iterator>;
 
     template<typename R, typename ValueT>
     concept range_of = std::ranges::range<R> && std::convertible_to<std::ranges::range_value_t<R>, ValueT>;

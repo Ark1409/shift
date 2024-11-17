@@ -22,8 +22,8 @@
 #include <optional>
 
 namespace shift::compiler::parsing::detail {
-    template<template<typename> typename Transformer, typename Base, std::derived_from<Base>... ExprTs>
-    auto variant_type_generator() -> std::variant<Transformer < Base>, Transformer<ExprTs>
+    template<template<typename> typename Transformer, typename Base, std::derived_from<Base>... DerivedTs>
+    auto variant_type_generator() -> std::variant<Transformer < Base>, Transformer<DerivedTs>
 
     ...> {
     static_assert(false);
@@ -40,11 +40,13 @@ namespace shift::compiler::parsing {
 
         utils::range<lexing::token_stream::const_iterator> source;
 
+        bool panic{false};
+
         iterator begin() const { return source.begin(); }
 
         iterator end() const { return source.end(); }
 
-        /// @brief Obtains the length of the name in tokens.
+        /// @brief Obtains the length of the name in position.
         auto length() const { return source.size(); }
 
         bool empty() const { return source.empty(); }
@@ -69,6 +71,8 @@ namespace shift::compiler::parsing {
     struct parser_module : shift_module {
         using iterator = utils::iterator_wrapper<token_group::iterator>;
 
+        constexpr parser_module(const token_group& tg) : name(tg) {}
+
         token_group name;
 
         std::size_t depth() const override { return (name.length() + 1) / 2; }
@@ -86,25 +90,7 @@ namespace shift::compiler::parsing {
         SHIFT_API iterator end() const noexcept;
 
         const lexing::token& operator[](lexing::token_stream::size_type s) const { return *std::next(begin(), s); }
-
-        template<std::ranges::input_range R> requires utils::range_of<R, const lexing::token>
-        static parser_module from_source(R&& r);
-
-    private:
-        constexpr parser_module() noexcept = default;
     };
-
-    template<std::ranges::input_range R> requires utils::range_of<R, const lexing::token>
-    parser_module parser_module::from_source(R&& r) {
-        for (bool expect_dot = false; const lexing::token& tok : std::views::all(r)) {
-            if ((expect_dot && !tok.is_dot()) || (!expect_dot && !tok.is_identifier())) {
-                throw std::invalid_argument("shift_module::from_source");
-            }
-            expect_dot ^= 1;
-        }
-
-        return {{ utils::range(r) }};
-    }
 
     struct parser_type : shift_type {
         struct dimension {

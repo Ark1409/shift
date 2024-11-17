@@ -13,6 +13,7 @@
 #include "utils/utility.h"
 #include "utils/strings.h"
 #include "utils/range.h"
+#include "utils/enum.h"
 
 #include <chrono>
 #include <concepts>

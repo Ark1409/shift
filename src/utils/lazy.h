@@ -10,18 +10,20 @@
 namespace shift::utils {
     template<typename T>
     class lazy {
+    private:
+        struct monostate {};
     public:
         lazy() noexcept = default;
 
-        lazy(const std::function<T(void)>& generator) : m_data(generator) {}
+        lazy(const std::function<T(void)>& generator) : m_data(std::in_place_type<std::function<T(void)>>, generator) {}
 
-        lazy(std::function<T(void)>&& generator) : m_data(std::move(generator)) {}
+        lazy(std::function<T(void)>&& generator) : m_data(std::in_place_type<std::function<T(void)>>, std::move(generator)) {}
 
         T& get() {
             return std::visit(utils::visit_overloader{
                 [](T& t) { return t; },
                 [&](const std::function<T(void)>& gen) { return m_data.emplace(gen()); },
-                [](std::monostate) { throw std::bad_variant_access(); }
+                [](monostate) { throw std::bad_variant_access(); }
             }, m_data);
         }
 
@@ -29,7 +31,7 @@ namespace shift::utils {
             return std::visit(utils::visit_overloader{
                 [](const T& t) { return t; },
                 [&](const std::function<T(void)>& gen) { return m_data.emplace(gen()); },
-                [](std::monostate) { throw std::bad_variant_access(); }
+                [](monostate) { throw std::bad_variant_access(); }
             }, m_data);
         }
 
@@ -43,7 +45,7 @@ namespace shift::utils {
 
         const std::function<T(void)>& get_generator() const {
             return std::visit(utils::visit_overloader{
-                [](const std::function<T(void)>& gen) { return gen },
+                [](const std::function<T(void)>& gen) { return gen; },
                 [](auto&) { throw std::bad_variant_access(); }
             }, m_data);
         }
@@ -78,7 +80,7 @@ namespace shift::utils {
         explicit lazy(Args&& ... args) : m_data(std::in_place_type<T>, std::forward<Args>(args)...) {}
 
     private:
-        mutable std::variant<std::monostate, T, std::function<T(void)>> m_data;
+        mutable std::variant<monostate, T, std::function<T(void)>> m_data;
     };
 }
 

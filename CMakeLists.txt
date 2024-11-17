@@ -4,13 +4,25 @@ cmake_minimum_required(VERSION 3.21)
 # Needed for project VERSION
 cmake_policy(SET CMP0048 NEW)
 
+# Include FetchContent for repository cloning
+include(FetchContent)
+
 # Set the project with latest version
 project(shift VERSION 0.1.1)
 
 # Add option as to whether tests should be built (requires googletest download)
 option(SHIFT_TEST "Build shift tests" ON)
 
-# C++ settings
+# - Dependency fetch -
+
+# Fetch fmt library
+FetchContent_Declare(fmt
+        GIT_REPOSITORY https://github.com/fmtlib/fmt
+        GIT_TAG 0c9fce2ffefecfdce794e1859584e25877b7b592 # 11.0.2
+        GIT_PROGRESS true)
+FetchContent_MakeAvailable(fmt)
+
+# - Main library setup -
 
 # Create the compiler library for the project
 add_library(
@@ -47,24 +59,29 @@ add_library(
         src/utils/utility.h
         src/utils/strings.h
         src/utils/lazy.h
+        src/compiler/mods.cpp
+        src/utils/enum.h
 )
 
 # Create base library for project
 add_library("${PROJECT_NAME}::${PROJECT_NAME}" ALIAS ${PROJECT_NAME})
 
-# shift can only compile with c++20 and later
+# shift can only compile with c++20 or later
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_20)
 
 # Add includes for the project
 target_include_directories(${PROJECT_NAME} PUBLIC include src)
 
-# Add warnings and compile options for the project, flags depend on compiler
+# Add library dependencies for the project
+target_link_libraries(${PROJECT_NAME} PRIVATE fmt::fmt)
+
+# Add warnings and compile options for the project, flags dependent on compiler
 # Clang has clang-cl which accepts MSVC flags, so we need to check for that
 if((CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND CMAKE_CXX_COMPILER_FRONTEND_VARIANT MATCHES "GNU")
         OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")
     target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -Wpedantic -Wwrite-strings -Wformat=2 -Wformat-security
             -Wformat-nonliteral -Wformat-y2k -Wcast-align -Wcast-qual -Walloca -Walloc-zero -Wstringop-overflow=4 -Wpacked
-            -Wpointer-arith -Wredundant-decls -Wstack-protector -Wswitch-default -Wswitch -Wunreachable-code -Wunused
+            -Wpointer-arith -Wredundant-decls -Wstack-protector -Wswitch -Wunreachable-code -Wunused
             -Wunused-parameter -Wmissing-format-attribute -Wmissing-noreturn -Wdisabled-optimization -fmessage-length=0)
 elseif((CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND CMAKE_CXX_COMPILER_FRONTEND_VARIANT MATCHES "MSVC")
         OR (CMAKE_CXX_COMPILER_ID MATCHES "MSVC"))
@@ -90,6 +107,8 @@ if(WIN32)
     set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "")
 endif()
 
+# - Compiler executable target setup -
+
 # Set the executable file (runner) for the project
 add_executable(
         ${PROJECT_NAME}-runner
@@ -106,6 +125,8 @@ set_target_properties(${PROJECT_NAME}-runner PROPERTIES OUTPUT_NAME ${PROJECT_NA
 set_property(TARGET ${PROJECT_NAME}-runner ${PROJECT_NAME} PROPERTY RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bin)
 set_property(TARGET ${PROJECT_NAME}-runner ${PROJECT_NAME} PROPERTY LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib)
 set_property(TARGET ${PROJECT_NAME}-runner ${PROJECT_NAME} PROPERTY ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib)
+
+# - Tests -
 
 # Configure test project if testing is enabled
 if(SHIFT_TEST)

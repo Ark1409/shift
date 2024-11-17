@@ -14,8 +14,8 @@
 #define SHIFT_ANALYZER_ERROR_PREFIX_EXT_(__parser, __line__, __col__) "error: " << SHIFT_ANALYZER_FILE_PREFIX(__parser) << ":" << __line__ << ":" << __col__ << ": " // std::filesystem::relative call every time probably isn't that optimal
 #define SHIFT_ANALYZER_WARNING_PREFIX_EXT_(__parser, __line__, __col__) "warning: " << SHIFT_ANALYZER_FILE_PREFIX(__parser) << ":" << __line__ << ":" << __col__ << ": " // std::filesystem::relative call every time probably isn't that optimal
 
-#define SHIFT_ANALYZER_ERROR_PREFIX_EXT(__parser, __token) SHIFT_ANALYZER_ERROR_PREFIX_EXT_(__parser, (__token).get_file_index().line, (__token).get_file_index().col)
-#define SHIFT_ANALYZER_WARNING_PREFIX_EXT(__parser, __token) SHIFT_ANALYZER_WARNING_PREFIX_EXT_(__parser, (__token).get_file_index().line, (__token).get_file_index().col)
+#define SHIFT_ANALYZER_ERROR_PREFIX_EXT(__parser, __token) SHIFT_ANALYZER_ERROR_PREFIX_EXT_(__parser, (__token).get_file_position().line, (__token).get_file_position().col)
+#define SHIFT_ANALYZER_WARNING_PREFIX_EXT(__parser, __token) SHIFT_ANALYZER_WARNING_PREFIX_EXT_(__parser, (__token).get_file_position().line, (__token).get_file_position().col)
 
 #define SHIFT_ANALYZER_PRINT() this->m_error_handler->print_exit_clear()
 
@@ -128,7 +128,7 @@ namespace shift::compiler {
     static shift_module m_shift_module;
     static shift_class m_void_class, m_null_class;
 
-    // Storage for tokens needed for implementation
+    // Storage for position needed for implementation
     static std::vector<token> m_token_storage;
     static std::vector<token>::iterator m_void_token{};
     static std::vector<token>::iterator m_null_token{};
@@ -1700,7 +1700,7 @@ namespace shift::compiler {
                     return;
                 }
             } else {
-                // error, we have an identifier expression with no tokens
+                // error, we have an identifier expression with no position
             }
         } else if (expr->is_function_call() || expr->is_array()) {
             m_resolve_expression_dotted(expr, parent_scope, nullptr, silent);
@@ -2625,7 +2625,7 @@ namespace shift::compiler {
         if (!this->m_error_handler) return;
         SHIFT_ANALYZER_ERROR_(parser_, token_, msg);
         std::string line(this->m_get_line(parser_, token_));
-        size_t use_col = token_.get_file_index().col;
+        size_t use_col = token_.get_file_position().col;
         std::for_each(line.begin(), line.end(), [&use_col](char& ch) {
             if (ch == '\t') {
                 ch = ' ';
@@ -2652,7 +2652,7 @@ namespace shift::compiler {
         if (!this->m_error_handler->is_print_warnings()) return;
         SHIFT_ANALYZER_WARNING_(parser_, token_, msg);
         std::string line(this->m_get_line(parser_, token_));
-        size_t use_col = token_.get_file_index().col;
+        size_t use_col = token_.get_file_position().col;
         std::for_each(line.begin(), line.end(), [&use_col](char& ch) {
             if (ch == '\t') {
                 ch = ' ';
@@ -2679,7 +2679,7 @@ namespace shift::compiler {
         if (!this->m_error_handler) return;
         SHIFT_ANALYZER_ERROR_(parser_, *name.begin, msg);
         std::string line(this->m_get_line(parser_, *name.begin));
-        size_t use_col = name.begin->get_file_index().col;
+        size_t use_col = name.begin->get_file_position().col;
 
         for (auto cur = line.begin(); cur != line.begin() + use_col - 1; ++cur) {
             char& ch = *cur;
@@ -2690,8 +2690,8 @@ namespace shift::compiler {
         } // TODO deal with tabs
 
         std::string indexer(use_col - 1, ' ');
-        indexer.append((name.end - 1)->get_file_index().col + (name.end - 1)->get_data().size() -
-                       name.begin->get_file_index().col, '^');
+        indexer.append((name.end - 1)->get_file_position().col + (name.end - 1)->get_data().size() -
+                       name.begin->get_file_position().col, '^');
         SHIFT_ANALYZER_ERROR_LOG(line);
         SHIFT_ANALYZER_ERROR_LOG(indexer);
     }
@@ -2709,7 +2709,7 @@ namespace shift::compiler {
         if (!this->m_error_handler->is_print_warnings()) return;
         SHIFT_ANALYZER_WARNING_(parser_, *name.begin, msg);
         std::string line = std::string(this->m_get_line(parser_, *name.begin));
-        size_t use_col = name.begin->get_file_index().col;
+        size_t use_col = name.begin->get_file_position().col;
         std::for_each(line.begin(), line.end(), [&use_col](char& ch) {
             if (ch == '\t') {
                 ch = ' ';
@@ -2718,8 +2718,8 @@ namespace shift::compiler {
         });
 
         std::string indexer(use_col - 1, ' ');
-        indexer.append((name.end - 1)->get_file_index().col + (name.end - 1)->get_data().size() -
-                       name.begin->get_file_index().col, '^');
+        indexer.append((name.end - 1)->get_file_position().col + (name.end - 1)->get_data().size() -
+                       name.begin->get_file_position().col, '^');
         SHIFT_ANALYZER_WARNING_LOG(line);
         SHIFT_ANALYZER_WARNING_LOG(indexer);
     }
@@ -2781,6 +2781,6 @@ namespace shift::compiler {
     }
 
     std::string_view analyzer::m_get_line(const parser& p, const token& t) const noexcept {
-        return p.get_tokenizer()->get_lines()[t.get_file_index().line - 1];
+        return p.get_tokenizer()->get_lines()[t.get_file_position().line - 1];
     }
 }

@@ -94,7 +94,7 @@ namespace shift::compiler::lexing {
     }
 
     SHIFT_API lexer::const_iterator lexer::position_at(const file_position index) const noexcept {
-        // TODO may have to change if we allow tokens to take up more than one line (e.g. multi line strings)
+        // TODO may have to change if we allow position to take up more than one line (e.g. multi line strings)
         auto it = std::lower_bound(this->m_tokens.cbegin(), this->m_tokens.cend(), index,
             [](const token& token, const file_position index) {
                 auto token_indexer = token.get_file_position();
@@ -171,8 +171,8 @@ namespace shift::compiler::lexing {
 
                     shift_tokenizer_reverse_();
                     m_tokens.push_back(
-                        token(std::string_view(&this->m_filedata[old_i], i - old_i + 1), token::type::IDENTIFIER, { line,
-                                                                                                                    old_col }));
+                        token(std::string_view(&this->m_filedata[old_i], i - old_i + 1), token::type::IDENTIFIER, {line,
+                                                                                                                   old_col}));
                     continue;
                 }
 
@@ -197,7 +197,7 @@ namespace shift::compiler::lexing {
                         shift_tokenizer_reverse_();
                         m_tokens.push_back(
                             token(std::string_view(&this->m_filedata[old_i], i - old_i + 1), token::type::BINARY_LITERAL, {
-                                line, old_col }));
+                                line, old_col}));
                     } else if ((shift_tokenizer_current_equal('x') || shift_tokenizer_current_equal('X'))
                                && ((i - old_i) == 1 && this->m_filedata[old_i] == char('0'))) {
                         // hex number
@@ -211,89 +211,89 @@ namespace shift::compiler::lexing {
 
                         shift_tokenizer_reverse_();
                         m_tokens.push_back(
-                            token(std::string_view(&this->m_filedata[old_i], i - old_i + 1), token::type::HEX_LITERAL, { line,
-                                                                                                                         old_col }));
+                            token(std::string_view(&this->m_filedata[old_i], i - old_i + 1), token::type::HEX_LITERAL, {line,
+                                                                                                                        old_col}));
                     } else if (shift_tokenizer_current_equal('.')) {
                         for (shift_tokenizer_pre_advance_(); i < filesize && isdigit(current); shift_tokenizer_advance_());
 
                         if (shift_tokenizer_current_equal('f') || shift_tokenizer_current_equal('F')) {
                             m_tokens.push_back(
-                                token(std::string_view(&this->m_filedata[old_i], i - old_i + 1), token::type::FLOAT_LITERAL, { line,
-                                                                                                                               old_col }));
+                                token(std::string_view(&this->m_filedata[old_i], i - old_i + 1), token::type::FLOAT_LITERAL, {line,
+                                                                                                                              old_col}));
                         } else if (shift_tokenizer_current_equal('d') || shift_tokenizer_current_equal('D')) {
                             m_tokens.push_back(
-                                token(std::string_view(&this->m_filedata[old_i], i - old_i + 1), token::type::DOUBLE_LITERAL, { line,
-                                                                                                                                old_col }));
+                                token(std::string_view(&this->m_filedata[old_i], i - old_i + 1), token::type::DOUBLE_LITERAL, {line,
+                                                                                                                               old_col}));
                         } else {
                             shift_tokenizer_reverse_();
                             m_tokens.push_back(
-                                token(std::string_view(&this->m_filedata[old_i], i - old_i + 1), token::type::FLOAT_LITERAL, { line,
-                                                                                                                               old_col }));
+                                token(std::string_view(&this->m_filedata[old_i], i - old_i + 1), token::type::FLOAT_LITERAL, {line,
+                                                                                                                              old_col}));
                         }
 
                     } else if (shift_tokenizer_current_equal('f') || shift_tokenizer_current_equal('F')) {
                         m_tokens.push_back(
-                            token(std::string_view(&this->m_filedata[old_i], i - old_i + 1), token::type::FLOAT_LITERAL, { line,
-                                                                                                                           old_col }));
+                            token(std::string_view(&this->m_filedata[old_i], i - old_i + 1), token::type::FLOAT_LITERAL, {line,
+                                                                                                                          old_col}));
                     } else if (shift_tokenizer_current_equal('d') || shift_tokenizer_current_equal('D')) {
                         m_tokens.push_back(
-                            token(std::string_view(&this->m_filedata[old_i], i - old_i + 1), token::type::DOUBLE_LITERAL, { line,
-                                                                                                                            old_col }));
+                            token(std::string_view(&this->m_filedata[old_i], i - old_i + 1), token::type::DOUBLE_LITERAL, {line,
+                                                                                                                           old_col}));
                     } else {
                         shift_tokenizer_reverse_();
                         m_tokens.push_back(
                             token(std::string_view(&this->m_filedata[old_i], i - old_i + 1), token::type::INTEGER_LITERAL, {
-                                line, old_col }));
+                                line, old_col}));
                     }
                     continue;
                 }
 
                 if (shift_tokenizer_current_equal(';')) {
-                    m_tokens.push_back(token(std::string_view(&this->m_filedata[i], 1), token::type::SEMICOLON, { line, col }));
+                    m_tokens.push_back(token(std::string_view(&this->m_filedata[i], 1), token::type::SEMICOLON, {line, col}));
                     continue;
                 }
 
                 if (shift_tokenizer_current_equal('!')) {
                     if (shift_tokenizer_char_equal(shift_tokenizer_peek_(), '=')) {
-                        m_tokens.push_back(token(std::string_view(&this->m_filedata[i], 2), token::type::NOT_EQUAL, { line, col }));
+                        m_tokens.push_back(token(std::string_view(&this->m_filedata[i], 2), token::type::NOT_EQUAL, {line, col}));
                         shift_tokenizer_advance_();
                     } else {
-                        m_tokens.push_back(token(std::string_view(&this->m_filedata[i], 1), token::type::NOT, { line, col }));
+                        m_tokens.push_back(token(std::string_view(&this->m_filedata[i], 1), token::type::NOT, {line, col}));
                     }
                     continue;
                 }
 
                 if (shift_tokenizer_current_equal('{')) {
                     m_tokens.push_back(
-                        token(std::string_view(&this->m_filedata[i], 1), token::type::LEFT_SCOPE_BRACKET, { line, col }));
+                        token(std::string_view(&this->m_filedata[i], 1), token::type::LEFT_SCOPE_BRACKET, {line, col}));
                     continue;
                 }
 
                 if (shift_tokenizer_current_equal('}')) {
                     m_tokens.push_back(
-                        token(std::string_view(&this->m_filedata[i], 1), token::type::RIGHT_SCOPE_BRACKET, { line, col }));
+                        token(std::string_view(&this->m_filedata[i], 1), token::type::RIGHT_SCOPE_BRACKET, {line, col}));
                     continue;
                 }
 
                 if (shift_tokenizer_current_equal('(')) {
-                    m_tokens.push_back(token(std::string_view(&this->m_filedata[i], 1), token::type::LEFT_BRACKET, { line, col }));
+                    m_tokens.push_back(token(std::string_view(&this->m_filedata[i], 1), token::type::LEFT_BRACKET, {line, col}));
                     continue;
                 }
 
                 if (shift_tokenizer_current_equal(')')) {
-                    m_tokens.push_back(token(std::string_view(&this->m_filedata[i], 1), token::type::RIGHT_BRACKET, { line, col }));
+                    m_tokens.push_back(token(std::string_view(&this->m_filedata[i], 1), token::type::RIGHT_BRACKET, {line, col}));
                     continue;
                 }
 
                 if (shift_tokenizer_current_equal('[')) {
                     m_tokens.push_back(
-                        token(std::string_view(&this->m_filedata[i], 1), token::type::LEFT_SQUARE_BRACKET, { line, col }));
+                        token(std::string_view(&this->m_filedata[i], 1), token::type::LEFT_SQUARE_BRACKET, {line, col}));
                     continue;
                 }
 
                 if (shift_tokenizer_current_equal(']')) {
                     m_tokens.push_back(
-                        token(std::string_view(&this->m_filedata[i], 1), token::type::RIGHT_SQUARE_BRACKET, { line, col }));
+                        token(std::string_view(&this->m_filedata[i], 1), token::type::RIGHT_SQUARE_BRACKET, {line, col}));
                     continue;
                 }
 
@@ -307,20 +307,20 @@ namespace shift::compiler::lexing {
 
                         if (shift_tokenizer_current_equal('f') || shift_tokenizer_current_equal('F')) {
                             m_tokens.push_back(
-                                token(std::string_view(&this->m_filedata[old_i], i - old_i + 1), token::type::FLOAT_LITERAL, { line,
-                                                                                                                               old_col }));
+                                token(std::string_view(&this->m_filedata[old_i], i - old_i + 1), token::type::FLOAT_LITERAL, {line,
+                                                                                                                              old_col}));
                         } else if (shift_tokenizer_current_equal('d') || shift_tokenizer_current_equal('D')) {
                             m_tokens.push_back(
-                                token(std::string_view(&this->m_filedata[old_i], i - old_i + 1), token::type::DOUBLE_LITERAL, { line,
-                                                                                                                                old_col }));
+                                token(std::string_view(&this->m_filedata[old_i], i - old_i + 1), token::type::DOUBLE_LITERAL, {line,
+                                                                                                                               old_col}));
                         } else {
                             shift_tokenizer_reverse_();
                             m_tokens.push_back(
-                                token(std::string_view(&this->m_filedata[old_i], i - old_i + 1), token::type::FLOAT_LITERAL, { line,
-                                                                                                                               old_col }));
+                                token(std::string_view(&this->m_filedata[old_i], i - old_i + 1), token::type::FLOAT_LITERAL, {line,
+                                                                                                                              old_col}));
                         }
                     } else {
-                        m_tokens.push_back(token(std::string_view(&this->m_filedata[i], 1), token::type::DOT, { line, col }));
+                        m_tokens.push_back(token(std::string_view(&this->m_filedata[i], 1), token::type::DOT, {line, col}));
                     }
                     continue;
                 }
@@ -333,56 +333,56 @@ namespace shift::compiler::lexing {
                     // (actually, not != or -=, since it could be:  "int i =! varName;" = "int i = !varName;" or "int i =- varName;" = "int i = -varName;")
 
                     if (shift_tokenizer_char_equal(next, '=')) {
-                        m_tokens.push_back(token(std::string_view(&this->m_filedata[i], 2), token::type::EQUALS_EQUALS, { line, col }));
+                        m_tokens.push_back(token(std::string_view(&this->m_filedata[i], 2), token::type::EQUALS_EQUALS, {line, col}));
                         shift_tokenizer_advance_();
                     } else if (shift_tokenizer_char_equal(next, '%')) {
-                        m_tokens.push_back(token(std::string_view(&this->m_filedata[i], 2), token::type::MODULO_EQUALS, { line, col }));
+                        m_tokens.push_back(token(std::string_view(&this->m_filedata[i], 2), token::type::MODULO_EQUALS, {line, col}));
                         shift_tokenizer_advance_();
                     } else if (shift_tokenizer_char_equal(next,
                         '*')) // If pointers are added into the language, =* might count as a dereferencing and not *=
                     {
                         m_tokens.push_back(
-                            token(std::string_view(&this->m_filedata[i], 2), token::type::MULTIPLY_EQUALS, { line, col }));
+                            token(std::string_view(&this->m_filedata[i], 2), token::type::MULTIPLY_EQUALS, {line, col}));
                         shift_tokenizer_advance_();
                     } else if (shift_tokenizer_char_equal(next,
                         '&')) // If pointers are added into the language, =& might count as 'getting a pointer to' and not &=
                     {
-                        m_tokens.push_back(token(std::string_view(&this->m_filedata[i], 2), token::type::AND_EQUALS, { line, col }));
+                        m_tokens.push_back(token(std::string_view(&this->m_filedata[i], 2), token::type::AND_EQUALS, {line, col}));
                         shift_tokenizer_advance_();
                     } else if (shift_tokenizer_char_equal(next, '|')) {
-                        m_tokens.push_back(token(std::string_view(&this->m_filedata[i], 2), token::type::OR_EQUALS, { line, col }));
+                        m_tokens.push_back(token(std::string_view(&this->m_filedata[i], 2), token::type::OR_EQUALS, {line, col}));
                         shift_tokenizer_advance_();
                     } else if (shift_tokenizer_char_equal(next, '^')) {
-                        m_tokens.push_back(token(std::string_view(&this->m_filedata[i], 2), token::type::XOR_EQUALS, { line, col }));
+                        m_tokens.push_back(token(std::string_view(&this->m_filedata[i], 2), token::type::XOR_EQUALS, {line, col}));
                         shift_tokenizer_advance_();
                     } else if (shift_tokenizer_char_equal(next, '<')) {
                         if (shift_tokenizer_char_equal(shift_tokenizer_peek(2), '<')) {
                             m_tokens.push_back(
-                                token(std::string_view(&this->m_filedata[i], 3), token::type::SHIFT_LEFT_EQUALS, { line, col }));
+                                token(std::string_view(&this->m_filedata[i], 3), token::type::SHIFT_LEFT_EQUALS, {line, col}));
                             shift_tokenizer_advance(2);
                         } else {
                             m_tokens.push_back(
-                                token(std::string_view(&this->m_filedata[i], 2), token::type::LESS_THAN_OR_EQUAL, { line, col }));
+                                token(std::string_view(&this->m_filedata[i], 2), token::type::LESS_THAN_OR_EQUAL, {line, col}));
                             shift_tokenizer_advance_();
                         }
 
                     } else if (shift_tokenizer_char_equal(next, '>')) {
                         if (shift_tokenizer_char_equal(shift_tokenizer_peek(2), '>')) {
                             m_tokens.push_back(
-                                token(std::string_view(&this->m_filedata[i], 3), token::type::SHIFT_RIGHT_EQUALS, { line, col }));
+                                token(std::string_view(&this->m_filedata[i], 3), token::type::SHIFT_RIGHT_EQUALS, {line, col}));
                             shift_tokenizer_advance(2);
                         } else {
                             m_tokens.push_back(
-                                token(std::string_view(&this->m_filedata[i], 2), token::type::GREATER_THAN_OR_EQUAL, { line,
-                                                                                                                       col }));
+                                token(std::string_view(&this->m_filedata[i], 2), token::type::GREATER_THAN_OR_EQUAL, {line,
+                                                                                                                      col}));
                             shift_tokenizer_advance_();
                         }
 
                     } else if (shift_tokenizer_char_equal(next, '/')) {
-                        m_tokens.push_back(token(std::string_view(&this->m_filedata[i], 2), token::type::DIVIDE_EQUALS, { line, col }));
+                        m_tokens.push_back(token(std::string_view(&this->m_filedata[i], 2), token::type::DIVIDE_EQUALS, {line, col}));
                         shift_tokenizer_advance_();
                     } else if (shift_tokenizer_char_equal(next, '+') && !shift_tokenizer_char_equal(shift_tokenizer_peek(2), '+')) {
-                        m_tokens.push_back(token(std::string_view(&this->m_filedata[i], 2), token::type::PLUS_EQUALS, { line, col }));
+                        m_tokens.push_back(token(std::string_view(&this->m_filedata[i], 2), token::type::PLUS_EQUALS, {line, col}));
                         shift_tokenizer_advance_();
                     }
                         //
@@ -396,7 +396,7 @@ namespace shift::compiler::lexing {
                         //                        shift_tokenizer_advance_();
                         //                    }
                     else {
-                        m_tokens.push_back(token(std::string_view(&this->m_filedata[i], 1), token::type::EQUALS, { line, col }));
+                        m_tokens.push_back(token(std::string_view(&this->m_filedata[i], 1), token::type::EQUALS, {line, col}));
                     }
                     continue;
                 }
@@ -404,13 +404,13 @@ namespace shift::compiler::lexing {
                 if (shift_tokenizer_current_equal('&')) {
                     const char next = shift_tokenizer_peek_();
                     if (shift_tokenizer_char_equal(next, '&')) {
-                        m_tokens.push_back(token(std::string_view(&this->m_filedata[i], 2), token::type::AND_AND, { line, col }));
+                        m_tokens.push_back(token(std::string_view(&this->m_filedata[i], 2), token::type::AND_AND, {line, col}));
                         shift_tokenizer_advance_();
                     } else if (shift_tokenizer_char_equal(next, '=')) {
-                        m_tokens.push_back(token(std::string_view(&this->m_filedata[i], 2), token::type::AND_EQUALS, { line, col }));
+                        m_tokens.push_back(token(std::string_view(&this->m_filedata[i], 2), token::type::AND_EQUALS, {line, col}));
                         shift_tokenizer_advance_();
                     } else {
-                        m_tokens.push_back(token(std::string_view(&this->m_filedata[i], 1), token::type::AND, { line, col }));
+                        m_tokens.push_back(token(std::string_view(&this->m_filedata[i], 1), token::type::AND, {line, col}));
                     }
                     continue;
                 }
@@ -418,13 +418,13 @@ namespace shift::compiler::lexing {
                 if (shift_tokenizer_current_equal('|')) {
                     const char next = shift_tokenizer_peek_();
                     if (shift_tokenizer_char_equal(next, '|')) {
-                        m_tokens.push_back(token(std::string_view(&this->m_filedata[i], 2), token::type::OR_OR, { line, col }));
+                        m_tokens.push_back(token(std::string_view(&this->m_filedata[i], 2), token::type::OR_OR, {line, col}));
                         shift_tokenizer_advance_();
                     } else if (shift_tokenizer_char_equal(next, '=')) {
-                        m_tokens.push_back(token(std::string_view(&this->m_filedata[i], 2), token::type::OR_EQUALS, { line, col }));
+                        m_tokens.push_back(token(std::string_view(&this->m_filedata[i], 2), token::type::OR_EQUALS, {line, col}));
                         shift_tokenizer_advance_();
                     } else {
-                        m_tokens.push_back(token(std::string_view(&this->m_filedata[i], 1), token::type::OR, { line, col }));
+                        m_tokens.push_back(token(std::string_view(&this->m_filedata[i], 1), token::type::OR, {line, col}));
                     }
 
                     continue;
@@ -432,37 +432,37 @@ namespace shift::compiler::lexing {
 
                 if (shift_tokenizer_current_equal('^')) {
                     if (shift_tokenizer_char_equal(shift_tokenizer_peek_(), '=')) {
-                        m_tokens.push_back(token(std::string_view(&this->m_filedata[i], 2), token::type::XOR_EQUALS, { line, col }));
+                        m_tokens.push_back(token(std::string_view(&this->m_filedata[i], 2), token::type::XOR_EQUALS, {line, col}));
                         shift_tokenizer_advance_();
                     } else {
-                        m_tokens.push_back(token(std::string_view(&this->m_filedata[i], 1), token::type::XOR, { line, col }));
+                        m_tokens.push_back(token(std::string_view(&this->m_filedata[i], 1), token::type::XOR, {line, col}));
                     }
 
                     continue;
                 }
 
                 if (shift_tokenizer_current_equal('?')) {
-                    m_tokens.push_back(token(std::string_view(&this->m_filedata[i], 1), token::type::QUESTION_MARK, { line, col }));
+                    m_tokens.push_back(token(std::string_view(&this->m_filedata[i], 1), token::type::QUESTION_MARK, {line, col}));
                     continue;
                 }
 
                 if (shift_tokenizer_current_equal('~')) {
-                    m_tokens.push_back(token(std::string_view(&this->m_filedata[i], 1), token::type::FLIP_BITS, { line, col }));
+                    m_tokens.push_back(token(std::string_view(&this->m_filedata[i], 1), token::type::FLIP_BITS, {line, col}));
                     continue;
                 }
 
                 if (shift_tokenizer_current_equal('\\')) {
-                    m_tokens.push_back(token(std::string_view(&this->m_filedata[i], 1), token::type::BACKSLASH, { line, col }));
+                    m_tokens.push_back(token(std::string_view(&this->m_filedata[i], 1), token::type::BACKSLASH, {line, col}));
                     continue;
                 }
 
                 if (shift_tokenizer_current_equal(':')) {
-                    m_tokens.push_back(token(std::string_view(&this->m_filedata[i], 1), token::type::COLON, { line, col }));
+                    m_tokens.push_back(token(std::string_view(&this->m_filedata[i], 1), token::type::COLON, {line, col}));
                     continue;
                 }
 
                 if (shift_tokenizer_current_equal(',')) {
-                    m_tokens.push_back(token(std::string_view(&this->m_filedata[i], 1), token::type::COMMA, { line, col }));
+                    m_tokens.push_back(token(std::string_view(&this->m_filedata[i], 1), token::type::COMMA, {line, col}));
                     continue;
                 }
 
@@ -470,13 +470,13 @@ namespace shift::compiler::lexing {
                     const char next = shift_tokenizer_peek_();
 
                     if (shift_tokenizer_char_equal(next, '=')) {
-                        m_tokens.push_back(token(std::string_view(&this->m_filedata[i], 2), token::type::MINUS_EQUALS, { line, col }));
+                        m_tokens.push_back(token(std::string_view(&this->m_filedata[i], 2), token::type::MINUS_EQUALS, {line, col}));
                         shift_tokenizer_advance_();
                     } else if (shift_tokenizer_char_equal(next, '-')) {
-                        m_tokens.push_back(token(std::string_view(&this->m_filedata[i], 2), token::type::MINUS_MINUS, { line, col }));
+                        m_tokens.push_back(token(std::string_view(&this->m_filedata[i], 2), token::type::MINUS_MINUS, {line, col}));
                         shift_tokenizer_advance_();
                     } else {
-                        m_tokens.push_back(token(std::string_view(&this->m_filedata[i], 1), token::type::MINUS, { line, col }));
+                        m_tokens.push_back(token(std::string_view(&this->m_filedata[i], 1), token::type::MINUS, {line, col}));
                     }
                     continue;
                 }
@@ -484,13 +484,13 @@ namespace shift::compiler::lexing {
                 if (shift_tokenizer_current_equal('+')) {
                     const char next = shift_tokenizer_peek_();
                     if (shift_tokenizer_char_equal(next, '=')) {
-                        m_tokens.push_back(token(std::string_view(&this->m_filedata[i], 2), token::type::PLUS_EQUALS, { line, col }));
+                        m_tokens.push_back(token(std::string_view(&this->m_filedata[i], 2), token::type::PLUS_EQUALS, {line, col}));
                         shift_tokenizer_advance_();
                     } else if (shift_tokenizer_char_equal(next, '+')) {
-                        m_tokens.push_back(token(std::string_view(&this->m_filedata[i], 2), token::type::PLUS_PLUS, { line, col }));
+                        m_tokens.push_back(token(std::string_view(&this->m_filedata[i], 2), token::type::PLUS_PLUS, {line, col}));
                         shift_tokenizer_advance_();
                     } else {
-                        m_tokens.push_back(token(std::string_view(&this->m_filedata[i], 1), token::type::PLUS, { line, col }));
+                        m_tokens.push_back(token(std::string_view(&this->m_filedata[i], 1), token::type::PLUS, {line, col}));
                     }
 
                     continue;
@@ -499,10 +499,10 @@ namespace shift::compiler::lexing {
                 if (shift_tokenizer_current_equal('*')) {
                     if (shift_tokenizer_char_equal(shift_tokenizer_peek_(), '=')) {
                         m_tokens.push_back(
-                            token(std::string_view(&this->m_filedata[i], 2), token::type::MULTIPLY_EQUALS, { line, col }));
+                            token(std::string_view(&this->m_filedata[i], 2), token::type::MULTIPLY_EQUALS, {line, col}));
                         shift_tokenizer_advance_();
                     } else {
-                        m_tokens.push_back(token(std::string_view(&this->m_filedata[i], 1), token::type::MULTIPLY, { line, col }));
+                        m_tokens.push_back(token(std::string_view(&this->m_filedata[i], 1), token::type::MULTIPLY, {line, col}));
                     }
 
                     continue;
@@ -512,20 +512,20 @@ namespace shift::compiler::lexing {
                     const char next = shift_tokenizer_peek_();
                     if (shift_tokenizer_char_equal(next, '=')) {
                         m_tokens.push_back(
-                            token(std::string_view(&this->m_filedata[i], 2), token::type::GREATER_THAN_OR_EQUAL, { line, col }));
+                            token(std::string_view(&this->m_filedata[i], 2), token::type::GREATER_THAN_OR_EQUAL, {line, col}));
                         shift_tokenizer_advance_();
                     } else if (shift_tokenizer_char_equal(next, '>')) {
                         if (shift_tokenizer_char_equal(shift_tokenizer_peek(2), '=')) {
                             m_tokens.push_back(
-                                token(std::string_view(&this->m_filedata[i], 3), token::type::SHIFT_RIGHT_EQUALS, { line, col }));
+                                token(std::string_view(&this->m_filedata[i], 3), token::type::SHIFT_RIGHT_EQUALS, {line, col}));
                             shift_tokenizer_advance(2);
                         } else {
                             m_tokens.push_back(
-                                token(std::string_view(&this->m_filedata[i], 2), token::type::SHIFT_RIGHT, { line, col }));
+                                token(std::string_view(&this->m_filedata[i], 2), token::type::SHIFT_RIGHT, {line, col}));
                             shift_tokenizer_advance_();
                         }
                     } else {
-                        m_tokens.push_back(token(std::string_view(&this->m_filedata[i], 1), token::type::GREATER_THAN, { line, col }));
+                        m_tokens.push_back(token(std::string_view(&this->m_filedata[i], 1), token::type::GREATER_THAN, {line, col}));
                     }
 
                     continue;
@@ -535,20 +535,20 @@ namespace shift::compiler::lexing {
                     const char next = shift_tokenizer_peek_();
                     if (shift_tokenizer_char_equal(next, '=')) {
                         m_tokens.push_back(
-                            token(std::string_view(&this->m_filedata[i], 2), token::type::LESS_THAN_OR_EQUAL, { line, col }));
+                            token(std::string_view(&this->m_filedata[i], 2), token::type::LESS_THAN_OR_EQUAL, {line, col}));
                         shift_tokenizer_advance_();
                     } else if (shift_tokenizer_char_equal(next, '<')) {
                         if (shift_tokenizer_char_equal(shift_tokenizer_peek(2), '=')) {
                             m_tokens.push_back(
-                                token(std::string_view(&this->m_filedata[i], 3), token::type::SHIFT_LEFT_EQUALS, { line, col }));
+                                token(std::string_view(&this->m_filedata[i], 3), token::type::SHIFT_LEFT_EQUALS, {line, col}));
                             shift_tokenizer_advance(2);
                         } else {
                             m_tokens.push_back(
-                                token(std::string_view(&this->m_filedata[i], 2), token::type::SHIFT_LEFT, { line, col }));
+                                token(std::string_view(&this->m_filedata[i], 2), token::type::SHIFT_LEFT, {line, col}));
                             shift_tokenizer_advance_();
                         }
                     } else {
-                        m_tokens.push_back(token(std::string_view(&this->m_filedata[i], 1), token::type::LESS_THAN, { line, col }));
+                        m_tokens.push_back(token(std::string_view(&this->m_filedata[i], 1), token::type::LESS_THAN, {line, col}));
                     }
 
                     continue;
@@ -556,10 +556,10 @@ namespace shift::compiler::lexing {
 
                 if (shift_tokenizer_current_equal('%')) {
                     if (shift_tokenizer_char_equal(shift_tokenizer_peek_(), '=')) {
-                        m_tokens.push_back(token(std::string_view(&this->m_filedata[i], 2), token::type::MODULO_EQUALS, { line, col }));
+                        m_tokens.push_back(token(std::string_view(&this->m_filedata[i], 2), token::type::MODULO_EQUALS, {line, col}));
                         shift_tokenizer_advance_();
                     } else {
-                        m_tokens.push_back(token(std::string_view(&this->m_filedata[i], 1), token::type::MODULO, { line, col }));
+                        m_tokens.push_back(token(std::string_view(&this->m_filedata[i], 1), token::type::MODULO, {line, col}));
                     }
 
                     continue;
@@ -586,10 +586,10 @@ namespace shift::compiler::lexing {
                         }
                         shift_tokenizer_advance_();
                     } else if (shift_tokenizer_char_equal(next, '=')) {
-                        m_tokens.push_back(token(std::string_view(&this->m_filedata[i], 2), token::type::DIVIDE_EQUALS, { line, col }));
+                        m_tokens.push_back(token(std::string_view(&this->m_filedata[i], 2), token::type::DIVIDE_EQUALS, {line, col}));
                         shift_tokenizer_advance_();
                     } else {
-                        m_tokens.push_back(token(std::string_view(&this->m_filedata[i], 1), token::type::DIVIDE, { line, col }));
+                        m_tokens.push_back(token(std::string_view(&this->m_filedata[i], 1), token::type::DIVIDE, {line, col}));
                     }
                     continue;
                 }
@@ -652,8 +652,8 @@ namespace shift::compiler::lexing {
                     }
 
                     m_tokens.push_back(
-                        token(std::string_view(&this->m_filedata[old_i], i - old_i + 1), token::type::STRING_LITERAL, { line,
-                                                                                                                        old_col }));
+                        token(std::string_view(&this->m_filedata[old_i], i - old_i + 1), token::type::STRING_LITERAL, {line,
+                                                                                                                       old_col}));
                     continue;
                 }
 
@@ -699,8 +699,8 @@ namespace shift::compiler::lexing {
                     }
 
                     m_tokens.push_back(
-                        token(std::string_view(&this->m_filedata[old_i], i - old_i + 1), token::type::CHAR_LITERAL, { line,
-                                                                                                                      old_col }));
+                        token(std::string_view(&this->m_filedata[old_i], i - old_i + 1), token::type::CHAR_LITERAL, {line,
+                                                                                                                     old_col}));
                     continue;
                 }
 
@@ -713,7 +713,7 @@ namespace shift::compiler::lexing {
         }
     }
 
-    [[nodiscard]] token_stream::const_iterator token_stream::peek_position(difference_type count) const noexcept {
+    [[nodiscard]] SHIFT_API token_stream::const_iterator token_stream::peek_position(difference_type count) const noexcept {
         const auto index = std::distance(m_begin, m_cursor);
         const auto len = std::distance(m_cursor, m_end);
         count = std::clamp(count, -index, len);
@@ -721,7 +721,7 @@ namespace shift::compiler::lexing {
     }
 
 
-    [[nodiscard]] const token& token_stream::as_token(token_stream::const_iterator pos) const noexcept {
+    [[nodiscard]] SHIFT_API const token& token_stream::as_token(token_stream::const_iterator pos) const noexcept {
         return pos == m_end ? token::eof : *pos;
     }
 }

@@ -75,8 +75,10 @@ namespace shift::compiler::parsing {
 
     SHIFT_API parser_module::iterator parser_module::begin() const noexcept {
         return { name.begin(),
-                 [](auto it, auto diff) {
-                     return std::next(it, diff * 2);
+                 [&](auto it, auto diff) {
+                     auto dis_beg = std::distance(name.begin(), it);
+                     auto dis_end = std::distance(it, name.end());
+                     return std::next(it, std::clamp(diff * 2, -dis_beg, dis_end));
                  },
                  [](auto a_it, auto b_it) {
                      return std::distance(a_it, b_it) / 2;
@@ -86,8 +88,10 @@ namespace shift::compiler::parsing {
 
     SHIFT_API parser_module::iterator parser_module::end() const noexcept {
         return { name.end(),
-                 [](auto it, auto diff) {
-                     return std::next(it, diff * 2);
+                 [&](auto it, auto diff) {
+                     auto dis_beg = std::distance(name.begin(), it);
+                     auto dis_end = std::distance(it, name.end());
+                     return std::next(it, std::clamp(diff * 2, -dis_beg, dis_end));
                  },
                  [](auto a_it, auto b_it) {
                      return std::distance(a_it, b_it) / 2;
