@@ -89,7 +89,7 @@ namespace shift::compiler::parsing {
 
         SHIFT_API iterator end() const noexcept;
 
-        const lexing::token& operator[](lexing::token_stream::size_type s) const { return *std::next(begin(), s); }
+        SHIFT_API const lexing::token& operator[](lexing::token_stream::size_type s) const;
     };
 
     struct parser_type : shift_type {
@@ -110,14 +110,14 @@ namespace shift::compiler::parsing {
 
         token_group name;
         std::vector<dimension> dimensions;
-        bool panic{ false };
+        bool panic{false};
 
         inline void add_pointer_dimensions(size_t count) {
-            dimensions.push_back({ .count = count, .type = dimension::dimension_type::pointer });
+            dimensions.push_back({.count = count, .type = dimension::dimension_type::pointer});
         }
 
         inline void add_array_dimensions(size_t count, size_t size = -1) {
-            dimensions.push_back({ .count = count, .type = dimension::dimension_type::array });
+            dimensions.push_back({.count = count, .type = dimension::dimension_type::array});
         }
 
         inline const std::vector<dimension>& get_dimensions() const noexcept { return dimensions; }
@@ -166,9 +166,9 @@ struct std::hash<shift::compiler::parsing::parser_type> {
 namespace shift::compiler::parsing {
     struct shift_expression {
         token_group source;
-        shift_expression* parent{ nullptr };
-        analyzing::type_info* type_info{ nullptr };
-        bool panic{ false };
+        shift_expression* parent{nullptr};
+        analyzing::type_info* type_info{nullptr};
+        bool panic{false};
 
         virtual ~shift_expression() noexcept = default;
 
@@ -178,7 +178,7 @@ namespace shift::compiler::parsing {
     };
 
     struct unary_expression : shift_expression {
-        lexing::token::type op{ lexing::token::type::NULL_TOKEN };
+        lexing::token::type op{lexing::token::type::NULL_TOKEN};
         enum { prefix, suffix } side;
         std::unique_ptr<shift_expression> sub_expr;
 
@@ -191,7 +191,7 @@ namespace shift::compiler::parsing {
     };
 
     struct binary_expression : shift_expression {
-        lexing::token::type op{ lexing::token::type::NULL_TOKEN };
+        lexing::token::type op{lexing::token::type::NULL_TOKEN};
         std::unique_ptr<shift_expression> left, right;
 
         void update_children() override {
@@ -335,7 +335,7 @@ namespace shift::compiler::parsing {
     template<std::derived_from<shift_expression> ExprT, typename... Args>
     std::unique_ptr<ExprT> make_expression(Args&& ... args) {
         // TODO arena allocator instead of default new
-        return std::unique_ptr(new ExprT{ std::forward<Args>(args)... });
+        return std::unique_ptr(new ExprT{std::forward<Args>(args)...});
     }
 
     SHIFT_TYPES_GENERATOR(expression, shift_expression, unary_expression, binary_expression, cp_expression, mv_expression,
@@ -344,7 +344,7 @@ namespace shift::compiler::parsing {
 
     struct parser_variable : shift_variable {
         parser_type type;
-        const lexing::token* name{ nullptr };
+        const lexing::token* name{nullptr};
         expression_types value;
         size_t implicit_use_statements = 0;
 
@@ -361,8 +361,8 @@ namespace shift::compiler::parsing {
 
     struct shift_statement {
         token_group source;
-        shift_statement* parent{ nullptr };
-        bool panic{ false };
+        shift_statement* parent{nullptr};
+        bool panic{false};
     };
 
     struct block_statement : shift_statement {
@@ -405,11 +405,11 @@ namespace shift::compiler::parsing {
     };
 
     struct continue_statement : shift_statement {
-        shift_statement* link{ nullptr };
+        shift_statement* link{nullptr};
     };
 
     struct break_statement : shift_statement {
-        shift_statement* link{ nullptr };
+        shift_statement* link{nullptr};
     };
 
     struct return_statement : shift_statement {
@@ -424,7 +424,7 @@ namespace shift::compiler::parsing {
         token_group base_name;
 
         // Name of the class
-        const lexing::token* name{ nullptr };
+        const lexing::token* name{nullptr};
 
         // Amount of implicit 'use' statements inherited from direct parent class (if this class is at the top level, this will be
         // the amount of 'use' statements in the global file scope)
@@ -444,7 +444,7 @@ namespace shift::compiler::parsing {
         // Variables representing 'this' and 'base'
         parser_variable this_var, base_var;
 
-        parser* parser_{ nullptr };
+        parser* parser_{nullptr};
 
         // Get the fully qualified name of this class
         // Class hierarchy for this class should be resolved prior to this
@@ -462,7 +462,7 @@ namespace shift::compiler::parsing {
     };
 
     struct parser_function : shift_function {
-        parser* parser_{ nullptr };
+        parser* parser_{nullptr};
         token_group name;
         parser_type return_type;
 

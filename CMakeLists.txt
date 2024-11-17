@@ -61,6 +61,7 @@ add_library(
         src/utils/lazy.h
         src/compiler/mods.cpp
         src/utils/enum.h
+        src/utils/optional.h
 )
 
 # Create base library for project

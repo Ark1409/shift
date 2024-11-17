@@ -14,6 +14,7 @@
 #include "utils/strings.h"
 #include "utils/range.h"
 #include "utils/enum.h"
+#include "utils/optional.h"
 
 #include <chrono>
 #include <concepts>

@@ -7,6 +7,7 @@
 #include <utility>
 #include <functional>
 
+
 namespace shift::utils {
     constexpr std::size_t hash_combine(const std::size_t first, const std::size_t second) noexcept {
         // Stolen from https://stackoverflow.com/a/2595226
@@ -16,10 +17,15 @@ namespace shift::utils {
     template<std::convertible_to<std::size_t>... Ts>
     constexpr std::size_t hash_combine(const std::size_t first, const std::size_t second, const Ts... rest) noexcept {
         std::size_t ret = first;
-        for (std::size_t d : { second, rest... }) {
+        for (std::size_t d : {second, rest...}) {
             ret = hash_combine(ret, d);
         }
         return ret;
+    }
+
+    template<typename T>
+    constexpr auto as_const_ptr(T* ptr) noexcept -> std::add_pointer_t<const T> {
+        return ptr;
     }
 }
 

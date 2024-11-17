@@ -44,7 +44,9 @@ namespace shift::compiler::parsing {
     }
 
     SHIFT_API std::partial_ordering parser_module::operator<=>(const parser_module& other) const {
-        auto [pos, other_pos] = std::mismatch(begin(), end(), other.begin(), other.end(),
+        auto [pos, other_pos] = std::mismatch(
+            begin(), end(),
+            other.begin(), other.end(),
             [](const auto a, const auto b) { return a.get_data() == b.get_data(); });
 
         if (pos == end()) {
@@ -61,7 +63,7 @@ namespace shift::compiler::parsing {
 
     SHIFT_API std::partial_ordering parser_module::operator<=>(std::string_view str) const {
         std::string module_string = to_string();
-        auto module_sv = std::string_view{ module_string };
+        auto module_sv = std::string_view{module_string};
 
         if (module_sv == str) {
             return std::partial_ordering::equivalent;
@@ -74,29 +76,36 @@ namespace shift::compiler::parsing {
     }
 
     SHIFT_API parser_module::iterator parser_module::begin() const noexcept {
-        return { name.begin(),
-                 [&](auto it, auto diff) {
-                     auto dis_beg = std::distance(name.begin(), it);
-                     auto dis_end = std::distance(it, name.end());
-                     return std::next(it, std::clamp(diff * 2, -dis_beg, dis_end));
-                 },
-                 [](auto a_it, auto b_it) {
-                     return std::distance(a_it, b_it) / 2;
-                 }
+        return {name.begin(),
+                [&](auto it, auto diff) {
+                    auto dis_beg = std::distance(name.begin(), it);
+                    auto dis_end = std::distance(it, name.end());
+                    return std::next(it, std::clamp(diff * 2, -dis_beg, dis_end));
+                },
+                [](auto a_it, auto b_it) {
+                    return std::distance(a_it, b_it) / 2;
+                }
         };
     }
 
     SHIFT_API parser_module::iterator parser_module::end() const noexcept {
-        return { name.end(),
-                 [&](auto it, auto diff) {
-                     auto dis_beg = std::distance(name.begin(), it);
-                     auto dis_end = std::distance(it, name.end());
-                     return std::next(it, std::clamp(diff * 2, -dis_beg, dis_end));
-                 },
-                 [](auto a_it, auto b_it) {
-                     return std::distance(a_it, b_it) / 2;
-                 }
+        return {name.end(),
+                [&](auto it, auto diff) {
+                    auto dis_beg = std::distance(name.begin(), it);
+                    auto dis_end = std::distance(it, name.end());
+                    return std::next(it, std::clamp(diff * 2, -dis_beg, dis_end));
+                },
+                [](auto a_it, auto b_it) {
+                    return std::distance(a_it, b_it) / 2;
+                }
         };
+    }
+
+    SHIFT_API const lexing::token
+    &
+
+    parser_module::operator[](lexing::token_stream::size_type s) const {
+        return *(std::next(name.begin(), 2 * s));
     }
 
     static std::string to_string(shift_mods mods) {
@@ -225,7 +234,7 @@ namespace shift::compiler::parsing {
     SHIFT_API utils::ordered_map<std::string_view, const shift_variable*> parser_function::get_parameters() const {
         utils::ordered_map<std::string_view, const shift_variable*> ret;
         for (const auto& [var_name, var] : parameters) {
-            ret.push_back({ var_name, &var });
+            ret.push_back({var_name, &var});
         }
         return ret;
     }

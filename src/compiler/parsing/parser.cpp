@@ -22,7 +22,7 @@ using namespace shift::compiler::lexing;
 
 namespace shift::compiler::parsing {
     struct parser::parse_state {
-        parse_state(const parser& p) : position{*p.m_lexer} {}
+        parse_state(const parser& p) : position{p.get_lexer()} {}
 
         parse_state(const parser&& p) = delete;
 
@@ -54,6 +54,7 @@ namespace shift::compiler::parsing {
     SHIFT_API void parser::parse() {
         parse_state state{*this};
         parse_body(state, nullptr);
+        auto&& a = *get_module();
     }
 
     static void print_expr_tree(const shift_expression& expr, std::ostream& out, const std::string& prefix) {
@@ -2278,14 +2279,6 @@ namespace shift::compiler::parsing {
         m_error_handler->add_error(std::move(err));
     }
 
-    void parser::token_error(const token& token_, const std::string& msg) {
-        return token_error(token_, std::string_view{msg});
-    }
-
-    void parser::token_error(const token& token_, const char* const msg) {
-        return token_error(token_, std::string_view{msg});
-    }
-
     void parser::token_warning(const token& tok, const std::string_view msg) {
         SHIFT_ASSERT(!tok.is_eof_token());
 
@@ -2299,14 +2292,6 @@ namespace shift::compiler::parsing {
         err += token_underline(tok);
 
         m_error_handler->add_warning(std::move(err));
-    }
-
-    void parser::token_warning(const token& token_, const std::string& msg) {
-        return token_warning(token_, std::string_view{msg});
-    }
-
-    void parser::token_warning(const token& token_, const char* const msg) {
-        return token_warning(token_, std::string_view{msg});
     }
 
     std::string_view parser::get_line(const token& token_) const noexcept {

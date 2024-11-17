@@ -27,8 +27,8 @@ namespace shift::utils {
 
     template<std::ranges::input_range R> requires requires(R r) {
     r.
-    erase(std::ranges::iterator_t<R>{}
-    );
+
+    erase (std::declval<std::ranges::iterator_t<R>>());
 }
 
 auto erase(R&& r, const std::ranges::range_difference_t<R> index) {
@@ -49,8 +49,8 @@ auto erase(R&& r, const std::ranges::range_difference_t<R> index) {
         return ret;
     } else {
         auto it = std::ranges::begin(r);
-        std::ranges::range_difference_t<R> loop_count{ 0 };
-        auto i{ index };
+        std::ranges::range_difference_t<R> loop_count{0};
+        auto i{index};
         for (; i != 0 && it != std::ranges::end(r); --i, ++it, ++loop_count) {}
 
         if (i != 0) {
@@ -68,7 +68,7 @@ template<typename CharT, typename Traits, std::ranges::input_range R>
 std::basic_ostream<CharT, Traits>& operator<<(std::basic_ostream<CharT, Traits>& _os, R&& r) {
     _os << _os.widen('[');
 
-    for (bool past_first = false; auto& v : r) {
+    for (bool past_first = false; auto&& v : r) {
         if (past_first) { _os << _os.widen(',') << _os.widen(' '); }
         _os << v;
         past_first = true;

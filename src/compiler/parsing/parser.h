@@ -11,6 +11,8 @@
 #include "utils/ordered_set.h"
 #include "utils/ordered_map.h"
 #include "utils/range.h"
+#include "utils/optional.h"
+#include "utils/utility.h"
 
 #include <string>
 #include <string_view>
@@ -20,7 +22,6 @@
 #include <algorithm>
 #include <functional>
 #include <array>
-#include <optional>
 #include <memory>
 #include <ranges>
 #include <numeric>
@@ -45,21 +46,19 @@ namespace shift::compiler::parsing {
 
         parser& operator=(parser&&) noexcept = default;
 
-    private:
-        SHIFT_API void parse();
-
-        struct parse_state;
-
-    public:
-        inline const lexing::lexer* get_lexer() const noexcept { return m_lexer; }
+        inline const lexing::lexer& get_lexer() const noexcept { return *m_lexer; }
 
         inline error_handler* get_error_handler() noexcept { return m_error_handler; }
 
         inline const error_handler* get_error_handler() const noexcept { return m_error_handler; }
 
-        inline parser_module& get_module() noexcept { return *this->m_module; }
+        inline auto get_module() noexcept {
+            return utils::make_optional(this->m_module.get());
+        }
 
-        inline const parser_module& get_module() const noexcept { return *this->m_module; }
+        inline auto get_module() const noexcept {
+            return utils::make_optional(utils::as_const_ptr(this->m_module.get()));
+        }
 
         inline auto& get_classes() noexcept { return m_classes; }
 
@@ -84,6 +83,10 @@ namespace shift::compiler::parsing {
         SHIFT_API void print_tree();
 
 #endif
+    private:
+        SHIFT_API void parse();
+
+        struct parse_state;
 
     private:
         void parse_modifier(parse_state& state);
@@ -111,11 +114,11 @@ namespace shift::compiler::parsing {
         void parse_body(parse_state&, parser_class* = nullptr);
 
         shift_expression
-        parse_expression(parse_state& state, const utils::predicate<std::vector<token>::const_iterator>& end_func);
+        parse_expression(parse_state& state, const utils::predicate<std::vector<lexing::token>::const_iterator>& end_func);
 
         inline shift_expression
         parse_expression(parse_state& state, const lexing::token::type end_type = lexing::token::type::SEMICOLON) {
-            return parse_expression([end_type](const std::vector<token>::const_iterator it) {
+            return parse_expression(state, [end_type](const std::vector<lexing::token>::const_iterator it) {
                 return it->get_token_type() == end_type;
             });
         }
@@ -132,19 +135,11 @@ namespace shift::compiler::parsing {
 
         void token_error(const lexing::token& token_, const std::string_view msg);
 
-        void token_error(const lexing::token& token_, const std::string& msg);
-
-        void token_error(const lexing::token& token_, const char* const msg);
-
         void token_warning(const lexing::token& token_, const std::string_view msg);
-
-        void token_warning(const lexing::token& token_, const std::string& msg);
-
-        void token_warning(const lexing::token& token_, const char* const msg);
 
         std::string_view get_line(const lexing::token&) const noexcept;
 
-        const lexing::token& skip_until_closing(const typename lexing::token::type) noexcept;
+        const lexing::token& skip_until_closing(const lexing::token::type) noexcept;
 
         bool is_module_defined() const noexcept;
 
