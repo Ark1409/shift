@@ -89,7 +89,7 @@ namespace shift::compiler::parsing {
         struct parse_state;
 
     private:
-        void parse_modifier(parse_state& state);
+        shift_mods parse_modifier(parse_state& state);
 
         void parse_use(parse_state&);
 
@@ -99,7 +99,7 @@ namespace shift::compiler::parsing {
 
         void parse_class(parse_state& state, parser_class* parent_class = nullptr);
 
-        parser_function* parse_function_header(parser_class* parent_class, parser_type& return_type);
+        parser_function* parse_function_header(parse_state& state, parser_class* parent_class, parser_type& return_type);
 
         std::optional<parser_variable>
         parse_variable_header(parser_class* parent_class, parser_function* parent_function,
@@ -109,7 +109,7 @@ namespace shift::compiler::parsing {
         void parse_function(parse_state& state, parser_function&);
 
         void
-        parse_function_block(parse_state& state, parser_function&, utils::ideque<parser_statement>&, size_t count = -1);
+        parse_function_block(parse_state& state, parser_function&, std::deque<statement_types>&, size_t count = -1);
 
         void parse_body(parse_state&, parser_class* = nullptr);
 
@@ -123,23 +123,25 @@ namespace shift::compiler::parsing {
             });
         }
 
+        void consume_modifiers(parse_state& state);
+
         token_group parse_name(parse_state& state, std::string_view name_type);
 
         token_group expect_name(parse_state& state, std::string_view name_type);
 
-        std::optional<parser_type> parse_type(parse_state& state, std::string_view);
+        parser_type parse_type(parse_state& state, std::string_view);
 
         std::string token_underline(const lexing::token&);
 
-        std::string token_message_header(std::string_view type, const lexing::token&);
+        std::string token_message_header(error_handler::message_type type, const lexing::token&);
 
-        void token_error(const lexing::token& token_, const std::string_view msg);
+        void token_error(const lexing::token& token_, std::string_view msg);
 
-        void token_warning(const lexing::token& token_, const std::string_view msg);
+        void token_warning(const lexing::token& token_, std::string_view msg);
 
         std::string_view get_line(const lexing::token&) const noexcept;
 
-        const lexing::token& skip_until_closing(const lexing::token::type) noexcept;
+        const lexing::token& skip_until_closing(lexing::token::type) noexcept;
 
         bool is_module_defined() const noexcept;
 

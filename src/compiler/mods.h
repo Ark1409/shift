@@ -6,8 +6,11 @@
 #include <cstdint>
 #include <climits>
 #include <array>
+#include <vector>
 
 #include "utils/enum.h"
+#include "utils/optional.h"
+#include "utils/utility.h"
 
 namespace shift::compiler {
     enum shift_mods : std::uint_fast16_t {
@@ -58,6 +61,7 @@ namespace shift::compiler {
     class mods_holder {
     private:
         typedef std::underlying_type_t<shift_mods> mods_t;
+
     public:
         void add(const lexing::token& tok) noexcept;
 
@@ -74,6 +78,8 @@ namespace shift::compiler {
 
         const lexing::token* find(shift_mods mod) const noexcept;
 
+        const lexing::token* find_any(shift_mods mods) const noexcept;
+
         bool has_mod(shift_mods mod) const noexcept { return (m_accum & mod) == mod; }
 
         operator shift_mods() const noexcept { return m_accum; }
@@ -88,6 +94,8 @@ namespace shift::compiler {
         const lexing::token& front() const noexcept;
 
         const lexing::token& back() const noexcept;
+
+        std::vector<std::pair<const lexing::token*, shift_mods>> sorted() const noexcept;
 
     private:
         void unsafe_add(shift_mods, const lexing::token&) noexcept;

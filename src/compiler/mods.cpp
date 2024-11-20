@@ -58,6 +58,12 @@ namespace shift::compiler {
         return tok.value_or(nullptr);
     }
 
+    const lexing::token* mods_holder::find_any(shift_mods mods) const noexcept {
+        auto common_mods = m_accum & mods;
+        if (!common_mods) return nullptr;
+        return m_mods[std::countr_zero(mods_t(common_mods))];
+    }
+
     const lexing::token& mods_holder::front() const noexcept {
         return *std::ranges::min(m_mods, [](const lexing::token* a, const lexing::token* b) {
             if (!a) return false;
@@ -72,5 +78,24 @@ namespace shift::compiler {
             if (!b) return true;
             return a->get_file_position() > b->get_file_position();
         });
+    }
+
+    std::vector<std::pair<const lexing::token*, shift_mods>> mods_holder::sorted() const noexcept {
+        auto mods_copy = m_mods;
+        std::ranges::sort(mods_copy, [](const lexing::token* a, const lexing::token* b) {
+            return !b || (a && a->get_file_position() < b->get_file_position());
+        });
+        auto mod_tokens_end = std::ranges::find(mods_copy, nullptr);
+
+        std::vector<std::pair<const lexing::token*, shift_mods>> ret;
+        ret.reserve(mod_tokens_end - mods_copy.begin());
+        for (auto it = mods_copy.begin(); it != mod_tokens_end; ++it) {
+            auto next_it = it + 1;
+            if (next_it == mod_tokens_end || *next_it != *it) {
+                const lexing::token* tok = *it;
+                ret.emplace_back(tok, to_mod(tok->get_data()));
+            }
+        }
+        return ret;
     }
 }

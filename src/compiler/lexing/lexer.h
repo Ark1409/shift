@@ -182,6 +182,11 @@ namespace shift::compiler {
                 return skip_until([v](auto& tok) { return tok.get_data() == v; });
             }
 
+            void skip_before(token::type t) {
+                skip_until(t);
+                reverse_token();
+            }
+
         private:
             [[nodiscard]] SHIFT_API const token& as_token(const_iterator pos) const noexcept;
 

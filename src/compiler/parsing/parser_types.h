@@ -46,6 +46,10 @@ namespace shift::compiler::parsing {
 
         iterator end() const { return source.end(); }
 
+        const auto& front() const { return *begin(); }
+
+        const auto& back() const { return *std::prev(end()); }
+
         /// @brief Obtains the length of the name in position.
         auto length() const { return source.size(); }
 
@@ -441,10 +445,9 @@ namespace shift::compiler::parsing {
         // List of variables in this class
         utils::ideque<parser_variable> fields;
 
-        // Variables representing 'this' and 'base'
-        parser_variable this_var, base_var;
-
         parser* parser_{nullptr};
+
+        std::string_view get_name() const override { return name->get_data(); }
 
         // Get the fully qualified name of this class
         // Class hierarchy for this class should be resolved prior to this

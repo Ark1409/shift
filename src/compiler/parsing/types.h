@@ -19,13 +19,13 @@
 
 namespace shift::compiler::parsing {
     struct shift_module {
-        shift_mods mods{ shift_mods::NONE };
+        shift_mods mods{shift_mods::NONE};
 
         virtual ~shift_module() noexcept = default;
 
         inline virtual std::size_t depth() const {
             std::string str = to_string();
-            return utils::count(std::string_view{ str }, std::string_view("."));
+            return utils::count(std::string_view{str}, std::string_view("."));
         }
 
         virtual std::string to_string() const = 0;
@@ -60,9 +60,9 @@ namespace shift::compiler::parsing {
     };
 
     struct shift_type {
-        shift_mods mods{ shift_mods::NONE };
+        shift_mods mods{shift_mods::NONE};
         enum class reference_type { none, ref, tref } ref_type = reference_type::none;
-        analyzing::type_info* type_info{ nullptr };
+        analyzing::type_info* type_info{nullptr};
 
         virtual ~shift_type() noexcept = default;
     };
@@ -81,14 +81,14 @@ namespace shift::compiler::parsing {
         inline auto get_parent() const noexcept { return m_parent; }
 
     protected:
-        std::variant<std::nullptr_t, shift_module*, shift_class*, shift_function*> m_parent{ nullptr };
+        std::variant<std::nullptr_t, shift_module*, shift_class*, shift_function*> m_parent{nullptr};
     };
 
     struct shift_class {
         // Access modifiers for class
-        shift_mods mods{ shift_mods::NONE };
+        shift_mods mods{shift_mods::NONE};
 
-        analyzing::class_type_info* type_info{ nullptr };
+        analyzing::class_type_info* type_info{nullptr};
 
         virtual ~shift_class() noexcept = default;
 
@@ -114,13 +114,15 @@ namespace shift::compiler::parsing {
 
     protected:
         // Module this class belongs to
-        shift_module* m_module{ nullptr };
+        shift_module* m_module{nullptr};
 
-        shift_class* m_parent{ nullptr };
+        shift_class* m_parent{nullptr};
     };
 
     struct shift_function {
-        shift_mods mods{ shift_mods::NONE };
+        shift_mods mods{shift_mods::NONE};
+
+        virtual ~shift_function() noexcept = default;
 
         virtual std::string get_name() const = 0;
 
