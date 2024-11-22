@@ -36,6 +36,7 @@ namespace shift::compiler {
      */
     template<typename T, typename MarkT>
     struct marker_helper {
+    public:
         inline void pop_marks(typename std::stack<MarkT, std::vector<MarkT>>::size_type count = -1) {
             utils::pop_stack(this->m_marks, count);
         }
@@ -45,7 +46,7 @@ namespace shift::compiler {
         const auto& get_marks() const noexcept { return m_marks; }
 
     protected:
-        explicit marker_helper(T& markee) : m_markee{ m_markee } {}
+        explicit marker_helper(T& markee) : m_markee{m_markee} {}
 
         T& m_markee;
         std::stack<MarkT, std::vector<MarkT>> m_marks;

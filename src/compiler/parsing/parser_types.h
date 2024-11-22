@@ -1,5 +1,5 @@
 #ifndef SHIFT_PARSER_TYPES_H_
-#define SHIFT_PARSER_TYPES_H_
+#define SHIFT_PARSER_TYPES_H_ 1
 
 #include "compiler/lexing/lexer.h"
 #include "compiler/mods.h"
@@ -22,17 +22,18 @@
 #include <optional>
 
 namespace shift::compiler::parsing::detail {
-    template<template<typename> typename Transformer, typename Base, std::derived_from<Base>... DerivedTs>
-    auto variant_type_generator() -> std::variant<Transformer < Base>, Transformer<DerivedTs>
-
-    ...> {
+    template<template<typename> typename Transformer, typename Base, typename... DerivedTs>
+    auto variant_type_generator() -> std::decay_t<decltype(std::declval<std::variant<Transformer < Base>, Transformer < DerivedTs>...>>
+    ())> {
     static_assert(false);
 }
 }
 
-#define SHIFT_TYPES_GENERATOR(name, base, ...)                                                                                           \
-    using name##_types = decltype(shift::compiler::parsing::detail::variant_type_generator<std::type_identity_t, base, __VA_ARGS__>());  \
-    using name##_ptr_types = decltype(shift::compiler::parsing::detail::variant_type_generator<std::add_pointer_t, base, __VA_ARGS__>());
+#define SHIFT_TYPES_GENERATOR(name, base, ...)                                                                                         \
+    using name##_types = decltype(shift::compiler::parsing::detail::variant_type_generator<std::type_identity_t, base __VA_OPT__(,)    \
+        __VA_ARGS__>());                                                                                                               \
+    using name##_ptr_types = decltype(shift::compiler::parsing::detail::variant_type_generator<std::add_pointer_t, base __VA_OPT__(,)  \
+        __VA_ARGS__>());
 
 namespace shift::compiler::parsing {
     struct token_group {
@@ -351,6 +352,7 @@ namespace shift::compiler::parsing {
         const lexing::token* name{nullptr};
         expression_types value;
         size_t implicit_use_statements = 0;
+        bool panic{false};
 
         const parser_type& get_type() const override { return type; }
 
@@ -363,6 +365,9 @@ namespace shift::compiler::parsing {
         SHIFT_API void set_parent(std::variant<std::nullptr_t, parser_module*, parser_class*, parser_function*>);
     };
 
+    SHIFT_TYPES_GENERATOR(statement, shift_statement, block_statement, if_statement, while_statement, do_while_statement,
+        expression_statement, variable_def_statement, for_statement, use_statement, continue_statement, break_statement, return_statement)
+
     struct shift_statement {
         token_group source;
         shift_statement* parent{nullptr};
@@ -370,22 +375,24 @@ namespace shift::compiler::parsing {
     };
 
     struct block_statement : shift_statement {
-        std::vector<std::unique_ptr<shift_statement>> statements;
+        utils::ideque<statement_types> statements;
+
+        bool empty() const noexcept { return statements.empty(); }
     };
 
     struct if_statement : shift_statement {
         expression_types condition;
-        block_statement sub_statements;
-        std::optional<block_statement> else_statements;
+        block_statement body;
+        std::optional<block_statement> else_body;
     };
 
     struct while_statement : shift_statement {
         expression_types condition;
-        block_statement sub_statements;
+        block_statement body;
     };
 
     struct do_while_statement : shift_statement {
-        block_statement sub_statements;
+        block_statement body;
         expression_types condition;
     };
 
@@ -400,8 +407,8 @@ namespace shift::compiler::parsing {
     struct for_statement : shift_statement {
         std::variant<std::monostate, expression_statement, variable_def_statement> init;
         expression_types condition;
-        expression_statement increment;
-        block_statement sub_statements;
+        expression_types increment;
+        block_statement body;
     };
 
     struct use_statement : shift_statement {
@@ -417,11 +424,8 @@ namespace shift::compiler::parsing {
     };
 
     struct return_statement : shift_statement {
-        expression_types expr;
+        std::optional<expression_types> expr;
     };
-
-    SHIFT_TYPES_GENERATOR(statement, shift_statement, block_statement, if_statement, while_statement, do_while_statement,
-        expression_statement, variable_def_statement, for_statement, use_statement, continue_statement, break_statement, return_statement)
 
     struct parser_class : shift_class {
         // Name of base class
@@ -474,7 +478,7 @@ namespace shift::compiler::parsing {
         size_t implicit_use_statements = 0;
 
         utils::ordered_map<std::string_view, parser_variable> parameters;
-        std::deque<statement_types> statements;
+        block_statement body;
 
         inline std::string get_name() const override { return name.to_string(); }
 

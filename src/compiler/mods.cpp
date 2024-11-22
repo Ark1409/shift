@@ -33,14 +33,13 @@ namespace shift::compiler {
         }
     }
 
-    void mods_holder::remove(shift_mods mod) noexcept {
-        if (!has_mod(mod)) { return; }
-        for (auto mod_num = mods_t(mod); mod_num != 0;) {
+    void mods_holder::remove(shift_mods mods) noexcept {
+        for (auto mod_num = mods_t(mods); mod_num != 0;) {
             auto rb = std::countr_zero(mod_num);
             m_mods[rb] = nullptr;
             mod_num ^= mods_t(1) << rb;
         }
-        m_accum &= ~mod;
+        m_accum &= ~mods;
     }
 
     const lexing::token* mods_holder::find(shift_mods mod) const noexcept {

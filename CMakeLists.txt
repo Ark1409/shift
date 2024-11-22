@@ -17,10 +17,17 @@ option(SHIFT_TEST "Build shift tests" ON)
 
 # Fetch fmt library
 FetchContent_Declare(fmt
-        GIT_REPOSITORY https://github.com/fmtlib/fmt
+        GIT_REPOSITORY https://github.com/fmtlib/fmt.git
         GIT_TAG 0c9fce2ffefecfdce794e1859584e25877b7b592 # 11.0.2
         GIT_PROGRESS true)
 FetchContent_MakeAvailable(fmt)
+
+# Fetch more concepts library
+FetchContent_Declare(more_concepts
+        GIT_REPOSITORY https://github.com/MiSo1289/more_concepts.git
+        GIT_TAG ea5b6815f5929cdb086f76d43f3e9b122bbcaaeb # Nov 12, 2024
+        GIT_PROGRESS true)
+FetchContent_MakeAvailable(more_concepts)
 
 # - Main library setup -
 
@@ -74,7 +81,7 @@ target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_20)
 target_include_directories(${PROJECT_NAME} PUBLIC include src)
 
 # Add library dependencies for the project
-target_link_libraries(${PROJECT_NAME} PRIVATE fmt::fmt)
+target_link_libraries(${PROJECT_NAME} PRIVATE fmt::fmt more_concepts::more_concepts)
 
 # Add warnings and compile options for the project, flags dependent on compiler
 # Clang has clang-cl which accepts MSVC flags, so we need to check for that

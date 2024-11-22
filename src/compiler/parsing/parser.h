@@ -26,6 +26,8 @@
 #include <ranges>
 #include <numeric>
 
+#include <more_concepts/more_concepts.hpp>
+
 namespace shift::compiler::analyzing {
     // fwd decl analyzer class for friend
     class analyzer;
@@ -34,7 +36,7 @@ namespace shift::compiler::analyzing {
 namespace shift::compiler::parsing {
     class parser {
     public:
-        inline parser(error_handler* const eh, const lexing::lexer& lex) noexcept;
+        inline parser(error_handler* const eh, const lexing::lexer& lex);
 
         parser(error_handler* const eh, const lexing::lexer&& lex) noexcept = delete;
 
@@ -79,9 +81,7 @@ namespace shift::compiler::parsing {
         SHIFT_API static std::uint8_t operator_priority(const lexing::token::type type, const bool prefix = false) noexcept;
 
 #ifdef SHIFT_DEBUG
-
         SHIFT_API void print_tree();
-
 #endif
     private:
         SHIFT_API void parse();
@@ -91,37 +91,36 @@ namespace shift::compiler::parsing {
     private:
         shift_mods parse_modifier(parse_state& state);
 
-        void parse_use(parse_state&);
+        parser_module parse_use(parse_state&);
 
-        void parse_use(parse_state&, utils::ordered_set<parser_module>&);
+        void consume_use(parse_state&, utils::ordered_set<parser_module>& modules);
 
-        void parse_module(parse_state& state);
+        void consume_module(parse_state& state);
 
-        void parse_class(parse_state& state, parser_class* parent_class = nullptr);
+        void consume_class(parse_state& state);
 
-        parser_function* parse_function_header(parse_state& state, parser_class* parent_class, parser_type& return_type);
+        parser_function* consume_function(parse_state& state, parser_type&& return_type);
 
-        std::optional<parser_variable>
-        parse_variable_header(parser_class* parent_class, parser_function* parent_function,
-            parser_type& type);
+        parser_variable parse_variable_header(parse_state& state, parser_type&& type);
 
-        // void parse_class(parser_class&);
-        void parse_function(parse_state& state, parser_function&);
+        // void consume_class(parser_class&);
+        void consume_function_body(parse_state& state);
 
-        void
-        parse_function_block(parse_state& state, parser_function&, std::deque<statement_types>&, size_t count = -1);
+        void consume_block(parse_state& state, block_statement&, size_t count = -1);
 
-        void parse_body(parse_state&, parser_class* = nullptr);
+        void consume_body(parse_state&);
 
-        shift_expression
-        parse_expression(parse_state& state, const utils::predicate<std::vector<lexing::token>::const_iterator>& end_func);
+        expression_types parse_expression(parse_state& state, const utils::predicate<std::vector<lexing::token>::const_iterator>& end_func);
 
-        inline shift_expression
+        inline expression_types
         parse_expression(parse_state& state, const lexing::token::type end_type = lexing::token::type::SEMICOLON) {
             return parse_expression(state, [end_type](const std::vector<lexing::token>::const_iterator it) {
                 return it->get_token_type() == end_type;
             });
         }
+
+        expression_types expect_expression(parse_state& state, std::string_view expr_origin, const lexing::token::type end_type =
+        lexing::token::type::SEMICOLON);
 
         void consume_modifiers(parse_state& state);
 
@@ -141,9 +140,10 @@ namespace shift::compiler::parsing {
 
         std::string_view get_line(const lexing::token&) const noexcept;
 
-        const lexing::token& skip_until_closing(lexing::token::type) noexcept;
-
         bool is_module_defined() const noexcept;
+
+        void ensure_no_mods(parse_state& state);
+        void ensure_no_mods(parse_state& state, std::string_view);
 
     private:
         // Tokenized file. Tokenization must have passed with no errors in order to be usable in the parsing stage
@@ -172,9 +172,25 @@ namespace shift::compiler::parsing {
         friend class analyzing::analyzer;
     };
 
-    inline parser::parser(error_handler* const eh, const lexing::lexer& lex) noexcept : m_lexer(&lex), m_error_handler(eh) {
+    inline parser::parser(error_handler* const eh, const lexing::lexer& lex) : m_lexer(&lex), m_error_handler(eh) {
         parse();
     }
+
+
+    struct parser::parse_state {
+        explicit parse_state(const parser& p) : position{p.get_lexer()} {}
+
+        parse_state(const parser&& p) = delete;
+
+        // Current lexing::token position in the parsing process
+        lexing::token_stream position;
+
+        mods_holder mods{};
+
+        parser_class* clazz{nullptr};
+        parser_function* func{nullptr};
+        parser_variable* variable{nullptr};
+    };
 }
 
 #endif

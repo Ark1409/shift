@@ -69,7 +69,7 @@ namespace shift::compiler {
             if (tok) { add(*tok); }
         }
 
-        void remove(shift_mods mod) noexcept;
+        void remove(shift_mods mods) noexcept;
 
         void clear() noexcept {
             m_accum = shift_mods::NONE;
@@ -96,6 +96,8 @@ namespace shift::compiler {
         const lexing::token& back() const noexcept;
 
         std::vector<std::pair<const lexing::token*, shift_mods>> sorted() const noexcept;
+
+        bool empty() const noexcept { return m_accum == shift_mods::NONE; }
 
     private:
         void unsafe_add(shift_mods, const lexing::token&) noexcept;
