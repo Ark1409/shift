@@ -10,6 +10,7 @@
 #include "utils/range.h"
 #include "utils/iterator_wrapper.h"
 #include "utils/ordered_set.h"
+#include "utils/variant.h"
 
 #include <vector>
 #include <string>
@@ -23,7 +24,8 @@
 
 namespace shift::compiler::parsing::detail {
     template<template<typename> typename Transformer, typename Base, typename... DerivedTs>
-    auto variant_type_generator() -> std::decay_t<decltype(std::declval<std::variant<Transformer < Base>, Transformer < DerivedTs>...>>
+    auto variant_type_generator()
+    -> std::decay_t<decltype(std::declval<std::variant<Transformer < Base>, Transformer < DerivedTs>...>>
     ())> {
     static_assert(false);
 }
@@ -126,6 +128,8 @@ namespace shift::compiler::parsing {
         }
 
         inline const std::vector<dimension>& get_dimensions() const noexcept { return dimensions; }
+
+        std::string to_string() const;
     };
 }
 
@@ -169,17 +173,43 @@ struct std::hash<shift::compiler::parsing::parser_type> {
 };
 
 namespace shift::compiler::parsing {
+#define APPLY(F, ...) F(__VA_ARGS__)
+#define SHIFT_EXPRESSION_TYPES \
+        shift_expression, literal_expression, unary_expression, binary_expression, cp_expression, mv_expression,\
+        bracket_expression, cast_expression, array_expression, function_call_expression, new_expression, del_expression,\
+        comma_expression, dotted_expression
+
+    APPLY(SHIFT_TYPES_GENERATOR, expression, SHIFT_EXPRESSION_TYPES);
+
+#define SHIFT_EXPRESSION_VISITABLE() \
+    private:                                 \
+        virtual void visit(expression_visitor& v); \
+        friend struct utils::visit_dispatcher<shift_expression, expression_visitor>
+
+    using expression_visitor = utils::type_visitor<SHIFT_EXPRESSION_TYPES>;
+
+//#undef SHIFT_EXPRESSION_TYPES
+#undef APPLY
+
     struct shift_expression {
         token_group source;
         shift_expression* parent{nullptr};
         analyzing::type_info* type_info{nullptr};
         bool panic{false};
 
-        virtual ~shift_expression() noexcept = default;
+        virtual ~shift_expression() noexcept;
 
         inline std::string to_string() const { return source.to_string(); }
 
         virtual void update_children() {}
+
+    SHIFT_EXPRESSION_VISITABLE();
+    };
+
+    struct literal_expression : shift_expression{
+        lexing::token::type type{lexing::token::type::NULL_TOKEN};
+
+    SHIFT_EXPRESSION_VISITABLE();
     };
 
     struct unary_expression : shift_expression {
@@ -193,6 +223,8 @@ namespace shift::compiler::parsing {
                 sub_expr->update_children();
             }
         }
+
+    SHIFT_EXPRESSION_VISITABLE();
     };
 
     struct binary_expression : shift_expression {
@@ -209,6 +241,8 @@ namespace shift::compiler::parsing {
                 right->update_children();
             }
         }
+
+    SHIFT_EXPRESSION_VISITABLE();
     };
 
     struct cp_expression : shift_expression {
@@ -220,6 +254,8 @@ namespace shift::compiler::parsing {
                 sub_expr->update_children();
             }
         }
+
+    SHIFT_EXPRESSION_VISITABLE();
     };
 
     struct mv_expression : shift_expression {
@@ -231,6 +267,8 @@ namespace shift::compiler::parsing {
                 sub_expr->update_children();
             }
         }
+
+    SHIFT_EXPRESSION_VISITABLE();
     };
 
     struct bracket_expression : shift_expression {
@@ -242,6 +280,8 @@ namespace shift::compiler::parsing {
                 sub_expr->update_children();
             }
         }
+
+    SHIFT_EXPRESSION_VISITABLE();
     };
 
     struct cast_expression : shift_expression {
@@ -254,42 +294,25 @@ namespace shift::compiler::parsing {
                 sub_expr->update_children();
             }
         }
+
+    SHIFT_EXPRESSION_VISITABLE();
     };
 
     struct array_expression : shift_expression {
         std::unique_ptr<shift_expression> sub_expr;
-        std::vector<std::unique_ptr<shift_expression>> indexers;
+        std::vector<expression_types> indexers;
 
-        void update_children() override {
-            if (sub_expr) {
-                sub_expr->parent = this;
-                sub_expr->update_children();
-            }
-            for (auto& indexer : indexers) {
-                if (indexer) {
-                    indexer->parent = this;
-                    indexer->update_children();
-                }
-            }
-        }
+        void update_children() override;
+    SHIFT_EXPRESSION_VISITABLE();
     };
 
     struct function_call_expression : shift_expression {
         std::unique_ptr<shift_expression> function_expr;
-        std::vector<std::unique_ptr<shift_expression>> arguments;
+        std::vector<expression_types> arguments;
 
-        void update_children() override {
-            if (function_expr) {
-                function_expr->parent = this;
-                function_expr->update_children();
-            }
-            for (auto& arg : arguments) {
-                if (arg) {
-                    arg->parent = this;
-                    arg->update_children();
-                }
-            }
-        }
+        void update_children() override;
+
+    SHIFT_EXPRESSION_VISITABLE();
     };
 
     struct new_expression : shift_expression {
@@ -298,6 +321,8 @@ namespace shift::compiler::parsing {
         void update_children() override {
             std::visit([](auto& e) { e.update_children(); }, call);
         }
+
+    SHIFT_EXPRESSION_VISITABLE();
     };
 
     struct del_expression : shift_expression {
@@ -309,43 +334,33 @@ namespace shift::compiler::parsing {
                 sub_expr->update_children();
             }
         }
+
+    SHIFT_EXPRESSION_VISITABLE();
     };
 
     struct comma_expression : shift_expression {
-        std::vector<std::unique_ptr<shift_expression>> expressions;
+        std::vector<expression_types> expressions;
 
-        void update_children() override {
-            for (auto& expr : expressions) {
-                if (expr) {
-                    expr->parent = this;
-                    expr->update_children();
-                }
-            }
-        }
+        void update_children() override;
+
+    SHIFT_EXPRESSION_VISITABLE();
     };
 
     struct dotted_expression : shift_expression {
-        std::vector<std::unique_ptr<shift_expression>> expressions;
+        std::vector<expression_types> expressions;
 
-        void update_children() override {
-            for (auto& expr : expressions) {
-                if (expr) {
-                    expr->parent = this;
-                    expr->update_children();
-                }
-            }
-        }
+        void update_children() override;
+
+    SHIFT_EXPRESSION_VISITABLE();
     };
+
+#undef SHIFT_EXPRESSION_VISITABLE
 
     template<std::derived_from<shift_expression> ExprT, typename... Args>
     std::unique_ptr<ExprT> make_expression(Args&& ... args) {
         // TODO arena allocator instead of default new
-        return std::unique_ptr(new ExprT{std::forward<Args>(args)...});
+        return std::unique_ptr<ExprT>(new ExprT{std::forward<Args>(args)...});
     }
-
-    SHIFT_TYPES_GENERATOR(expression, shift_expression, unary_expression, binary_expression, cp_expression, mv_expression,
-        bracket_expression, cast_expression, array_expression, function_call_expression, new_expression, del_expression,
-        comma_expression, dotted_expression)
 
     struct parser_variable : shift_variable {
         parser_type type;
@@ -366,12 +381,14 @@ namespace shift::compiler::parsing {
     };
 
     SHIFT_TYPES_GENERATOR(statement, shift_statement, block_statement, if_statement, while_statement, do_while_statement,
-        expression_statement, variable_def_statement, for_statement, use_statement, continue_statement, break_statement, return_statement)
+        expression_statement, variable_def_statement, for_statement, use_statement, continue_statement, break_statement, return_statement);
 
     struct shift_statement {
         token_group source;
         shift_statement* parent{nullptr};
         bool panic{false};
+
+        virtual ~shift_statement() noexcept;
     };
 
     struct block_statement : shift_statement {
@@ -427,47 +444,6 @@ namespace shift::compiler::parsing {
         std::optional<expression_types> expr;
     };
 
-    struct parser_class : shift_class {
-        // Name of base class
-        token_group base_name;
-
-        // Name of the class
-        const lexing::token* name{nullptr};
-
-        // Amount of implicit 'use' statements inherited from direct parent class (if this class is at the top level, this will be
-        // the amount of 'use' statements in the global file scope)
-        size_t implicit_use_statements = 0;
-
-        // List of 'use' statements for this class
-        utils::ordered_set<parser_module> use_statements;
-
-        utils::ideque<parser_class> sub_classes;
-
-        // List of functions in this class
-        utils::ideque<parser_function> functions;
-
-        // List of variables in this class
-        utils::ideque<parser_variable> fields;
-
-        parser* parser_{nullptr};
-
-        std::string_view get_name() const override { return name->get_data(); }
-
-        // Get the fully qualified name of this class
-        // Class hierarchy for this class should be resolved prior to this
-        SHIFT_API std::string get_fqn() const override;
-
-        SHIFT_API std::vector<const shift_class*> get_sub_classes() const override;
-
-        SHIFT_API std::vector<const shift_function*> get_functions() const override;
-
-        SHIFT_API std::vector<const shift_variable*> get_fields() const override;
-
-        inline void set_module(parser_module* module_) noexcept { this->m_module = module_; }
-
-        inline void set_parent(parser_class* parent) noexcept { this->m_parent = parent; }
-    };
-
     struct parser_function : shift_function {
         parser* parser_{nullptr};
         token_group name;
@@ -493,6 +469,54 @@ namespace shift::compiler::parsing {
         SHIFT_API std::variant<std::nullptr_t, parser_module*, parser_class*> get_parent() const;
 
         SHIFT_API void set_parent(std::variant<std::nullptr_t, parser_module*, parser_class*> v);
+    };
+
+    struct parser_class : shift_class {
+        // Name of base class
+        token_group base_name;
+
+        // Name of the class
+        const lexing::token* name{nullptr};
+
+        // Amount of implicit 'use' statements inherited from direct parent class (if this class is at the top level, this will be
+        // the amount of 'use' statements in the global file scope)
+        size_t implicit_use_statements = 0;
+
+        // List of 'use' statements for this class
+        utils::ordered_set<parser_module> use_statements;
+
+        utils::ideque<parser_class> sub_classes;
+
+        // List of functions in this class
+        std::deque<parser_function> functions;
+
+        // List of variables in this class
+        std::deque<parser_variable> fields;
+
+        parser* parser_{nullptr};
+
+        std::string_view get_name() const override { return name->get_data(); }
+
+        // Get the fully qualified name of this class
+        // Class hierarchy for this class should be resolved prior to this
+        SHIFT_API std::string get_fqn() const override;
+
+        // All returned classes are of the type parser_class*
+        SHIFT_API std::vector<const shift_class*> get_sub_classes() const override;
+
+        // All returned function are of the type parser_function*
+        SHIFT_API std::vector<const shift_function*> get_functions() const override;
+
+        // All returned fields are of the type parser_variable*
+        SHIFT_API std::vector<const shift_variable*> get_fields() const override;
+
+        inline void set_module(parser_module* module_) noexcept { this->m_module = module_; }
+
+        inline void set_parent(parser_class* parent) noexcept { this->m_parent = parent; }
+
+        const parser_module& get_module() const noexcept { return static_cast<const parser_module&>(*m_module); }
+
+        const parser_class* get_parent() const noexcept { return static_cast<const parser_class*>(m_parent); }
     };
 }
 

@@ -21,6 +21,7 @@
 #include <ranges>
 #include <functional>
 #include <deque>
+#include <list>
 #include <algorithm>
 #include <numeric>
 

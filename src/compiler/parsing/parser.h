@@ -119,8 +119,8 @@ namespace shift::compiler::parsing {
             });
         }
 
-        expression_types expect_expression(parse_state& state, std::string_view expr_origin, const lexing::token::type end_type =
-        lexing::token::type::SEMICOLON);
+        expression_types expect_expression(parse_state& state, std::string_view expr_origin,
+            lexing::token::type end_type = lexing::token::type::SEMICOLON);
 
         void consume_modifiers(parse_state& state);
 

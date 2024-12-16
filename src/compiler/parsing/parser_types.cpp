@@ -3,6 +3,7 @@
 #include <algorithm>
 
 #include "utils/variant.h"
+#include "utils/strings.h"
 
 namespace shift::compiler::parsing {
     SHIFT_API std::string token_group::to_string() const {
@@ -269,4 +270,123 @@ namespace shift::compiler::parsing {
             }
         }, v);
     }
+
+    std::string parser_type::to_string() const {
+        std::string ret = name.to_string();
+
+        for (auto& dim : dimensions) {
+            switch (dim.type) {
+                case parser_type::dimension::dimension_type::array:
+                    ret += utils::repeat("[]", dim.count);
+                    break;
+                case parser_type::dimension::dimension_type::pointer:
+                    ret += utils::repeat('*', dim.count);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        return ret;
+    }
+
+    void array_expression::update_children() {
+        for (auto& expr : indexers) {
+            std::visit([](auto& e) { e.update_children(); }, expr);
+        }
+        if (sub_expr) {
+            sub_expr->parent = this;
+            return sub_expr->update_children();
+        }
+    }
+
+    void function_call_expression::update_children() {
+        for (auto& expr : arguments) {
+            std::visit([](auto& e) { e.update_children(); }, expr);
+        }
+        if (function_expr) {
+            function_expr->parent = this;
+            return function_expr->update_children();
+        }
+    }
+
+    void comma_expression::update_children() {
+        for (auto& expr : expressions) {
+            std::visit([](auto& e) { e.update_children(); }, expr);
+        }
+    }
+
+    void dotted_expression::update_children() {
+        for (auto& expr : expressions) {
+            std::visit([](auto& e) { e.update_children(); }, expr);
+        }
+    }
+
+    /* clang has trouble compiling the following (-std=c++20):
+     * ```
+     * struct A;
+     * struct B;
+     * struct C;
+     *
+     * struct A { virtual ~A() = default; };
+     *
+     * struct B : A {
+     *     std::vector<C> b;
+     * };
+     *
+     * struct C : A {};
+     * ```
+     * Unsure whether this behaviour is allowed. In any case, defining the destructor separately stops the errors.
+     */
+    shift_expression::~shift_expression() noexcept = default;
+
+#define PARENS () // Note space before (), so object-like macro
+
+#define EXPAND(arg) EXPAND1(EXPAND1(EXPAND1(EXPAND1(arg))))
+#define EXPAND1(arg) EXPAND2(EXPAND2(EXPAND2(EXPAND2(arg))))
+#define EXPAND2(arg) EXPAND3(EXPAND3(EXPAND3(EXPAND3(arg))))
+#define EXPAND3(arg) EXPAND4(EXPAND4(EXPAND4(EXPAND4(arg))))
+#define EXPAND4(arg) arg
+
+#define FOR_EACH(macro, ...)                                    \
+  __VA_OPT__(EXPAND(FOR_EACH_HELPER(macro, __VA_ARGS__)))
+#define FOR_EACH_HELPER(macro, a1, ...)                         \
+  macro(a1)                                                     \
+  __VA_OPT__(FOR_EACH_AGAIN PARENS (macro, __VA_ARGS__))
+#define FOR_EACH_AGAIN() FOR_EACH_HELPER
+#define APPLY(F, ...) F(__VA_ARGS__)
+
+#define SHIFT_VISITOR_IMPL(type, visitor_type)\
+    void type::visit(visitor_type& v) { v(*static_cast<type*>(this)); }
+#define SHIFT_EXPRESSION_VISITOR_IMPL(expr_type) SHIFT_VISITOR_IMPL(expr_type, expression_visitor)
+
+//    SHIFT_EXPRESSION_VISITOR_IMPL(shift_expression);
+//
+//    SHIFT_EXPRESSION_VISITOR_IMPL(unary_expression);
+//
+//    SHIFT_EXPRESSION_VISITOR_IMPL(binary_expression);
+//
+//    SHIFT_EXPRESSION_VISITOR_IMPL(cp_expression);
+//
+//    SHIFT_EXPRESSION_VISITOR_IMPL(mv_expression);
+//
+//    SHIFT_EXPRESSION_VISITOR_IMPL(bracket_expression);
+//
+//    SHIFT_EXPRESSION_VISITOR_IMPL(cast_expression);
+//
+//    SHIFT_EXPRESSION_VISITOR_IMPL(array_expression);
+//
+//    SHIFT_EXPRESSION_VISITOR_IMPL(function_call_expression);
+//
+//    SHIFT_EXPRESSION_VISITOR_IMPL(new_expression);
+//
+//    SHIFT_EXPRESSION_VISITOR_IMPL(del_expression);
+//
+//    SHIFT_EXPRESSION_VISITOR_IMPL(comma_expression);
+//
+//    SHIFT_EXPRESSION_VISITOR_IMPL(dotted_expression);
+
+    APPLY(FOR_EACH, SHIFT_EXPRESSION_VISITOR_IMPL, SHIFT_EXPRESSION_TYPES);
+
+    shift_statement::~shift_statement() noexcept = default;
 }

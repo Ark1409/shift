@@ -124,6 +124,27 @@ namespace shift::utils {
     concept dynamic_castable_to = requires(From* p) {
         dynamic_cast<To*>(p);
     };
+
+    // One-based index
+    template<std::size_t I, typename Func>
+    struct func_arg;
+
+    template<typename Ret, typename Arg1, typename... Args>
+    struct func_arg<1, Ret(Arg1, Args...)> {
+        using type = Arg1;
+    };
+
+    template<std::size_t I, typename Ret, typename Arg1, typename... Args>
+    struct func_arg<I, Ret(Arg1, Args...)> : func_arg<I - 1, Ret(Args...)> {};
+
+    template<std::size_t I, typename Ret, typename... Args>
+    struct func_arg<I, Ret(*)(Args...)> : func_arg<I, Ret(Args...)> {};
+
+    template<std::size_t I, typename Ret, typename Clazz, typename... Args>
+    struct func_arg<I, Ret(Clazz::*)(Args...)> : func_arg<I, Ret(Args...)> {};
+
+    template<std::size_t I, typename Func>
+    using func_arg_t = typename func_arg<I, Func>::type;
 }
 
 #endif //SHIFT_UTILS_POINTERS_H_ 1

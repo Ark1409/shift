@@ -4,6 +4,7 @@
 #include <variant>
 #include <type_traits>
 #include <concepts>
+#include <functional>
 
 #include "utils/type_traits.h"
 
@@ -119,13 +120,13 @@ namespace shift::utils {
                     }
                 },
                 [&](variant_cast_all auto& value) {
-                    return variant_type{ value };
+                    return variant_type{value};
                 },
                 [&](variant_cast_pointer auto& value) {
                     return variant_type{
                         caster.template operator()<std::variant_alternative_t<
                             variant_index_v<std::remove_cvref_t<decltype(value)>, std::remove_cvref_t<decltype(v)>>,
-                            variant_type>>(value) };
+                            variant_type>>(value)};
                 }
             }, std::forward<OldVariantT>(v));
         }
@@ -156,6 +157,124 @@ namespace shift::utils {
 
     template<typename NewVariantT, typename... OldTypes> requires (detail::castable_variant<NewVariantT, std::variant<OldTypes...>>)
     auto variant_static_cast(const std::variant<OldTypes ...>&& v) = delete;
+
+    namespace detail {
+        template<typename VariantT, typename... Types>
+        struct variant_prepend_type_helper;
+
+        template<typename... VariantTypes, typename... Types>
+        struct variant_prepend_type_helper<std::variant<VariantTypes...>, Types...> {
+            using type = std::variant<Types..., VariantTypes...>;
+        };
+    }
+
+    template<typename VariantT, typename... Types>
+    using variant_prepend_type_t = typename detail::variant_prepend_type_helper<std::decay_t<VariantT>, Types...>::type;
+
+    template<typename VisitorT, typename BaseT>
+    concept visitor_for = std::invocable<VisitorT, BaseT&>;
+
+    template<typename VisitorT>
+    struct visit_helper_base {
+        using result_type = void;
+
+        virtual result_type visit(VisitorT&) = 0;
+        virtual result_type visit(VisitorT&) const = 0;
+
+    protected:
+        constexpr visit_helper_base() noexcept = default;
+        constexpr visit_helper_base(const visit_helper_base&) noexcept = default;
+        constexpr visit_helper_base& operator=(const visit_helper_base&) noexcept = default;
+    };
+
+    template<typename Clazz, typename VisitorT> requires visitor_for<VisitorT, Clazz>
+    struct visit_helper : virtual visit_helper_base<VisitorT> {
+        using result_type = typename visit_helper_base<VisitorT>::result_type;
+
+        result_type visit(VisitorT& v) override {
+            return v(*static_cast<Clazz*>(this));
+        }
+
+        result_type visit(VisitorT& v) const override {
+            return v(*static_cast<const Clazz*>(this));
+        }
+
+    protected:
+        constexpr visit_helper() noexcept = default;
+        constexpr visit_helper(const visit_helper&) noexcept = default;
+        constexpr visit_helper& operator=(const visit_helper&) noexcept = default;
+    };
+
+    template<typename... Types>
+    class type_visitor;
+
+    template<typename T>
+    class type_visitor<T> {
+    public:
+        type_visitor() = default;
+
+        template<std::invocable<T&> Func>
+        explicit type_visitor(Func&& f) : m_func(std::forward<Func>(f)) {}
+
+        template<std::invocable<T&> Func>
+        type_visitor& operator=(Func&& f) {
+            m_func = std::forward<Func>(f);
+            return *this;
+        }
+
+        void operator()(T& t) const { if (m_func) { return m_func(t); }}
+
+    private:
+        std::function<void(T&)> m_func;
+    };
+
+    template<typename... Types>
+    class type_visitor : public type_visitor<Types> ... {
+    public:
+        using type_visitor<Types>::type_visitor...;
+        using type_visitor<Types>::operator()...;
+        using type_visitor<Types>::operator=...;
+
+        type_visitor() = default;
+
+        template<typename... Funcs>
+        explicit type_visitor(Funcs&& ... funcs) {
+            ((*this = std::forward<Funcs>(funcs)), ...);
+        }
+
+        template<typename Func>
+        void set_all(Func&& func) {
+            (type_visitor<Types>::operator=(set_all_impl<Func, Types>{func}), ...);
+        }
+
+    private:
+        template<typename F, typename ArgT>
+        struct set_all_impl {
+            F f;
+
+            auto operator()(ArgT& arg) { return f.template operator()<ArgT>(arg); }
+        };
+    };
+
+
+    template<typename T, visitor_for<T> VisitorT>
+    struct visit_dispatcher {
+        VisitorT visitor{};
+        void (T::* visit_func)(VisitorT&){nullptr};
+
+        explicit visit_dispatcher(const VisitorT& visitor) : visitor(visitor), visit_func(&T::visit) {}
+
+        explicit visit_dispatcher(const VisitorT& visitor, void (T::* visit_func)(VisitorT&)) : visitor(visitor), visit_func(visit_func) {}
+
+        explicit visit_dispatcher(VisitorT&& visitor) : visitor(std::move(visitor)), visit_func(&T::visit) {}
+
+        explicit visit_dispatcher(VisitorT&& visitor, void (T::* visit_func)(VisitorT&)) :
+            visitor(std::move(visitor)), visit_func(visit_func) {}
+
+        void operator()(T& t) {
+            (t.*visit_func)(visitor);
+        }
+    };
 }
 
 

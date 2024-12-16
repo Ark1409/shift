@@ -10,6 +10,7 @@ namespace shift::compiler::parsing {
     struct parser_type;
 
     struct shift_expression;
+    struct literal_expression;
     struct unary_expression;
     struct binary_expression;
     struct cp_expression;
@@ -20,6 +21,7 @@ namespace shift::compiler::parsing {
     struct function_call_expression;
     struct new_expression;
     struct del_expression;
+    struct comma_expression;
     struct dotted_expression;
 
     struct parser_variable;

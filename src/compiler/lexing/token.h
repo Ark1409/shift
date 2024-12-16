@@ -112,7 +112,7 @@ namespace shift::compiler::lexing {
     public:
         constexpr token() noexcept = default;
 
-        inline token(const std::string& str, type type, file_position index) noexcept;
+        constexpr token(const std::string& str, type type, file_position index) noexcept;
 
         constexpr token(std::string_view str, type type, file_position index) noexcept;
 
@@ -296,6 +296,8 @@ namespace shift::compiler::lexing {
             }
         }
 
+        constexpr bool is_infix_operator() const noexcept { return is_binary_operator(); }
+
         constexpr bool is_number() const noexcept {
             switch (this->m_type) {
                 case type::INTEGER_LITERAL:
@@ -423,36 +425,36 @@ namespace shift::compiler::lexing {
     constexpr token::token(const std::string_view str, const type type, const file_position index) noexcept :
         m_data(str), m_type(type), m_index(index) {}
 
-    inline token::token(const std::string& str, const type type, const file_position index) noexcept :
+    constexpr token::token(const std::string& str, const type type, const file_position index) noexcept :
         m_data(str.c_str(), str.length()), m_type(type), m_index(index) {}
 
     constexpr token token::eof = token(std::string_view{}, token::type::EOF_TOKEN, file_position{});
 
-    static constexpr bool is_operator(const token::type type) noexcept {
+    constexpr bool is_operator(const token::type type) noexcept {
         return lexing::token(std::string_view{}, type, lexing::file_position{}).is_overloadable_operator();
     }
 
-    static constexpr bool is_binary_operator(const token::type type) noexcept {
+    constexpr bool is_binary_operator(const token::type type) noexcept {
         return lexing::token(std::string_view{}, type, lexing::file_position{}).is_binary_operator();
     }
 
-    static constexpr bool is_unary_operator(const token::type type) noexcept {
+    constexpr bool is_unary_operator(const token::type type) noexcept {
         return lexing::token(std::string_view{}, type, lexing::file_position{}).is_unary_operator();
     }
 
-    static constexpr bool is_prefix_operator(const token::type type) noexcept {
+    constexpr bool is_prefix_operator(const token::type type) noexcept {
         return lexing::token(std::string_view{}, type, lexing::file_position{}).is_prefix_operator();
     }
 
-    static constexpr bool is_suffix_operator(const token::type type) noexcept {
+    constexpr bool is_suffix_operator(const token::type type) noexcept {
         return lexing::token(std::string_view{}, type, lexing::file_position{}).is_suffix_operator();
     }
 
-    static constexpr bool is_strictly_prefix_operator(const token::type type) noexcept {
+    constexpr bool is_strictly_prefix_operator(const token::type type) noexcept {
         return lexing::token(std::string_view{}, type, lexing::file_position{}).is_strictly_prefix_operator();
     }
 
-    static constexpr bool is_strictly_suffix_operator(const token::type type) noexcept {
+    constexpr bool is_strictly_suffix_operator(const token::type type) noexcept {
         return lexing::token(std::string_view{}, type, lexing::file_position{}).is_strictly_suffix_operator();
     }
 

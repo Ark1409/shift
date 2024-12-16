@@ -285,64 +285,51 @@ namespace shift::compiler::parsing {
 
             if (current.is_identifier()) {
                 // It must be either a variable declaration or a function declaration
-                shift_type type{};
+                parser_type type{};
 
                 if (current.is_void()) {
-                    type.name.name.begin = this->m_lexer->get_index();
-                    type.name.name.end = type.name.name.begin + 1;
-                    this->m_lexer->next_token();
+                    auto void_beg = state.position.get_position();
+                    type.name.source = {void_beg, std::next(void_beg)};
+                    ++state.position;
                 } else {
-                    if (std::optional<shift_type> parsed_type = m_parse_type("variable or function type")) {
-                        if (parsed_type->name.name.empty()) {
-                            if (parsed_type->name.name.begin != std::vector<compiler::token>::const_iterator{}) {
-                                if (!parsed_type->name.name.begin->is_eof_token()) {
-                                    this->token_error(*parsed_type->name.name.begin, "expected variable or function type");
-                                } else {
-                                    this->token_error(state.position.reverse_peek_token(),
-                                        "expected variable or function type before end of file");
-                                    return;
-                                }
+                    auto type_begin = state.position.get_position();
+                    type = parse_type(state, "variable or function type");
+                    if (!type.panic) {
+                        if (type.name.empty()) {
+                            const auto& tok = *type_begin;
+                            if (!tok.is_eof_token()) {
+                                this->token_error(tok, "expected type declaration for variable or function");
                             } else {
-                                const auto& tok = this->m_lexer->current_token();
-                                if (!tok.is_eof_token()) {
-                                    this->token_error(tok, "expected variable or function type");
-                                } else {
-                                    this->token_error(state.position.reverse_peek_token(),
-                                        "expected variable or function type before end of file");
-                                    return;
-                                }
+                                this->token_error(state.position.reverse_peek_token(),
+                                    "expected type declaration for variable or function before end of file");
+                                return;
                             }
                         }
-                        type = std::move(*parsed_type);
                     }
                 }
 
-                for (const token* tok = &this->m_lexer->current_token(); tok->is_modifier(); tok = &this->m_lexer->next_token()) {
-                    this->m_parse_access_specifier();
-                }
+                this->consume_modifiers(state);
 
-                if (this->m_lexer->current_token().is_operator()
-                    || this->m_lexer->peek_token().is_left_bracket()
-                    || (!type.name.name.empty() && type.name.name.begin->is_void())) {
-                    m_parse_function_header(parent_class, type);
+                if (state.position.current_token().is_operator() || state.position.peek_token().is_left_bracket()
+                    || (!type.name.empty() && type.name.front().is_void())) {
+                    consume_function(state, std::move(type));
                     continue;
                 }
                 {
-                    if (this->m_lexer->current_token().is_eof_token()) {
-                        if (!type.name.name.empty()) {
+                    if (state.position->is_eof_token()) {
+                        if (!type.name.empty() && !type.panic) {
                             this->token_error(state.position.reverse_peek_token(),
-                                "expected variable or function name after type declaration '" + type.get_printable_fqn() +
-                                "' before end of file");
+                                fmt::format("expected variable or function name after type declaration '{}' before end of file",
+                                    type.to_string()));
                             return;
                         } else {
                             this->token_error(state.position.reverse_peek_token(),
                                 "expected variable or function name before end of file");
                             return;
                         }
-
                     }
 
-                    const token& after_name = this->m_lexer->peek_token();
+                    const token& after_name = state.position.peek_token();
                     if (after_name.is_eof_token()) {
                         this->token_error(state.position.reverse_peek_token(),
                             "expected either ';' or '=' for variable declaration before end of file");
@@ -351,22 +338,23 @@ namespace shift::compiler::parsing {
 
                     if (after_name.is_binary_operator() || after_name.is_unary_operator() || after_name.is_equals() ||
                         after_name.is_semicolon()) {
-                        if (auto v = m_parse_variable_header(parent_class, nullptr, type)) {
-                            if (parent_class) {
-                                parent_class->variables.push_back(std::move(*v));
+                        auto v = parse_variable_header(state, std::move(type));
+                        if (v.name) {
+                            if (state.clazz) {
+                                state.clazz->fields.push_back(std::move(v));
                             } else {
-                                this->m_variables.push_back(std::move(*v));
+                                this->m_variables.push_back(std::move(v));
                             }
                         }
                         continue;
                     }
 
-                    if (!this->m_lexer->current_token().is_eof_token()) {
-                        this->token_error(this->m_lexer->current_token(), "expected variable or function declaration");
-                        this->m_skip_until(token::type::SEMICOLON);
+                    if (!state.position.is_eof()) {
+                        this->token_error(*state.position, "expected variable or function declaration after type");
+                        state.position.skip_until(token::type::SEMICOLON);
                     } else {
                         this->token_error(state.position.reverse_peek_token(),
-                            "expected variable or function declaration before end of file");
+                            "expected variable or function declaration after type before end of file");
                         return;
                     }
                 }
@@ -569,13 +557,6 @@ namespace shift::compiler::parsing {
                 }
             }
 
-            func->mods = (state.mods & func_allowed_mods);
-
-            if (func->mods != state.mods) {
-                auto diff = state.mods & ~func->mods;
-                const token& bad_mod = *state.mods.find_any(diff);
-            }
-
             for (const auto& [tok, mod] : state.mods.sorted()) {
                 if ((mod & func_allowed_mods) != 0x0) {
                     if ((mod == shift_mods::STATIC) && func->name.front().is_operator()) {
@@ -665,15 +646,14 @@ namespace shift::compiler::parsing {
                     }
 
                     const token& after_param_name = *++state.position;
-                    if (!after_param_name.is_comma()) {
-                        if (!after_param_name.is_right_bracket()) {
-                            if (!after_param_name.is_eof_token()) {
-                                this->token_error(after_param_name, "expected ',' or ')' in function parameter list");
-                            } else {
-                                this->token_error(state.position.reverse_peek_token(),
-                                    "expected ',' or ')' in function parameter list before end of file");
-                            }
-                        } else break;
+                    if (after_param_name.is_right_bracket()) { break; }
+                    else if (!after_param_name.is_comma()) {
+                        if (!after_param_name.is_eof_token()) {
+                            this->token_error(after_param_name, "expected ',' or ')' in function parameter list");
+                        } else {
+                            this->token_error(state.position.reverse_peek_token(),
+                                "expected ',' or ')' in function parameter list before end of file");
+                        }
                     }
                 }
             }
@@ -785,6 +765,8 @@ namespace shift::compiler::parsing {
             } else {
                 this->token_error(state.position.reverse_peek_token(),
                     "expected identifier for variable name before end of file");
+                variable.panic = true;
+                return variable;
             }
         }
 
@@ -834,13 +816,10 @@ namespace shift::compiler::parsing {
 
             // variable definition
             const token& first_expr_token = *++state.position; // Move onto the expression
-            variable.value = parse_expression(state);
-
-            std::visit([&](const shift_expression& expr) {
-                if (expr.source.empty()) {
-                    this->token_error(first_expr_token, "expected valid expression for variable assignment value");
-                }
-            }, variable.value);
+            parser_variable* const old_var = state.variable;
+            state.variable = &variable;
+            variable.value = expect_expression(state, "variable assignment value");
+            state.variable = old_var;
         } else if (after_name.is_semicolon()) {
             // do nothing
         } else {
@@ -1168,6 +1147,10 @@ namespace shift::compiler::parsing {
                 marker<lexing::token_stream> pos_marker{state.position};
                 std::optional<marker<error_handler>> err_marker{};
                 if (this->m_error_handler) { err_marker.emplace(*this->m_error_handler); }
+
+                pos_marker.mark();
+                if (err_marker) { err_marker->mark(); }
+
                 auto token_pos = state.position.get_position();
                 auto type = parse_type(state, "type declaration");
 
@@ -1181,7 +1164,7 @@ namespace shift::compiler::parsing {
                     variable_def_statement variable_def;
                     variable_def.variable = parse_variable_header(state, std::move(type));
                     std::visit([&](const shift_expression& expr) {
-                        if (variable_def.variable.panic) {
+                        if (expr.panic || variable_def.panic || expr.source.empty()) {
                             variable_def.source.source = {token_pos, state.position.get_position()};
                         } else {
                             variable_def.source.source = {token_pos, expr.source.end()};
@@ -1227,7 +1210,7 @@ namespace shift::compiler::parsing {
                 std::visit([&](const shift_expression& expr) {
                     expr_statement.source.source = expr.source;
                 }, expr_statement.expr);
-                block.statements.emplace_back(std::move(expr_statement));
+                if (!expr_statement.source.empty()) { block.statements.emplace_back(std::move(expr_statement)); }
             }
         }
 
@@ -1522,7 +1505,7 @@ namespace shift::compiler::parsing {
 
         if (last_type == token::type::LEFT_SQUARE_BRACKET) {
             const token& last = state.position.reverse_peek_token();
-            this->token_error(last, "unexpected '[' inside " + std::string(name_type));
+            this->token_error(last, fmt::format("unexpected '[' inside {}", name_type));
             type.panic = true;
         }
 
@@ -1545,28 +1528,122 @@ namespace shift::compiler::parsing {
         return expr;
     }
 
+    template<typename Func>
+    auto expression_variant_visit(Func&& func, const std::variant<expression_types*, shift_expression*>& var) {
+        return std::visit(utils::visit_overloader{
+            [&](expression_types* types) {
+                return std::visit([&](auto& expr) {
+                    return func(expr);
+                }, *types);
+            },
+            [&](shift_expression* expr) {
+                return expression_visit(std::forward<Func>(func), *expr);
+            }
+        }, var);
+    }
+
+    template<typename Func>
+    auto expression_visit(Func&& func, shift_expression& expr) {
+        using invoke_res = std::invoke_result_t<Func, shift_expression&>;
+
+        utils::visit_dispatcher<shift_expression, expression_visitor> d{{}};
+
+        if constexpr (std::same_as<invoke_res, void>) {
+            d.visitor.set_all([&](auto& e) { func(e); });
+            d(expr);
+            return;
+        } else {
+            std::optional<invoke_res> res;
+            d.visitor.set_all([&](auto& e) { res.emplace(func(e)); });
+            d(expr);
+            return *res;
+        }
+    }
+
     expression_types parser::parse_expression(parse_state& state, const utils::predicate<std::vector<token>::const_iterator>& end_func) {
-        shift_expression ret_expr;
-        shift_expression* expr = &ret_expr;
-#ifdef SHIFT_DEBUG
-        static size_t call_count = 0;
+        expression_types ret_expr;
+        std::variant<expression_types*, shift_expression*> current_expr = &ret_expr;
 
-        if (call_count > 30) { /*__debugbreak();*/ }
-
-        call_count++;
-#endif
-        expr->begin = this->m_lexer->get_index();
-        for (const token* _token = &this->m_lexer->current_token();
-             !_token->is_eof_token() && !end_func(this->m_lexer->get_index()); _token = &this->m_lexer->next_token()) {
-            const bool is_null_expr = expr->type == token::type::NULL_TOKEN;
-            const bool is_suffix_expr = expr->parent && is_suffix_operator(expr->parent->type)
-                                        && expr->parent->has_left() && expr->parent->get_left()->type != token::type::NULL_TOKEN;
+        auto ret_expr_begin = state.position.get_position();
+        auto expr_begin = ret_expr_begin;
+        for (const token* _token = &*state.position; !_token->is_eof_token() && !end_func(state.position.get_position());
+             _token = &*++state.position) {
+            const bool is_term_taken = expression_variant_visit( utils::visit_overloader{
+                    [](const shift_expression& expr) {
+                        return !expr.source.empty();
+                    },
+                    [](const binary_expression& expr) {
+                        return (bool)expr.right;
+                    },
+                    [](const unary_expression& expr) {
+                        return expr.side == unary_expression::suffix || expr.sub_expr;
+                    },
+                    [](auto&) { return true; }
+                }, current_expr);
+            const bool is_null_expr = expression_variant_visit(utils::visit_overloader{
+                [](const shift_expression& expr) {
+                    return expr.source.empty();
+                },
+                [](auto&) { return false; }
+            }, current_expr);
+            const bool is_suffix_expr = expression_variant_visit([](auto& expr) {
+                if (!expr.parent) return false;
+                return expression_visit(utils::visit_overloader{
+                    [](unary_expression& ue) {
+                        return lexing::is_suffix_operator(ue.op) && ue.side == unary_expression::suffix
+                               && ue.sub_expr && !ue.sub_expr->source.empty();
+                    },
+                    [](auto&) { return false; }
+                }, *expr.parent);
+            }, current_expr);
 
             if (_token->is_string_literal()) {
-                if (is_null_expr) {
-                    expr->type = token::type::STRING_LITERAL;
-                    expr->begin = this->m_lexer->get_index();
-                    expr->end = expr->begin + 1;
+                if (!is_term_taken) {
+                    literal_expression string_lit{};
+                    string_lit.source.source = {state.position.get_position(), std::next(state.position.get_position())};
+                    string_lit.type = token::type::STRING_LITERAL;
+
+                    expression_variant_visit(utils::visit_overloader {
+                        [&](binary_expression& be) {
+                            be.right = make_expression<literal_expression>(std::move(string_lit));
+                        },
+                        [&](unary_expression& ue) {
+                            ue.sub_expr = make_expression<literal_expression>(std::move(string_lit));
+                        },
+                        [&](auto&) {
+                            SHIFT_ASSERT(std::holds_alternative<expression_types*>(current_expr));
+                            *std::get<expression_types*>(current_expr) = std::move(string_lit);
+                        }
+                    }, current_expr);
+
+                    std::visit(utils::visit_overloader {
+                        [&](expression_types* exprs) {
+                            return std::visit(utils::visit_overloader {
+                                    [&](binary_expression& be) {
+                                        be.right = make_expression<literal_expression>(std::move(string_lit));
+                                    },
+                                    [&](unary_expression& ue) {
+                                        ue.sub_expr = make_expression<literal_expression>(std::move(string_lit));
+                                    },
+                                    [&](auto&) {
+                                        *exprs = std::move(string_lit);
+                                    }
+                                }, *exprs);
+                        },
+                        [&](shift_expression* exprs) {
+                            return expression_visit(utils::visit_overloader{
+                                    [&](binary_expression& be) {
+                                        be.right = make_expression<literal_expression>(std::move(string_lit));
+                                    },
+                                    [&](unary_expression& ue) {
+                                        ue.sub_expr = make_expression<literal_expression>(std::move(string_lit));
+                                    },
+                                    [](auto&) {
+                                        SHIFT_ASSERT(false);
+                                    }
+                            }, *exprs);
+                        }
+                    }, current_expr);
 
                     if (is_suffix_expr) {
                         this->token_error(*_token, "unexpected string literal following postfix operator inside expression");
@@ -2139,6 +2216,7 @@ namespace shift::compiler::parsing {
 
             break;
         }
+        auto ret_expr_end = state.position.get_position();
         if (state.position.reverse_peek_token().is_comma()) {
             // Error if we ended in a comma
             this->token_error(state.position.reverse_peek_token(), "misplaced ',' inside expression");
@@ -2153,9 +2231,9 @@ namespace shift::compiler::parsing {
             }
         }
 
-#ifdef SHIFT_DEBUG
-        call_count--;
-#endif
+        std::visit([&](shift_expression& expr) {
+            expr.source.source = {ret_expr_begin, ret_expr_end};
+        }, ret_expr);
 
         return ret_expr;
     }
